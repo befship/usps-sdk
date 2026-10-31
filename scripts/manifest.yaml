@@ -1,0 +1,42 @@
+# USPS REST v3 OpenAPI manifest (multi-API, UPS-style).
+# Official YAML is portal-gated — never committed.
+# Place portal downloads in SPEC_DIR, or seed .cache/specs via SPEC_LOCAL_DIR.
+#
+#   make generate
+#   SPEC_DIR=/path/to/portal-yamls make generate
+#   SPEC_LOCAL_DIR=/path/to/focused-yamls make generate
+
+server_tem: https://apis-tem.usps.com
+server_prod: https://apis.usps.com
+
+apis:
+  - id: addresses
+    package: addresses
+    file: addresses.openapi.yml
+    portal_globs:
+      - "*[Aa]ddress*.yaml"
+      - "*[Aa]ddress*.yml"
+      - "*[Aa]ddress*.json"
+
+  - id: labels
+    package: labels
+    file: labels.openapi.yml
+    portal_globs:
+      - "*[Ll]abel*.yaml"
+      - "*[Ll]abel*.yml"
+      - "*Domestic*Label*.yaml"
+
+  - id: prices
+    package: prices
+    file: prices.openapi.yml
+    portal_globs:
+      - "*[Pp]rice*.yaml"
+      - "*[Pp]rice*.yml"
+      - "*Domestic*Price*.yaml"
+
+  - id: tracking
+    package: tracking
+    file: tracking.openapi.yml
+    portal_globs:
+      - "*[Tt]rack*.yaml"
+      - "*[Tt]rack*.yml"

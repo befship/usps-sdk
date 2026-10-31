@@ -1,0 +1,20 @@
+# USPS official OpenAPI — never commit (portal download / local seed at generate time)
+.cache/
+specs/
+*.yaml.bak
+*.yml.bak
+openapi.local.yml
+openapi.local.yaml
+
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.exe
+bin/
+dist/
+coverage.out
+coverage.html
+__pycache__/
+*.pyc
+.venv/
