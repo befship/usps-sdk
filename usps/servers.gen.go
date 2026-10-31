@@ -4,13 +4,27 @@ package usps
 type apiServer struct{ TEM, Prod string }
 
 var apiServers = map[string]apiServer{
-	"addresses": {TEM: "https://apis-tem.usps.com", Prod: "https://apis.usps.com"},
-	"labels": {TEM: "https://apis-tem.usps.com", Prod: "https://apis.usps.com"},
-	"prices": {TEM: "https://apis-tem.usps.com", Prod: "https://apis.usps.com"},
-	"tracking": {TEM: "https://apis-tem.usps.com", Prod: "https://apis.usps.com"},
+	"addresses": {TEM: "https://apis-tem.usps.com/addresses/v3", Prod: "https://apis.usps.com/addresses/v3"},
+	"labels": {TEM: "https://apis-tem.usps.com/labels/v3", Prod: "https://apis.usps.com/labels/v3"},
+	"prices": {TEM: "https://apis-tem.usps.com/prices/v3", Prod: "https://apis.usps.com/prices/v3"},
+	"tracking": {TEM: "https://apis-tem.usps.com/tracking/v3r2", Prod: "https://apis.usps.com/tracking/v3r2"},
+	"oauth2": {TEM: "https://apis-tem.usps.com/oauth2/v3", Prod: "https://apis.usps.com/oauth2/v3"},
+	"payments": {TEM: "https://apis-tem.usps.com/payments/v3", Prod: "https://apis.usps.com/payments/v3"},
+	"shippingoptions": {TEM: "https://apis-tem.usps.com/shipments/v3", Prod: "https://apis.usps.com/shipments/v3"},
+	"internationallabels": {TEM: "https://apis-tem.usps.com/international-labels/v3", Prod: "https://apis.usps.com/international-labels/v3"},
+	"internationalprices": {TEM: "https://apis-tem.usps.com/international-prices/v3", Prod: "https://apis.usps.com/international-prices/v3"},
+	"locations": {TEM: "https://apis-tem.usps.com/locations/v3", Prod: "https://apis.usps.com/locations/v3"},
+	"servicestandards": {TEM: "https://apis-tem.usps.com/service-standards/v3", Prod: "https://apis.usps.com/service-standards/v3"},
+	"servicestandardsfiles": {TEM: "https://apis-tem.usps.com/service-standards-files/v3", Prod: "https://apis.usps.com/service-standards-files/v3"},
+	"shipmenttracking": {TEM: "https://apis-tem.usps.com/logistics/v3", Prod: "https://apis.usps.com/logistics/v3"},
+	"carrierpickup": {TEM: "https://apis-tem.usps.com/pickup/v3", Prod: "https://apis.usps.com/pickup/v3"},
+	"containers": {TEM: "https://apis-tem.usps.com/containers/v3", Prod: "https://apis.usps.com/containers/v3"},
+	"appointments": {TEM: "https://apis-tem.usps.com/fast-appointments/v3", Prod: "https://apis.usps.com/fast-appointments/v3"},
+	"adjustments": {TEM: "https://apis-tem.usps.com/adjustments/v3", Prod: "https://apis.usps.com/adjustments/v3"},
+	"shipenrollment": {TEM: "https://apis-tem.usps.com/ship-enrollment/v3", Prod: "https://apis.usps.com/ship-enrollment/v3"},
 }
 
-// ServerURL returns the USPS base URL for an API package and environment.
+// ServerURL returns the USPS API base URL for a package and environment.
 // env is "production" or anything else (tem/sandbox).
 func ServerURL(env, apiPackage string) string {
 	s, ok := apiServers[apiPackage]

@@ -9,7 +9,7 @@ This project is **not** affiliated with, endorsed by, or sponsored by the United
 USPS REST APIs v3 are subject to the [USPS Developer Portal](https://developer.usps.com/) terms and applicable agreements.
 
 - Official OpenAPI specifications remain the property of USPS.
-- **Do not** redistribute USPS official OpenAPI YAML as the primary content of a public repository. This project accepts portal downloads or local seeds at generate time and does **not** commit them.
+- Files under `specs/` are copies of portal downloads (or focused extracts) used only to generate clients. Redistribute and use them in accordance with USPS terms.
 - Use of this SDK requires your own USPS developer credentials.
 - Users must comply with official API terms of service when using this SDK.
 

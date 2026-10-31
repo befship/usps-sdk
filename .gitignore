@@ -1,6 +1,6 @@
-# USPS official OpenAPI — never commit (portal download / local seed at generate time)
+# Local download / preprocess cache (committed source of truth is specs/)
 .cache/
-specs/
+
 *.yaml.bak
 *.yml.bak
 openapi.local.yml

@@ -7,142 +7,11788 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/oapi-codegen/runtime"
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
 const (
-	BearerAuthScopes = "bearerAuth.Scopes"
+	OAuthScopes = "OAuth.Scopes"
 )
 
-// CreateLabelRequest defines model for CreateLabelRequest.
-type CreateLabelRequest struct {
-	CustomerReference  *[]CustomerReference `json:"customerReference,omitempty"`
-	FromAddress        LabelAddress         `json:"fromAddress"`
-	ImageInfo          ImageInfo            `json:"imageInfo"`
-	PackageDescription PackageDescription   `json:"packageDescription"`
-	ToAddress          LabelAddress         `json:"toAddress"`
-}
+// Defines values for BaseDomesticPackageDescriptionDestinationEntryFacilityType.
+const (
+	BaseDomesticPackageDescriptionDestinationEntryFacilityTypeDESTINATIONDELIVERYUNIT                         BaseDomesticPackageDescriptionDestinationEntryFacilityType = "DESTINATION_DELIVERY_UNIT"
+	BaseDomesticPackageDescriptionDestinationEntryFacilityTypeDESTINATIONNETWORKDISTRIBUTIONCENTER            BaseDomesticPackageDescriptionDestinationEntryFacilityType = "DESTINATION_NETWORK_DISTRIBUTION_CENTER"
+	BaseDomesticPackageDescriptionDestinationEntryFacilityTypeDESTINATIONREGIONALPROCESSINGDISTRIBUTIONCENTER BaseDomesticPackageDescriptionDestinationEntryFacilityType = "DESTINATION_REGIONAL_PROCESSING_DISTRIBUTION_CENTER"
+	BaseDomesticPackageDescriptionDestinationEntryFacilityTypeDESTINATIONSECTIONALCENTERFACILITY              BaseDomesticPackageDescriptionDestinationEntryFacilityType = "DESTINATION_SECTIONAL_CENTER_FACILITY"
+	BaseDomesticPackageDescriptionDestinationEntryFacilityTypeDESTINATIONSERVICEHUB                           BaseDomesticPackageDescriptionDestinationEntryFacilityType = "DESTINATION_SERVICE_HUB"
+	BaseDomesticPackageDescriptionDestinationEntryFacilityTypeNONE                                            BaseDomesticPackageDescriptionDestinationEntryFacilityType = "NONE"
+)
 
-// CustomerReference defines model for CustomerReference.
-type CustomerReference struct {
-	ReferenceNumber *string `json:"referenceNumber,omitempty"`
-}
+// Defines values for BaseDomesticPackageDescriptionDimensionsUOM.
+const (
+	BaseDomesticPackageDescriptionDimensionsUOMIn BaseDomesticPackageDescriptionDimensionsUOM = "in"
+)
 
-// Error defines model for Error.
-type Error map[string]interface{}
+// Defines values for BaseDomesticPackageDescriptionMailClass.
+const (
+	BaseDomesticPackageDescriptionMailClassBOUNDPRINTEDMATTER       BaseDomesticPackageDescriptionMailClass = "BOUND_PRINTED_MATTER"
+	BaseDomesticPackageDescriptionMailClassFIRSTCLASSPACKAGESERVICE BaseDomesticPackageDescriptionMailClass = "FIRST-CLASS_PACKAGE_SERVICE"
+	BaseDomesticPackageDescriptionMailClassLIBRARYMAIL              BaseDomesticPackageDescriptionMailClass = "LIBRARY_MAIL"
+	BaseDomesticPackageDescriptionMailClassMARKETINGMAILPARCELS     BaseDomesticPackageDescriptionMailClass = "MARKETING_MAIL_PARCELS"
+	BaseDomesticPackageDescriptionMailClassMEDIAMAIL                BaseDomesticPackageDescriptionMailClass = "MEDIA_MAIL"
+	BaseDomesticPackageDescriptionMailClassPARCELSELECT             BaseDomesticPackageDescriptionMailClass = "PARCEL_SELECT"
+	BaseDomesticPackageDescriptionMailClassPARCELSELECTLIGHTWEIGHT  BaseDomesticPackageDescriptionMailClass = "PARCEL_SELECT_LIGHTWEIGHT"
+	BaseDomesticPackageDescriptionMailClassPRIORITYMAIL             BaseDomesticPackageDescriptionMailClass = "PRIORITY_MAIL"
+	BaseDomesticPackageDescriptionMailClassPRIORITYMAILEXPRESS      BaseDomesticPackageDescriptionMailClass = "PRIORITY_MAIL_EXPRESS"
+	BaseDomesticPackageDescriptionMailClassUSPSCONNECTLOCAL         BaseDomesticPackageDescriptionMailClass = "USPS_CONNECT_LOCAL"
+	BaseDomesticPackageDescriptionMailClassUSPSCONNECTMAIL          BaseDomesticPackageDescriptionMailClass = "USPS_CONNECT_MAIL"
+	BaseDomesticPackageDescriptionMailClassUSPSCONNECTREGIONAL      BaseDomesticPackageDescriptionMailClass = "USPS_CONNECT_REGIONAL"
+	BaseDomesticPackageDescriptionMailClassUSPSGROUNDADVANTAGE      BaseDomesticPackageDescriptionMailClass = "USPS_GROUND_ADVANTAGE"
+)
 
-// ImageInfo defines model for ImageInfo.
-type ImageInfo struct {
-	ImageType *string `json:"imageType,omitempty"`
-	LabelType *string `json:"labelType,omitempty"`
-}
+// Defines values for BaseDomesticPackageDescriptionPackageOptionsAncillaryServiceEndorsements.
+const (
+	BaseDomesticPackageDescriptionPackageOptionsAncillaryServiceEndorsementsADDRESSSERVICEREQUESTED    BaseDomesticPackageDescriptionPackageOptionsAncillaryServiceEndorsements = "ADDRESS_SERVICE_REQUESTED"
+	BaseDomesticPackageDescriptionPackageOptionsAncillaryServiceEndorsementsCHANGESERVICEREQUESTED     BaseDomesticPackageDescriptionPackageOptionsAncillaryServiceEndorsements = "CHANGE_SERVICE_REQUESTED"
+	BaseDomesticPackageDescriptionPackageOptionsAncillaryServiceEndorsementsELECTRONICSERVICEREQUESTED BaseDomesticPackageDescriptionPackageOptionsAncillaryServiceEndorsements = "ELECTRONIC_SERVICE_REQUESTED"
+	BaseDomesticPackageDescriptionPackageOptionsAncillaryServiceEndorsementsFORWARDINGSERVICEREQUESTED BaseDomesticPackageDescriptionPackageOptionsAncillaryServiceEndorsements = "FORWARDING_SERVICE_REQUESTED"
+	BaseDomesticPackageDescriptionPackageOptionsAncillaryServiceEndorsementsRETURNSERVICEREQUESTED     BaseDomesticPackageDescriptionPackageOptionsAncillaryServiceEndorsements = "RETURN_SERVICE_REQUESTED"
+	BaseDomesticPackageDescriptionPackageOptionsAncillaryServiceEndorsementsTEMPRETURNSERVICEREQUESTED BaseDomesticPackageDescriptionPackageOptionsAncillaryServiceEndorsements = "TEMP_RETURN_SERVICE_REQUESTED"
+)
 
-// LabelAddress defines model for LabelAddress.
-type LabelAddress struct {
-	ZIPCode          *string `json:"ZIPCode,omitempty"`
-	City             *string `json:"city,omitempty"`
-	Email            *string `json:"email,omitempty"`
-	Firm             *string `json:"firm,omitempty"`
-	FirstName        *string `json:"firstName,omitempty"`
-	LastName         *string `json:"lastName,omitempty"`
-	Phone            *string `json:"phone,omitempty"`
+// Defines values for BaseDomesticPackageDescriptionPackageOptionsContentType.
+const (
+	BaseDomesticPackageDescriptionPackageOptionsContentTypeADULTBIRDS      BaseDomesticPackageDescriptionPackageOptionsContentType = "ADULT_BIRDS"
+	BaseDomesticPackageDescriptionPackageOptionsContentTypeBEES            BaseDomesticPackageDescriptionPackageOptionsContentType = "BEES"
+	BaseDomesticPackageDescriptionPackageOptionsContentTypeCREMATEDREMAINS BaseDomesticPackageDescriptionPackageOptionsContentType = "CREMATED_REMAINS"
+	BaseDomesticPackageDescriptionPackageOptionsContentTypeDAYOLDPOULTRY   BaseDomesticPackageDescriptionPackageOptionsContentType = "DAY_OLD_POULTRY"
+	BaseDomesticPackageDescriptionPackageOptionsContentTypeFRUITS          BaseDomesticPackageDescriptionPackageOptionsContentType = "FRUITS"
+	BaseDomesticPackageDescriptionPackageOptionsContentTypeHAZMAT          BaseDomesticPackageDescriptionPackageOptionsContentType = "HAZMAT"
+	BaseDomesticPackageDescriptionPackageOptionsContentTypeLIVEPLANTS      BaseDomesticPackageDescriptionPackageOptionsContentType = "LIVE_PLANTS"
+	BaseDomesticPackageDescriptionPackageOptionsContentTypeMEDICALSUPPLIES BaseDomesticPackageDescriptionPackageOptionsContentType = "MEDICAL_SUPPLIES"
+	BaseDomesticPackageDescriptionPackageOptionsContentTypeOTHERLIVES      BaseDomesticPackageDescriptionPackageOptionsContentType = "OTHER_LIVES"
+	BaseDomesticPackageDescriptionPackageOptionsContentTypePERISHABLE      BaseDomesticPackageDescriptionPackageOptionsContentType = "PERISHABLE"
+	BaseDomesticPackageDescriptionPackageOptionsContentTypePHARMACEUTICALS BaseDomesticPackageDescriptionPackageOptionsContentType = "PHARMACEUTICALS"
+	BaseDomesticPackageDescriptionPackageOptionsContentTypeVEGETABLES      BaseDomesticPackageDescriptionPackageOptionsContentType = "VEGETABLES"
+)
+
+// Defines values for BaseDomesticPackageDescriptionPackageOptionsNonDeliveryOption.
+const (
+	BaseDomesticPackageDescriptionPackageOptionsNonDeliveryOptionABANDON  BaseDomesticPackageDescriptionPackageOptionsNonDeliveryOption = "ABANDON"
+	BaseDomesticPackageDescriptionPackageOptionsNonDeliveryOptionREDIRECT BaseDomesticPackageDescriptionPackageOptionsNonDeliveryOption = "REDIRECT"
+	BaseDomesticPackageDescriptionPackageOptionsNonDeliveryOptionRETURN   BaseDomesticPackageDescriptionPackageOptionsNonDeliveryOption = "RETURN"
+)
+
+// Defines values for BaseDomesticPackageDescriptionProcessingCategory.
+const (
+	BaseDomesticPackageDescriptionProcessingCategoryFLATS         BaseDomesticPackageDescriptionProcessingCategory = "FLATS"
+	BaseDomesticPackageDescriptionProcessingCategoryIRREGULAR     BaseDomesticPackageDescriptionProcessingCategory = "IRREGULAR"
+	BaseDomesticPackageDescriptionProcessingCategoryLETTERS       BaseDomesticPackageDescriptionProcessingCategory = "LETTERS"
+	BaseDomesticPackageDescriptionProcessingCategoryMACHINABLE    BaseDomesticPackageDescriptionProcessingCategory = "MACHINABLE"
+	BaseDomesticPackageDescriptionProcessingCategoryNONMACHINABLE BaseDomesticPackageDescriptionProcessingCategory = "NON_MACHINABLE"
+	BaseDomesticPackageDescriptionProcessingCategoryNONSTANDARD   BaseDomesticPackageDescriptionProcessingCategory = "NONSTANDARD"
+)
+
+// Defines values for BaseDomesticPackageDescriptionShipperVisibilityMethod.
+const (
+	BaseDomesticPackageDescriptionShipperVisibilityMethodMIDINFORMATION    BaseDomesticPackageDescriptionShipperVisibilityMethod = "MID_INFORMATION"
+	BaseDomesticPackageDescriptionShipperVisibilityMethodSENDERINFORMATION BaseDomesticPackageDescriptionShipperVisibilityMethod = "SENDER_INFORMATION"
+)
+
+// Defines values for BaseDomesticPackageDescriptionWeightUOM.
+const (
+	BaseDomesticPackageDescriptionWeightUOMLb BaseDomesticPackageDescriptionWeightUOM = "lb"
+)
+
+// Defines values for BaseReturnsPackageDescriptionDimensionsUOM.
+const (
+	BaseReturnsPackageDescriptionDimensionsUOMIn BaseReturnsPackageDescriptionDimensionsUOM = "in"
+)
+
+// Defines values for BaseReturnsPackageDescriptionMailClass.
+const (
+	BaseReturnsPackageDescriptionMailClassFIRSTCLASSPACKAGERETURNSERVICE   BaseReturnsPackageDescriptionMailClass = "FIRST-CLASS_PACKAGE_RETURN_SERVICE"
+	BaseReturnsPackageDescriptionMailClassGROUNDRETURNSERVICE              BaseReturnsPackageDescriptionMailClass = "GROUND_RETURN_SERVICE"
+	BaseReturnsPackageDescriptionMailClassPRIORITYMAILEXPRESSRETURNSERVICE BaseReturnsPackageDescriptionMailClass = "PRIORITY_MAIL_EXPRESS_RETURN_SERVICE"
+	BaseReturnsPackageDescriptionMailClassPRIORITYMAILRETURNSERVICE        BaseReturnsPackageDescriptionMailClass = "PRIORITY_MAIL_RETURN_SERVICE"
+	BaseReturnsPackageDescriptionMailClassUSPSGROUNDADVANTAGERETURNSERVICE BaseReturnsPackageDescriptionMailClass = "USPS_GROUND_ADVANTAGE_RETURN_SERVICE"
+)
+
+// Defines values for BaseReturnsPackageDescriptionProcessingCategory.
+const (
+	BaseReturnsPackageDescriptionProcessingCategoryFLATS         BaseReturnsPackageDescriptionProcessingCategory = "FLATS"
+	BaseReturnsPackageDescriptionProcessingCategoryIRREGULAR     BaseReturnsPackageDescriptionProcessingCategory = "IRREGULAR"
+	BaseReturnsPackageDescriptionProcessingCategoryLETTERS       BaseReturnsPackageDescriptionProcessingCategory = "LETTERS"
+	BaseReturnsPackageDescriptionProcessingCategoryMACHINABLE    BaseReturnsPackageDescriptionProcessingCategory = "MACHINABLE"
+	BaseReturnsPackageDescriptionProcessingCategoryNONMACHINABLE BaseReturnsPackageDescriptionProcessingCategory = "NON_MACHINABLE"
+	BaseReturnsPackageDescriptionProcessingCategoryNONSTANDARD   BaseReturnsPackageDescriptionProcessingCategory = "NONSTANDARD"
+)
+
+// Defines values for BaseReturnsPackageDescriptionShipperVisibilityMethod.
+const (
+	BaseReturnsPackageDescriptionShipperVisibilityMethodSENDERINFORMATION BaseReturnsPackageDescriptionShipperVisibilityMethod = "SENDER_INFORMATION"
+)
+
+// Defines values for BaseReturnsPackageDescriptionWeightUOM.
+const (
+	BaseReturnsPackageDescriptionWeightUOMLb BaseReturnsPackageDescriptionWeightUOM = "lb"
+)
+
+// Defines values for BrandingPatchRequestOp.
+const (
+	BrandingPatchRequestOpReplace BrandingPatchRequestOp = "replace"
+)
+
+// Defines values for BrandingPatchRequestPath.
+const (
+	BrandingPatchRequestPathImageName BrandingPatchRequestPath = "/imageName"
+)
+
+// Defines values for CancelResponseStatus.
+const (
+	CancelResponseStatusCANCELED CancelResponseStatus = "CANCELED"
+	CancelResponseStatusDISPUTED CancelResponseStatus = "DISPUTED"
+)
+
+// Defines values for ContainerSortType.
+const (
+	OPENDISTRIBUTEEMMTRAYBOX       ContainerSortType = "OPEN_DISTRIBUTE_EMM_TRAY_BOX"
+	OPENDISTRIBUTEFLATTUBTRAYBOX   ContainerSortType = "OPEN_DISTRIBUTE_FLAT_TUB_TRAY_BOX"
+	OPENDISTRIBUTEFULLTRAYBOX      ContainerSortType = "OPEN_DISTRIBUTE_FULL_TRAY_BOX"
+	OPENDISTRIBUTEHALFPOSTALPAKS   ContainerSortType = "OPEN_DISTRIBUTE_HALF_POSTAL_PAKS"
+	OPENDISTRIBUTEHALFTRAYBOX      ContainerSortType = "OPEN_DISTRIBUTE_HALF_TRAY_BOX"
+	OPENDISTRIBUTEPALLET           ContainerSortType = "OPEN_DISTRIBUTE_PALLET"
+	OPENDISTRIBUTIONFULLPOSTALPAKS ContainerSortType = "OPEN_DISTRIBUTION_FULL_POSTAL_PAKS"
+	PALLET                         ContainerSortType = "PALLET"
+	RECEPTACLE                     ContainerSortType = "RECEPTACLE"
+	SACK                           ContainerSortType = "SACK"
+	TRUCKBEDLOAD                   ContainerSortType = "TRUCK_BEDLOAD"
+)
+
+// Defines values for CustomsFormRestrictionType.
+const (
+	CustomsFormRestrictionTypeOTHER                   CustomsFormRestrictionType = "OTHER"
+	CustomsFormRestrictionTypePHYTOSANITARYINSPECTION CustomsFormRestrictionType = "PHYTOSANITARY_INSPECTION"
+	CustomsFormRestrictionTypeQUARANTINE              CustomsFormRestrictionType = "QUARANTINE"
+	CustomsFormRestrictionTypeSANITARYINSPECTION      CustomsFormRestrictionType = "SANITARY_INSPECTION"
+)
+
+// Defines values for DomesticCustomsFormCustomsContentType.
+const (
+	DomesticCustomsFormCustomsContentTypeCOMMERCIALSAMPLE      DomesticCustomsFormCustomsContentType = "COMMERCIAL_SAMPLE"
+	DomesticCustomsFormCustomsContentTypeDANGEROUSGOODS        DomesticCustomsFormCustomsContentType = "DANGEROUS_GOODS"
+	DomesticCustomsFormCustomsContentTypeDOCUMENT              DomesticCustomsFormCustomsContentType = "DOCUMENT"
+	DomesticCustomsFormCustomsContentTypeGIFT                  DomesticCustomsFormCustomsContentType = "GIFT"
+	DomesticCustomsFormCustomsContentTypeHUMANITARIANDONATIONS DomesticCustomsFormCustomsContentType = "HUMANITARIAN_DONATIONS"
+	DomesticCustomsFormCustomsContentTypeMERCHANDISE           DomesticCustomsFormCustomsContentType = "MERCHANDISE"
+	DomesticCustomsFormCustomsContentTypeOTHER                 DomesticCustomsFormCustomsContentType = "OTHER"
+	DomesticCustomsFormCustomsContentTypeRETURNEDGOODS         DomesticCustomsFormCustomsContentType = "RETURNED_GOODS"
+)
+
+// Defines values for DomesticCustomsFormRestrictionType.
+const (
+	DomesticCustomsFormRestrictionTypeOTHER                   DomesticCustomsFormRestrictionType = "OTHER"
+	DomesticCustomsFormRestrictionTypePHYTOSANITARYINSPECTION DomesticCustomsFormRestrictionType = "PHYTOSANITARY_INSPECTION"
+	DomesticCustomsFormRestrictionTypeQUARANTINE              DomesticCustomsFormRestrictionType = "QUARANTINE"
+	DomesticCustomsFormRestrictionTypeSANITARYINSPECTION      DomesticCustomsFormRestrictionType = "SANITARY_INSPECTION"
+)
+
+// Defines values for DomesticPackageDescriptionDestinationEntryFacilityType.
+const (
+	DomesticPackageDescriptionDestinationEntryFacilityTypeDESTINATIONDELIVERYUNIT                         DomesticPackageDescriptionDestinationEntryFacilityType = "DESTINATION_DELIVERY_UNIT"
+	DomesticPackageDescriptionDestinationEntryFacilityTypeDESTINATIONNETWORKDISTRIBUTIONCENTER            DomesticPackageDescriptionDestinationEntryFacilityType = "DESTINATION_NETWORK_DISTRIBUTION_CENTER"
+	DomesticPackageDescriptionDestinationEntryFacilityTypeDESTINATIONREGIONALPROCESSINGDISTRIBUTIONCENTER DomesticPackageDescriptionDestinationEntryFacilityType = "DESTINATION_REGIONAL_PROCESSING_DISTRIBUTION_CENTER"
+	DomesticPackageDescriptionDestinationEntryFacilityTypeDESTINATIONSECTIONALCENTERFACILITY              DomesticPackageDescriptionDestinationEntryFacilityType = "DESTINATION_SECTIONAL_CENTER_FACILITY"
+	DomesticPackageDescriptionDestinationEntryFacilityTypeDESTINATIONSERVICEHUB                           DomesticPackageDescriptionDestinationEntryFacilityType = "DESTINATION_SERVICE_HUB"
+	DomesticPackageDescriptionDestinationEntryFacilityTypeNONE                                            DomesticPackageDescriptionDestinationEntryFacilityType = "NONE"
+)
+
+// Defines values for DomesticPackageDescriptionDimensionsUOM.
+const (
+	DomesticPackageDescriptionDimensionsUOMIn DomesticPackageDescriptionDimensionsUOM = "in"
+)
+
+// Defines values for DomesticPackageDescriptionMailClass.
+const (
+	DomesticPackageDescriptionMailClassBOUNDPRINTEDMATTER       DomesticPackageDescriptionMailClass = "BOUND_PRINTED_MATTER"
+	DomesticPackageDescriptionMailClassFIRSTCLASSPACKAGESERVICE DomesticPackageDescriptionMailClass = "FIRST-CLASS_PACKAGE_SERVICE"
+	DomesticPackageDescriptionMailClassLIBRARYMAIL              DomesticPackageDescriptionMailClass = "LIBRARY_MAIL"
+	DomesticPackageDescriptionMailClassMARKETINGMAILPARCELS     DomesticPackageDescriptionMailClass = "MARKETING_MAIL_PARCELS"
+	DomesticPackageDescriptionMailClassMEDIAMAIL                DomesticPackageDescriptionMailClass = "MEDIA_MAIL"
+	DomesticPackageDescriptionMailClassPARCELSELECT             DomesticPackageDescriptionMailClass = "PARCEL_SELECT"
+	DomesticPackageDescriptionMailClassPARCELSELECTLIGHTWEIGHT  DomesticPackageDescriptionMailClass = "PARCEL_SELECT_LIGHTWEIGHT"
+	DomesticPackageDescriptionMailClassPRIORITYMAIL             DomesticPackageDescriptionMailClass = "PRIORITY_MAIL"
+	DomesticPackageDescriptionMailClassPRIORITYMAILEXPRESS      DomesticPackageDescriptionMailClass = "PRIORITY_MAIL_EXPRESS"
+	DomesticPackageDescriptionMailClassUSPSCONNECTLOCAL         DomesticPackageDescriptionMailClass = "USPS_CONNECT_LOCAL"
+	DomesticPackageDescriptionMailClassUSPSCONNECTMAIL          DomesticPackageDescriptionMailClass = "USPS_CONNECT_MAIL"
+	DomesticPackageDescriptionMailClassUSPSCONNECTREGIONAL      DomesticPackageDescriptionMailClass = "USPS_CONNECT_REGIONAL"
+	DomesticPackageDescriptionMailClassUSPSGROUNDADVANTAGE      DomesticPackageDescriptionMailClass = "USPS_GROUND_ADVANTAGE"
+)
+
+// Defines values for DomesticPackageDescriptionPackageOptionsAncillaryServiceEndorsements.
+const (
+	DomesticPackageDescriptionPackageOptionsAncillaryServiceEndorsementsADDRESSSERVICEREQUESTED    DomesticPackageDescriptionPackageOptionsAncillaryServiceEndorsements = "ADDRESS_SERVICE_REQUESTED"
+	DomesticPackageDescriptionPackageOptionsAncillaryServiceEndorsementsCHANGESERVICEREQUESTED     DomesticPackageDescriptionPackageOptionsAncillaryServiceEndorsements = "CHANGE_SERVICE_REQUESTED"
+	DomesticPackageDescriptionPackageOptionsAncillaryServiceEndorsementsELECTRONICSERVICEREQUESTED DomesticPackageDescriptionPackageOptionsAncillaryServiceEndorsements = "ELECTRONIC_SERVICE_REQUESTED"
+	DomesticPackageDescriptionPackageOptionsAncillaryServiceEndorsementsFORWARDINGSERVICEREQUESTED DomesticPackageDescriptionPackageOptionsAncillaryServiceEndorsements = "FORWARDING_SERVICE_REQUESTED"
+	DomesticPackageDescriptionPackageOptionsAncillaryServiceEndorsementsRETURNSERVICEREQUESTED     DomesticPackageDescriptionPackageOptionsAncillaryServiceEndorsements = "RETURN_SERVICE_REQUESTED"
+	DomesticPackageDescriptionPackageOptionsAncillaryServiceEndorsementsTEMPRETURNSERVICEREQUESTED DomesticPackageDescriptionPackageOptionsAncillaryServiceEndorsements = "TEMP_RETURN_SERVICE_REQUESTED"
+)
+
+// Defines values for DomesticPackageDescriptionPackageOptionsContentType.
+const (
+	DomesticPackageDescriptionPackageOptionsContentTypeADULTBIRDS      DomesticPackageDescriptionPackageOptionsContentType = "ADULT_BIRDS"
+	DomesticPackageDescriptionPackageOptionsContentTypeBEES            DomesticPackageDescriptionPackageOptionsContentType = "BEES"
+	DomesticPackageDescriptionPackageOptionsContentTypeCREMATEDREMAINS DomesticPackageDescriptionPackageOptionsContentType = "CREMATED_REMAINS"
+	DomesticPackageDescriptionPackageOptionsContentTypeDAYOLDPOULTRY   DomesticPackageDescriptionPackageOptionsContentType = "DAY_OLD_POULTRY"
+	DomesticPackageDescriptionPackageOptionsContentTypeFRUITS          DomesticPackageDescriptionPackageOptionsContentType = "FRUITS"
+	DomesticPackageDescriptionPackageOptionsContentTypeHAZMAT          DomesticPackageDescriptionPackageOptionsContentType = "HAZMAT"
+	DomesticPackageDescriptionPackageOptionsContentTypeLIVEPLANTS      DomesticPackageDescriptionPackageOptionsContentType = "LIVE_PLANTS"
+	DomesticPackageDescriptionPackageOptionsContentTypeMEDICALSUPPLIES DomesticPackageDescriptionPackageOptionsContentType = "MEDICAL_SUPPLIES"
+	DomesticPackageDescriptionPackageOptionsContentTypeOTHERLIVES      DomesticPackageDescriptionPackageOptionsContentType = "OTHER_LIVES"
+	DomesticPackageDescriptionPackageOptionsContentTypePERISHABLE      DomesticPackageDescriptionPackageOptionsContentType = "PERISHABLE"
+	DomesticPackageDescriptionPackageOptionsContentTypePHARMACEUTICALS DomesticPackageDescriptionPackageOptionsContentType = "PHARMACEUTICALS"
+	DomesticPackageDescriptionPackageOptionsContentTypeVEGETABLES      DomesticPackageDescriptionPackageOptionsContentType = "VEGETABLES"
+)
+
+// Defines values for DomesticPackageDescriptionPackageOptionsNonDeliveryOption.
+const (
+	DomesticPackageDescriptionPackageOptionsNonDeliveryOptionABANDON  DomesticPackageDescriptionPackageOptionsNonDeliveryOption = "ABANDON"
+	DomesticPackageDescriptionPackageOptionsNonDeliveryOptionREDIRECT DomesticPackageDescriptionPackageOptionsNonDeliveryOption = "REDIRECT"
+	DomesticPackageDescriptionPackageOptionsNonDeliveryOptionRETURN   DomesticPackageDescriptionPackageOptionsNonDeliveryOption = "RETURN"
+)
+
+// Defines values for DomesticPackageDescriptionProcessingCategory.
+const (
+	DomesticPackageDescriptionProcessingCategoryFLATS         DomesticPackageDescriptionProcessingCategory = "FLATS"
+	DomesticPackageDescriptionProcessingCategoryIRREGULAR     DomesticPackageDescriptionProcessingCategory = "IRREGULAR"
+	DomesticPackageDescriptionProcessingCategoryLETTERS       DomesticPackageDescriptionProcessingCategory = "LETTERS"
+	DomesticPackageDescriptionProcessingCategoryMACHINABLE    DomesticPackageDescriptionProcessingCategory = "MACHINABLE"
+	DomesticPackageDescriptionProcessingCategoryNONMACHINABLE DomesticPackageDescriptionProcessingCategory = "NON_MACHINABLE"
+	DomesticPackageDescriptionProcessingCategoryNONSTANDARD   DomesticPackageDescriptionProcessingCategory = "NONSTANDARD"
+)
+
+// Defines values for DomesticPackageDescriptionRateIndicator.
+const (
+	DomesticPackageDescriptionRateIndicatorBA  DomesticPackageDescriptionRateIndicator = "BA"
+	DomesticPackageDescriptionRateIndicatorBB  DomesticPackageDescriptionRateIndicator = "BB"
+	DomesticPackageDescriptionRateIndicatorCM  DomesticPackageDescriptionRateIndicator = "CM"
+	DomesticPackageDescriptionRateIndicatorCP  DomesticPackageDescriptionRateIndicator = "CP"
+	DomesticPackageDescriptionRateIndicatorDC  DomesticPackageDescriptionRateIndicator = "DC"
+	DomesticPackageDescriptionRateIndicatorDE  DomesticPackageDescriptionRateIndicator = "DE"
+	DomesticPackageDescriptionRateIndicatorDF  DomesticPackageDescriptionRateIndicator = "DF"
+	DomesticPackageDescriptionRateIndicatorDN  DomesticPackageDescriptionRateIndicator = "DN"
+	DomesticPackageDescriptionRateIndicatorDR  DomesticPackageDescriptionRateIndicator = "DR"
+	DomesticPackageDescriptionRateIndicatorE4  DomesticPackageDescriptionRateIndicator = "E4"
+	DomesticPackageDescriptionRateIndicatorE6  DomesticPackageDescriptionRateIndicator = "E6"
+	DomesticPackageDescriptionRateIndicatorFA  DomesticPackageDescriptionRateIndicator = "FA"
+	DomesticPackageDescriptionRateIndicatorFB  DomesticPackageDescriptionRateIndicator = "FB"
+	DomesticPackageDescriptionRateIndicatorFE  DomesticPackageDescriptionRateIndicator = "FE"
+	DomesticPackageDescriptionRateIndicatorFP  DomesticPackageDescriptionRateIndicator = "FP"
+	DomesticPackageDescriptionRateIndicatorFS  DomesticPackageDescriptionRateIndicator = "FS"
+	DomesticPackageDescriptionRateIndicatorLC  DomesticPackageDescriptionRateIndicator = "LC"
+	DomesticPackageDescriptionRateIndicatorLF  DomesticPackageDescriptionRateIndicator = "LF"
+	DomesticPackageDescriptionRateIndicatorLL  DomesticPackageDescriptionRateIndicator = "LL"
+	DomesticPackageDescriptionRateIndicatorLO  DomesticPackageDescriptionRateIndicator = "LO"
+	DomesticPackageDescriptionRateIndicatorLS  DomesticPackageDescriptionRateIndicator = "LS"
+	DomesticPackageDescriptionRateIndicatorN3D DomesticPackageDescriptionRateIndicator = "3D"
+	DomesticPackageDescriptionRateIndicatorN3N DomesticPackageDescriptionRateIndicator = "3N"
+	DomesticPackageDescriptionRateIndicatorN3R DomesticPackageDescriptionRateIndicator = "3R"
+	DomesticPackageDescriptionRateIndicatorN5D DomesticPackageDescriptionRateIndicator = "5D"
+	DomesticPackageDescriptionRateIndicatorNN  DomesticPackageDescriptionRateIndicator = "NN"
+	DomesticPackageDescriptionRateIndicatorNP  DomesticPackageDescriptionRateIndicator = "NP"
+	DomesticPackageDescriptionRateIndicatorOS  DomesticPackageDescriptionRateIndicator = "OS"
+	DomesticPackageDescriptionRateIndicatorP5  DomesticPackageDescriptionRateIndicator = "P5"
+	DomesticPackageDescriptionRateIndicatorP6  DomesticPackageDescriptionRateIndicator = "P6"
+	DomesticPackageDescriptionRateIndicatorP7  DomesticPackageDescriptionRateIndicator = "P7"
+	DomesticPackageDescriptionRateIndicatorP8  DomesticPackageDescriptionRateIndicator = "P8"
+	DomesticPackageDescriptionRateIndicatorP9  DomesticPackageDescriptionRateIndicator = "P9"
+	DomesticPackageDescriptionRateIndicatorPA  DomesticPackageDescriptionRateIndicator = "PA"
+	DomesticPackageDescriptionRateIndicatorPL  DomesticPackageDescriptionRateIndicator = "PL"
+	DomesticPackageDescriptionRateIndicatorPM  DomesticPackageDescriptionRateIndicator = "PM"
+	DomesticPackageDescriptionRateIndicatorPN  DomesticPackageDescriptionRateIndicator = "PN"
+	DomesticPackageDescriptionRateIndicatorPR  DomesticPackageDescriptionRateIndicator = "PR"
+	DomesticPackageDescriptionRateIndicatorQ0  DomesticPackageDescriptionRateIndicator = "Q0"
+	DomesticPackageDescriptionRateIndicatorQ6  DomesticPackageDescriptionRateIndicator = "Q6"
+	DomesticPackageDescriptionRateIndicatorQ7  DomesticPackageDescriptionRateIndicator = "Q7"
+	DomesticPackageDescriptionRateIndicatorQ8  DomesticPackageDescriptionRateIndicator = "Q8"
+	DomesticPackageDescriptionRateIndicatorQ9  DomesticPackageDescriptionRateIndicator = "Q9"
+	DomesticPackageDescriptionRateIndicatorSN  DomesticPackageDescriptionRateIndicator = "SN"
+	DomesticPackageDescriptionRateIndicatorSP  DomesticPackageDescriptionRateIndicator = "SP"
+	DomesticPackageDescriptionRateIndicatorSR  DomesticPackageDescriptionRateIndicator = "SR"
+)
+
+// Defines values for DomesticPackageDescriptionShipperVisibilityMethod.
+const (
+	DomesticPackageDescriptionShipperVisibilityMethodMIDINFORMATION    DomesticPackageDescriptionShipperVisibilityMethod = "MID_INFORMATION"
+	DomesticPackageDescriptionShipperVisibilityMethodSENDERINFORMATION DomesticPackageDescriptionShipperVisibilityMethod = "SENDER_INFORMATION"
+)
+
+// Defines values for DomesticPackageDescriptionWeightUOM.
+const (
+	DomesticPackageDescriptionWeightUOMLb DomesticPackageDescriptionWeightUOM = "lb"
+)
+
+// Defines values for DomesticPackageDescriptionWithoutRateIndicatorDestinationEntryFacilityType.
+const (
+	DomesticPackageDescriptionWithoutRateIndicatorDestinationEntryFacilityTypeDESTINATIONDELIVERYUNIT                         DomesticPackageDescriptionWithoutRateIndicatorDestinationEntryFacilityType = "DESTINATION_DELIVERY_UNIT"
+	DomesticPackageDescriptionWithoutRateIndicatorDestinationEntryFacilityTypeDESTINATIONNETWORKDISTRIBUTIONCENTER            DomesticPackageDescriptionWithoutRateIndicatorDestinationEntryFacilityType = "DESTINATION_NETWORK_DISTRIBUTION_CENTER"
+	DomesticPackageDescriptionWithoutRateIndicatorDestinationEntryFacilityTypeDESTINATIONREGIONALPROCESSINGDISTRIBUTIONCENTER DomesticPackageDescriptionWithoutRateIndicatorDestinationEntryFacilityType = "DESTINATION_REGIONAL_PROCESSING_DISTRIBUTION_CENTER"
+	DomesticPackageDescriptionWithoutRateIndicatorDestinationEntryFacilityTypeDESTINATIONSECTIONALCENTERFACILITY              DomesticPackageDescriptionWithoutRateIndicatorDestinationEntryFacilityType = "DESTINATION_SECTIONAL_CENTER_FACILITY"
+	DomesticPackageDescriptionWithoutRateIndicatorDestinationEntryFacilityTypeDESTINATIONSERVICEHUB                           DomesticPackageDescriptionWithoutRateIndicatorDestinationEntryFacilityType = "DESTINATION_SERVICE_HUB"
+	DomesticPackageDescriptionWithoutRateIndicatorDestinationEntryFacilityTypeNONE                                            DomesticPackageDescriptionWithoutRateIndicatorDestinationEntryFacilityType = "NONE"
+)
+
+// Defines values for DomesticPackageDescriptionWithoutRateIndicatorDimensionsUOM.
+const (
+	DomesticPackageDescriptionWithoutRateIndicatorDimensionsUOMIn DomesticPackageDescriptionWithoutRateIndicatorDimensionsUOM = "in"
+)
+
+// Defines values for DomesticPackageDescriptionWithoutRateIndicatorMailClass.
+const (
+	BOUNDPRINTEDMATTER       DomesticPackageDescriptionWithoutRateIndicatorMailClass = "BOUND_PRINTED_MATTER"
+	FIRSTCLASSPACKAGESERVICE DomesticPackageDescriptionWithoutRateIndicatorMailClass = "FIRST-CLASS_PACKAGE_SERVICE"
+	LIBRARYMAIL              DomesticPackageDescriptionWithoutRateIndicatorMailClass = "LIBRARY_MAIL"
+	MARKETINGMAILPARCELS     DomesticPackageDescriptionWithoutRateIndicatorMailClass = "MARKETING_MAIL_PARCELS"
+	MEDIAMAIL                DomesticPackageDescriptionWithoutRateIndicatorMailClass = "MEDIA_MAIL"
+	PARCELSELECT             DomesticPackageDescriptionWithoutRateIndicatorMailClass = "PARCEL_SELECT"
+	PARCELSELECTLIGHTWEIGHT  DomesticPackageDescriptionWithoutRateIndicatorMailClass = "PARCEL_SELECT_LIGHTWEIGHT"
+	PRIORITYMAIL             DomesticPackageDescriptionWithoutRateIndicatorMailClass = "PRIORITY_MAIL"
+	PRIORITYMAILEXPRESS      DomesticPackageDescriptionWithoutRateIndicatorMailClass = "PRIORITY_MAIL_EXPRESS"
+	USPSCONNECTLOCAL         DomesticPackageDescriptionWithoutRateIndicatorMailClass = "USPS_CONNECT_LOCAL"
+	USPSCONNECTMAIL          DomesticPackageDescriptionWithoutRateIndicatorMailClass = "USPS_CONNECT_MAIL"
+	USPSCONNECTREGIONAL      DomesticPackageDescriptionWithoutRateIndicatorMailClass = "USPS_CONNECT_REGIONAL"
+	USPSGROUNDADVANTAGE      DomesticPackageDescriptionWithoutRateIndicatorMailClass = "USPS_GROUND_ADVANTAGE"
+)
+
+// Defines values for DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsAncillaryServiceEndorsements.
+const (
+	DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsAncillaryServiceEndorsementsADDRESSSERVICEREQUESTED    DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsAncillaryServiceEndorsements = "ADDRESS_SERVICE_REQUESTED"
+	DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsAncillaryServiceEndorsementsCHANGESERVICEREQUESTED     DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsAncillaryServiceEndorsements = "CHANGE_SERVICE_REQUESTED"
+	DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsAncillaryServiceEndorsementsELECTRONICSERVICEREQUESTED DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsAncillaryServiceEndorsements = "ELECTRONIC_SERVICE_REQUESTED"
+	DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsAncillaryServiceEndorsementsFORWARDINGSERVICEREQUESTED DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsAncillaryServiceEndorsements = "FORWARDING_SERVICE_REQUESTED"
+	DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsAncillaryServiceEndorsementsRETURNSERVICEREQUESTED     DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsAncillaryServiceEndorsements = "RETURN_SERVICE_REQUESTED"
+	DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsAncillaryServiceEndorsementsTEMPRETURNSERVICEREQUESTED DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsAncillaryServiceEndorsements = "TEMP_RETURN_SERVICE_REQUESTED"
+)
+
+// Defines values for DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsContentType.
+const (
+	DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsContentTypeADULTBIRDS      DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsContentType = "ADULT_BIRDS"
+	DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsContentTypeBEES            DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsContentType = "BEES"
+	DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsContentTypeCREMATEDREMAINS DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsContentType = "CREMATED_REMAINS"
+	DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsContentTypeDAYOLDPOULTRY   DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsContentType = "DAY_OLD_POULTRY"
+	DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsContentTypeFRUITS          DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsContentType = "FRUITS"
+	DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsContentTypeHAZMAT          DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsContentType = "HAZMAT"
+	DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsContentTypeLIVEPLANTS      DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsContentType = "LIVE_PLANTS"
+	DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsContentTypeMEDICALSUPPLIES DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsContentType = "MEDICAL_SUPPLIES"
+	DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsContentTypeOTHERLIVES      DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsContentType = "OTHER_LIVES"
+	DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsContentTypePERISHABLE      DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsContentType = "PERISHABLE"
+	DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsContentTypePHARMACEUTICALS DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsContentType = "PHARMACEUTICALS"
+	DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsContentTypeVEGETABLES      DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsContentType = "VEGETABLES"
+)
+
+// Defines values for DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsNonDeliveryOption.
+const (
+	DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsNonDeliveryOptionABANDON  DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsNonDeliveryOption = "ABANDON"
+	DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsNonDeliveryOptionREDIRECT DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsNonDeliveryOption = "REDIRECT"
+	DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsNonDeliveryOptionRETURN   DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsNonDeliveryOption = "RETURN"
+)
+
+// Defines values for DomesticPackageDescriptionWithoutRateIndicatorPackagingType.
+const (
+	DomesticPackageDescriptionWithoutRateIndicatorPackagingTypeBASICPRESORT                 DomesticPackageDescriptionWithoutRateIndicatorPackagingType = "BASIC_PRESORT"
+	DomesticPackageDescriptionWithoutRateIndicatorPackagingTypeCONNECTLOCALFLATRATEBOX      DomesticPackageDescriptionWithoutRateIndicatorPackagingType = "CONNECT_LOCAL_FLAT_RATE_BOX"
+	DomesticPackageDescriptionWithoutRateIndicatorPackagingTypeCONNECTLOCALLARGEFLATRATEBAG DomesticPackageDescriptionWithoutRateIndicatorPackagingType = "CONNECT_LOCAL_LARGE_FLAT_RATE_BAG"
+	DomesticPackageDescriptionWithoutRateIndicatorPackagingTypeCONNECTLOCALSMALLFLATRATEBAG DomesticPackageDescriptionWithoutRateIndicatorPackagingType = "CONNECT_LOCAL_SMALL_FLAT_RATE_BAG"
+	DomesticPackageDescriptionWithoutRateIndicatorPackagingTypeCUBICPARCELS                 DomesticPackageDescriptionWithoutRateIndicatorPackagingType = "CUBIC_PARCELS"
+	DomesticPackageDescriptionWithoutRateIndicatorPackagingTypeCUBICSOFTPACK                DomesticPackageDescriptionWithoutRateIndicatorPackagingType = "CUBIC_SOFT_PACK"
+	DomesticPackageDescriptionWithoutRateIndicatorPackagingTypeFLATRATEENVELOPE             DomesticPackageDescriptionWithoutRateIndicatorPackagingType = "FLAT_RATE_ENVELOPE"
+	DomesticPackageDescriptionWithoutRateIndicatorPackagingTypeLEGALFLATRATEENVELOPE        DomesticPackageDescriptionWithoutRateIndicatorPackagingType = "LEGAL_FLAT_RATE_ENVELOPE"
+	DomesticPackageDescriptionWithoutRateIndicatorPackagingTypeLGFLATRATEBOX                DomesticPackageDescriptionWithoutRateIndicatorPackagingType = "LG_FLAT_RATE_BOX"
+	DomesticPackageDescriptionWithoutRateIndicatorPackagingTypeMDFLATRATEBOX                DomesticPackageDescriptionWithoutRateIndicatorPackagingType = "MD_FLAT_RATE_BOX"
+	DomesticPackageDescriptionWithoutRateIndicatorPackagingTypeN5DIGITPRESORT               DomesticPackageDescriptionWithoutRateIndicatorPackagingType = "5-DIGIT_PRESORT"
+	DomesticPackageDescriptionWithoutRateIndicatorPackagingTypePADDEDFLATRATEENVELOPE       DomesticPackageDescriptionWithoutRateIndicatorPackagingType = "PADDED_FLAT_RATE_ENVELOPE"
+	DomesticPackageDescriptionWithoutRateIndicatorPackagingTypeSMFLATRATEBOX                DomesticPackageDescriptionWithoutRateIndicatorPackagingType = "SM_FLAT_RATE_BOX"
+	DomesticPackageDescriptionWithoutRateIndicatorPackagingTypeVARIABLE                     DomesticPackageDescriptionWithoutRateIndicatorPackagingType = "VARIABLE"
+)
+
+// Defines values for DomesticPackageDescriptionWithoutRateIndicatorProcessingCategory.
+const (
+	DomesticPackageDescriptionWithoutRateIndicatorProcessingCategoryFLATS         DomesticPackageDescriptionWithoutRateIndicatorProcessingCategory = "FLATS"
+	DomesticPackageDescriptionWithoutRateIndicatorProcessingCategoryIRREGULAR     DomesticPackageDescriptionWithoutRateIndicatorProcessingCategory = "IRREGULAR"
+	DomesticPackageDescriptionWithoutRateIndicatorProcessingCategoryLETTERS       DomesticPackageDescriptionWithoutRateIndicatorProcessingCategory = "LETTERS"
+	DomesticPackageDescriptionWithoutRateIndicatorProcessingCategoryMACHINABLE    DomesticPackageDescriptionWithoutRateIndicatorProcessingCategory = "MACHINABLE"
+	DomesticPackageDescriptionWithoutRateIndicatorProcessingCategoryNONMACHINABLE DomesticPackageDescriptionWithoutRateIndicatorProcessingCategory = "NON_MACHINABLE"
+	DomesticPackageDescriptionWithoutRateIndicatorProcessingCategoryNONSTANDARD   DomesticPackageDescriptionWithoutRateIndicatorProcessingCategory = "NONSTANDARD"
+)
+
+// Defines values for DomesticPackageDescriptionWithoutRateIndicatorShape.
+const (
+	DomesticPackageDescriptionWithoutRateIndicatorShapeNONRECTANGULAR DomesticPackageDescriptionWithoutRateIndicatorShape = "NON_RECTANGULAR"
+	DomesticPackageDescriptionWithoutRateIndicatorShapeRECTANGULAR    DomesticPackageDescriptionWithoutRateIndicatorShape = "RECTANGULAR"
+)
+
+// Defines values for DomesticPackageDescriptionWithoutRateIndicatorShipperVisibilityMethod.
+const (
+	DomesticPackageDescriptionWithoutRateIndicatorShipperVisibilityMethodMIDINFORMATION    DomesticPackageDescriptionWithoutRateIndicatorShipperVisibilityMethod = "MID_INFORMATION"
+	DomesticPackageDescriptionWithoutRateIndicatorShipperVisibilityMethodSENDERINFORMATION DomesticPackageDescriptionWithoutRateIndicatorShipperVisibilityMethod = "SENDER_INFORMATION"
+)
+
+// Defines values for DomesticPackageDescriptionWithoutRateIndicatorWeightUOM.
+const (
+	DomesticPackageDescriptionWithoutRateIndicatorWeightUOMLb DomesticPackageDescriptionWithoutRateIndicatorWeightUOM = "lb"
+)
+
+// Defines values for DomesticPackageOptionsAncillaryServiceEndorsements.
+const (
+	DomesticPackageOptionsAncillaryServiceEndorsementsADDRESSSERVICEREQUESTED    DomesticPackageOptionsAncillaryServiceEndorsements = "ADDRESS_SERVICE_REQUESTED"
+	DomesticPackageOptionsAncillaryServiceEndorsementsCHANGESERVICEREQUESTED     DomesticPackageOptionsAncillaryServiceEndorsements = "CHANGE_SERVICE_REQUESTED"
+	DomesticPackageOptionsAncillaryServiceEndorsementsELECTRONICSERVICEREQUESTED DomesticPackageOptionsAncillaryServiceEndorsements = "ELECTRONIC_SERVICE_REQUESTED"
+	DomesticPackageOptionsAncillaryServiceEndorsementsFORWARDINGSERVICEREQUESTED DomesticPackageOptionsAncillaryServiceEndorsements = "FORWARDING_SERVICE_REQUESTED"
+	DomesticPackageOptionsAncillaryServiceEndorsementsRETURNSERVICEREQUESTED     DomesticPackageOptionsAncillaryServiceEndorsements = "RETURN_SERVICE_REQUESTED"
+	DomesticPackageOptionsAncillaryServiceEndorsementsTEMPRETURNSERVICEREQUESTED DomesticPackageOptionsAncillaryServiceEndorsements = "TEMP_RETURN_SERVICE_REQUESTED"
+)
+
+// Defines values for DomesticPackageOptionsContentType.
+const (
+	DomesticPackageOptionsContentTypeADULTBIRDS      DomesticPackageOptionsContentType = "ADULT_BIRDS"
+	DomesticPackageOptionsContentTypeBEES            DomesticPackageOptionsContentType = "BEES"
+	DomesticPackageOptionsContentTypeCREMATEDREMAINS DomesticPackageOptionsContentType = "CREMATED_REMAINS"
+	DomesticPackageOptionsContentTypeDAYOLDPOULTRY   DomesticPackageOptionsContentType = "DAY_OLD_POULTRY"
+	DomesticPackageOptionsContentTypeFRUITS          DomesticPackageOptionsContentType = "FRUITS"
+	DomesticPackageOptionsContentTypeHAZMAT          DomesticPackageOptionsContentType = "HAZMAT"
+	DomesticPackageOptionsContentTypeLIVEPLANTS      DomesticPackageOptionsContentType = "LIVE_PLANTS"
+	DomesticPackageOptionsContentTypeMEDICALSUPPLIES DomesticPackageOptionsContentType = "MEDICAL_SUPPLIES"
+	DomesticPackageOptionsContentTypeOTHERLIVES      DomesticPackageOptionsContentType = "OTHER_LIVES"
+	DomesticPackageOptionsContentTypePERISHABLE      DomesticPackageOptionsContentType = "PERISHABLE"
+	DomesticPackageOptionsContentTypePHARMACEUTICALS DomesticPackageOptionsContentType = "PHARMACEUTICALS"
+	DomesticPackageOptionsContentTypeVEGETABLES      DomesticPackageOptionsContentType = "VEGETABLES"
+)
+
+// Defines values for DomesticPackageOptionsNonDeliveryOption.
+const (
+	DomesticPackageOptionsNonDeliveryOptionABANDON  DomesticPackageOptionsNonDeliveryOption = "ABANDON"
+	DomesticPackageOptionsNonDeliveryOptionREDIRECT DomesticPackageOptionsNonDeliveryOption = "REDIRECT"
+	DomesticPackageOptionsNonDeliveryOptionRETURN   DomesticPackageOptionsNonDeliveryOption = "RETURN"
+)
+
+// Defines values for DomesticPackageReturnOptionsAncillaryServiceEndorsements.
+const (
+	ADDRESSSERVICEREQUESTED    DomesticPackageReturnOptionsAncillaryServiceEndorsements = "ADDRESS_SERVICE_REQUESTED"
+	CHANGESERVICEREQUESTED     DomesticPackageReturnOptionsAncillaryServiceEndorsements = "CHANGE_SERVICE_REQUESTED"
+	ELECTRONICSERVICEREQUESTED DomesticPackageReturnOptionsAncillaryServiceEndorsements = "ELECTRONIC_SERVICE_REQUESTED"
+	FORWARDINGSERVICEREQUESTED DomesticPackageReturnOptionsAncillaryServiceEndorsements = "FORWARDING_SERVICE_REQUESTED"
+	RETURNSERVICEREQUESTED     DomesticPackageReturnOptionsAncillaryServiceEndorsements = "RETURN_SERVICE_REQUESTED"
+	TEMPRETURNSERVICEREQUESTED DomesticPackageReturnOptionsAncillaryServiceEndorsements = "TEMP_RETURN_SERVICE_REQUESTED"
+)
+
+// Defines values for DomesticPackageReturnOptionsContentType.
+const (
+	ADULTBIRDS      DomesticPackageReturnOptionsContentType = "ADULT_BIRDS"
+	BEES            DomesticPackageReturnOptionsContentType = "BEES"
+	CREMATEDREMAINS DomesticPackageReturnOptionsContentType = "CREMATED_REMAINS"
+	DAYOLDPOULTRY   DomesticPackageReturnOptionsContentType = "DAY_OLD_POULTRY"
+	FRUITS          DomesticPackageReturnOptionsContentType = "FRUITS"
+	HAZMAT          DomesticPackageReturnOptionsContentType = "HAZMAT"
+	LIVEPLANTS      DomesticPackageReturnOptionsContentType = "LIVE_PLANTS"
+	MEDICALSUPPLIES DomesticPackageReturnOptionsContentType = "MEDICAL_SUPPLIES"
+	OTHERLIVES      DomesticPackageReturnOptionsContentType = "OTHER_LIVES"
+	PERISHABLE      DomesticPackageReturnOptionsContentType = "PERISHABLE"
+	PHARMACEUTICALS DomesticPackageReturnOptionsContentType = "PHARMACEUTICALS"
+	VEGETABLES      DomesticPackageReturnOptionsContentType = "VEGETABLES"
+)
+
+// Defines values for DomesticPackageReturnOptionsNonDeliveryOption.
+const (
+	DomesticPackageReturnOptionsNonDeliveryOptionABANDON  DomesticPackageReturnOptionsNonDeliveryOption = "ABANDON"
+	DomesticPackageReturnOptionsNonDeliveryOptionREDIRECT DomesticPackageReturnOptionsNonDeliveryOption = "REDIRECT"
+	DomesticPackageReturnOptionsNonDeliveryOptionRETURN   DomesticPackageReturnOptionsNonDeliveryOption = "RETURN"
+)
+
+// Defines values for DomesticReturnsCustomsFormCustomsContentType.
+const (
+	DomesticReturnsCustomsFormCustomsContentTypeCOMMERCIALSAMPLE      DomesticReturnsCustomsFormCustomsContentType = "COMMERCIAL_SAMPLE"
+	DomesticReturnsCustomsFormCustomsContentTypeDANGEROUSGOODS        DomesticReturnsCustomsFormCustomsContentType = "DANGEROUS_GOODS"
+	DomesticReturnsCustomsFormCustomsContentTypeDOCUMENT              DomesticReturnsCustomsFormCustomsContentType = "DOCUMENT"
+	DomesticReturnsCustomsFormCustomsContentTypeGIFT                  DomesticReturnsCustomsFormCustomsContentType = "GIFT"
+	DomesticReturnsCustomsFormCustomsContentTypeHUMANITARIANDONATIONS DomesticReturnsCustomsFormCustomsContentType = "HUMANITARIAN_DONATIONS"
+	DomesticReturnsCustomsFormCustomsContentTypeMERCHANDISE           DomesticReturnsCustomsFormCustomsContentType = "MERCHANDISE"
+	DomesticReturnsCustomsFormCustomsContentTypeOTHER                 DomesticReturnsCustomsFormCustomsContentType = "OTHER"
+	DomesticReturnsCustomsFormCustomsContentTypeRETURNEDGOODS         DomesticReturnsCustomsFormCustomsContentType = "RETURNED_GOODS"
+)
+
+// Defines values for DomesticReturnsCustomsFormRestrictionType.
+const (
+	OTHER                   DomesticReturnsCustomsFormRestrictionType = "OTHER"
+	PHYTOSANITARYINSPECTION DomesticReturnsCustomsFormRestrictionType = "PHYTOSANITARY_INSPECTION"
+	QUARANTINE              DomesticReturnsCustomsFormRestrictionType = "QUARANTINE"
+	SANITARYINSPECTION      DomesticReturnsCustomsFormRestrictionType = "SANITARY_INSPECTION"
+)
+
+// Defines values for ExtraService.
+const (
+	ExtraServiceN365 ExtraService = 365
+	ExtraServiceN415 ExtraService = 415
+	ExtraServiceN480 ExtraService = 480
+	ExtraServiceN481 ExtraService = 481
+	ExtraServiceN482 ExtraService = 482
+	ExtraServiceN483 ExtraService = 483
+	ExtraServiceN484 ExtraService = 484
+	ExtraServiceN485 ExtraService = 485
+	ExtraServiceN486 ExtraService = 486
+	ExtraServiceN487 ExtraService = 487
+	ExtraServiceN488 ExtraService = 488
+	ExtraServiceN489 ExtraService = 489
+	ExtraServiceN810 ExtraService = 810
+	ExtraServiceN811 ExtraService = 811
+	ExtraServiceN812 ExtraService = 812
+	ExtraServiceN813 ExtraService = 813
+	ExtraServiceN814 ExtraService = 814
+	ExtraServiceN815 ExtraService = 815
+	ExtraServiceN816 ExtraService = 816
+	ExtraServiceN817 ExtraService = 817
+	ExtraServiceN818 ExtraService = 818
+	ExtraServiceN819 ExtraService = 819
+	ExtraServiceN820 ExtraService = 820
+	ExtraServiceN821 ExtraService = 821
+	ExtraServiceN822 ExtraService = 822
+	ExtraServiceN823 ExtraService = 823
+	ExtraServiceN824 ExtraService = 824
+	ExtraServiceN825 ExtraService = 825
+	ExtraServiceN826 ExtraService = 826
+	ExtraServiceN827 ExtraService = 827
+	ExtraServiceN828 ExtraService = 828
+	ExtraServiceN829 ExtraService = 829
+	ExtraServiceN830 ExtraService = 830
+	ExtraServiceN831 ExtraService = 831
+	ExtraServiceN832 ExtraService = 832
+	ExtraServiceN857 ExtraService = 857
+	ExtraServiceN910 ExtraService = 910
+	ExtraServiceN911 ExtraService = 911
+	ExtraServiceN912 ExtraService = 912
+	ExtraServiceN913 ExtraService = 913
+	ExtraServiceN920 ExtraService = 920
+	ExtraServiceN921 ExtraService = 921
+	ExtraServiceN922 ExtraService = 922
+	ExtraServiceN923 ExtraService = 923
+	ExtraServiceN924 ExtraService = 924
+	ExtraServiceN925 ExtraService = 925
+	ExtraServiceN930 ExtraService = 930
+	ExtraServiceN931 ExtraService = 931
+	ExtraServiceN934 ExtraService = 934
+	ExtraServiceN955 ExtraService = 955
+	ExtraServiceN957 ExtraService = 957
+	ExtraServiceN981 ExtraService = 981
+	ExtraServiceN986 ExtraService = 986
+	ExtraServiceN991 ExtraService = 991
+)
+
+// Defines values for IMBCancelResponseStatus.
+const (
+	IMBCancelResponseStatusCANCELED IMBCancelResponseStatus = "CANCELED"
+	IMBCancelResponseStatusDISPUTED IMBCancelResponseStatus = "DISPUTED"
+)
+
+// Defines values for IMIType.
+const (
+	IMIMAX IMIType = "IMI_MAX"
+	IMIMIN IMIType = "IMI_MIN"
+	IMISTD IMIType = "IMI_STD"
+)
+
+// Defines values for ImageInfoBrandingImageFormat.
+const (
+	ImageInfoBrandingImageFormatNONE       ImageInfoBrandingImageFormat = "NONE"
+	ImageInfoBrandingImageFormatONESQUARE  ImageInfoBrandingImageFormat = "ONE_SQUARE"
+	ImageInfoBrandingImageFormatRECTANGLE  ImageInfoBrandingImageFormat = "RECTANGLE"
+	ImageInfoBrandingImageFormatTWOSQUARES ImageInfoBrandingImageFormat = "TWO_SQUARES"
+)
+
+// Defines values for ImageInfoImageType.
+const (
+	ImageInfoImageTypeEPL300DPI   ImageInfoImageType = "EPL300DPI"
+	ImageInfoImageTypeGIF         ImageInfoImageType = "GIF"
+	ImageInfoImageTypeJPG         ImageInfoImageType = "JPG"
+	ImageInfoImageTypeLABELBROKER ImageInfoImageType = "LABEL_BROKER"
+	ImageInfoImageTypeNONE        ImageInfoImageType = "NONE"
+	ImageInfoImageTypePDF         ImageInfoImageType = "PDF"
+	ImageInfoImageTypePNG         ImageInfoImageType = "PNG"
+	ImageInfoImageTypeSVG         ImageInfoImageType = "SVG"
+	ImageInfoImageTypeTIFF        ImageInfoImageType = "TIFF"
+	ImageInfoImageTypeZPL203DPI   ImageInfoImageType = "ZPL203DPI"
+	ImageInfoImageTypeZPL300DPI   ImageInfoImageType = "ZPL300DPI"
+)
+
+// Defines values for ImageInfoLabelType.
+const (
+	ImageInfoLabelTypeN2X7LABEL ImageInfoLabelType = "2X7LABEL"
+	ImageInfoLabelTypeN4X4LABEL ImageInfoLabelType = "4X4LABEL"
+	ImageInfoLabelTypeN4X5LABEL ImageInfoLabelType = "4X5LABEL"
+	ImageInfoLabelTypeN4X6LABEL ImageInfoLabelType = "4X6LABEL"
+	ImageInfoLabelTypeN6X4LABEL ImageInfoLabelType = "6X4LABEL"
+)
+
+// Defines values for ImageInfoReceiptOption.
+const (
+	ImageInfoReceiptOptionNONE         ImageInfoReceiptOption = "NONE"
+	ImageInfoReceiptOptionSAMEPAGE     ImageInfoReceiptOption = "SAME_PAGE"
+	ImageInfoReceiptOptionSEPARATEPAGE ImageInfoReceiptOption = "SEPARATE_PAGE"
+)
+
+// Defines values for IndiciaImbExtraService.
+const (
+	IndiciaImbExtraServiceN910 IndiciaImbExtraService = 910
+	IndiciaImbExtraServiceN911 IndiciaImbExtraService = 911
+	IndiciaImbExtraServiceN930 IndiciaImbExtraService = 930
+	IndiciaImbExtraServiceN934 IndiciaImbExtraService = 934
+	IndiciaImbExtraServiceN940 IndiciaImbExtraService = 940
+	IndiciaImbExtraServiceN941 IndiciaImbExtraService = 941
+	IndiciaImbExtraServiceN955 IndiciaImbExtraService = 955
+	IndiciaImbExtraServiceN957 IndiciaImbExtraService = 957
+)
+
+// Defines values for IndiciaImbImageInfoImageType.
+const (
+	IndiciaImbImageInfoImageTypeGIF       IndiciaImbImageInfoImageType = "GIF"
+	IndiciaImbImageInfoImageTypeJPG       IndiciaImbImageInfoImageType = "JPG"
+	IndiciaImbImageInfoImageTypePDF       IndiciaImbImageInfoImageType = "PDF"
+	IndiciaImbImageInfoImageTypePNG       IndiciaImbImageInfoImageType = "PNG"
+	IndiciaImbImageInfoImageTypeSVG       IndiciaImbImageInfoImageType = "SVG"
+	IndiciaImbImageInfoImageTypeTIFF      IndiciaImbImageInfoImageType = "TIFF"
+	IndiciaImbImageInfoImageTypeZPL203DPI IndiciaImbImageInfoImageType = "ZPL203DPI"
+	IndiciaImbImageInfoImageTypeZPL300DPI IndiciaImbImageInfoImageType = "ZPL300DPI"
+)
+
+// Defines values for IndiciaImbImageInfoLabelType.
+const (
+	IndiciaImbImageInfoLabelTypeIMIDATAONLY IndiciaImbImageInfoLabelType = "IMI_DATA_ONLY"
+	IndiciaImbImageInfoLabelTypeN6X4LABEL   IndiciaImbImageInfoLabelType = "6X4LABEL"
+)
+
+// Defines values for IndiciaImbImageInfoReceiptOption.
+const (
+	IndiciaImbImageInfoReceiptOptionNONE         IndiciaImbImageInfoReceiptOption = "NONE"
+	IndiciaImbImageInfoReceiptOptionSEPARATEPAGE IndiciaImbImageInfoReceiptOption = "SEPARATE_PAGE"
+)
+
+// Defines values for IndiciaImbRequestDescriptionProcessingCategory.
+const (
+	IndiciaImbRequestDescriptionProcessingCategoryCARDS   IndiciaImbRequestDescriptionProcessingCategory = "CARDS"
+	IndiciaImbRequestDescriptionProcessingCategoryFLATS   IndiciaImbRequestDescriptionProcessingCategory = "FLATS"
+	IndiciaImbRequestDescriptionProcessingCategoryLETTERS IndiciaImbRequestDescriptionProcessingCategory = "LETTERS"
+)
+
+// Defines values for IndiciaRequestImageInfoImageType.
+const (
+	IndiciaRequestImageInfoImageTypeGIF       IndiciaRequestImageInfoImageType = "GIF"
+	IndiciaRequestImageInfoImageTypeJPG       IndiciaRequestImageInfoImageType = "JPG"
+	IndiciaRequestImageInfoImageTypePDF       IndiciaRequestImageInfoImageType = "PDF"
+	IndiciaRequestImageInfoImageTypePNG       IndiciaRequestImageInfoImageType = "PNG"
+	IndiciaRequestImageInfoImageTypeSVG       IndiciaRequestImageInfoImageType = "SVG"
+	IndiciaRequestImageInfoImageTypeTIFF      IndiciaRequestImageInfoImageType = "TIFF"
+	IndiciaRequestImageInfoImageTypeZPL203DPI IndiciaRequestImageInfoImageType = "ZPL203DPI"
+	IndiciaRequestImageInfoImageTypeZPL300DPI IndiciaRequestImageInfoImageType = "ZPL300DPI"
+)
+
+// Defines values for IndiciaRequestImageInfoLabelType.
+const (
+	IMIDATAONLY IndiciaRequestImageInfoLabelType = "IMI_DATA_ONLY"
+	N2X15LABEL  IndiciaRequestImageInfoLabelType = "2X1.5LABEL"
+)
+
+// Defines values for IndiciaRequestImageInfoReceiptOption.
+const (
+	IndiciaRequestImageInfoReceiptOptionNONE         IndiciaRequestImageInfoReceiptOption = "NONE"
+	IndiciaRequestImageInfoReceiptOptionSEPARATEPAGE IndiciaRequestImageInfoReceiptOption = "SEPARATE_PAGE"
+)
+
+// Defines values for IndiciaRequestDescriptionProcessingCategory.
+const (
+	IndiciaRequestDescriptionProcessingCategoryCARDS   IndiciaRequestDescriptionProcessingCategory = "CARDS"
+	IndiciaRequestDescriptionProcessingCategoryFLATS   IndiciaRequestDescriptionProcessingCategory = "FLATS"
+	IndiciaRequestDescriptionProcessingCategoryLETTERS IndiciaRequestDescriptionProcessingCategory = "LETTERS"
+)
+
+// Defines values for LabelReprintImageInfoBrandingImageFormat.
+const (
+	LabelReprintImageInfoBrandingImageFormatNONE       LabelReprintImageInfoBrandingImageFormat = "NONE"
+	LabelReprintImageInfoBrandingImageFormatONESQUARE  LabelReprintImageInfoBrandingImageFormat = "ONE_SQUARE"
+	LabelReprintImageInfoBrandingImageFormatRECTANGLE  LabelReprintImageInfoBrandingImageFormat = "RECTANGLE"
+	LabelReprintImageInfoBrandingImageFormatTWOSQUARES LabelReprintImageInfoBrandingImageFormat = "TWO_SQUARES"
+)
+
+// Defines values for LabelReprintImageInfoImageType.
+const (
+	LabelReprintImageInfoImageTypeEPL300DPI LabelReprintImageInfoImageType = "EPL300DPI"
+	LabelReprintImageInfoImageTypeGIF       LabelReprintImageInfoImageType = "GIF"
+	LabelReprintImageInfoImageTypeJPG       LabelReprintImageInfoImageType = "JPG"
+	LabelReprintImageInfoImageTypePDF       LabelReprintImageInfoImageType = "PDF"
+	LabelReprintImageInfoImageTypePNG       LabelReprintImageInfoImageType = "PNG"
+	LabelReprintImageInfoImageTypeSVG       LabelReprintImageInfoImageType = "SVG"
+	LabelReprintImageInfoImageTypeTIFF      LabelReprintImageInfoImageType = "TIFF"
+	LabelReprintImageInfoImageTypeZPL203DPI LabelReprintImageInfoImageType = "ZPL203DPI"
+	LabelReprintImageInfoImageTypeZPL300DPI LabelReprintImageInfoImageType = "ZPL300DPI"
+)
+
+// Defines values for LabelReprintImageInfoLabelType.
+const (
+	LabelReprintImageInfoLabelTypeN2X7LABEL LabelReprintImageInfoLabelType = "2X7LABEL"
+	LabelReprintImageInfoLabelTypeN4X4LABEL LabelReprintImageInfoLabelType = "4X4LABEL"
+	LabelReprintImageInfoLabelTypeN4X5LABEL LabelReprintImageInfoLabelType = "4X5LABEL"
+	LabelReprintImageInfoLabelTypeN4X6LABEL LabelReprintImageInfoLabelType = "4X6LABEL"
+	LabelReprintImageInfoLabelTypeN6X4LABEL LabelReprintImageInfoLabelType = "6X4LABEL"
+)
+
+// Defines values for LabelRequestImageInfoBrandingImageFormat.
+const (
+	LabelRequestImageInfoBrandingImageFormatNONE       LabelRequestImageInfoBrandingImageFormat = "NONE"
+	LabelRequestImageInfoBrandingImageFormatONESQUARE  LabelRequestImageInfoBrandingImageFormat = "ONE_SQUARE"
+	LabelRequestImageInfoBrandingImageFormatRECTANGLE  LabelRequestImageInfoBrandingImageFormat = "RECTANGLE"
+	LabelRequestImageInfoBrandingImageFormatTWOSQUARES LabelRequestImageInfoBrandingImageFormat = "TWO_SQUARES"
+)
+
+// Defines values for LabelRequestImageInfoImageType.
+const (
+	LabelRequestImageInfoImageTypeEPL300DPI   LabelRequestImageInfoImageType = "EPL300DPI"
+	LabelRequestImageInfoImageTypeGIF         LabelRequestImageInfoImageType = "GIF"
+	LabelRequestImageInfoImageTypeJPG         LabelRequestImageInfoImageType = "JPG"
+	LabelRequestImageInfoImageTypeLABELBROKER LabelRequestImageInfoImageType = "LABEL_BROKER"
+	LabelRequestImageInfoImageTypeNONE        LabelRequestImageInfoImageType = "NONE"
+	LabelRequestImageInfoImageTypePDF         LabelRequestImageInfoImageType = "PDF"
+	LabelRequestImageInfoImageTypePNG         LabelRequestImageInfoImageType = "PNG"
+	LabelRequestImageInfoImageTypeSVG         LabelRequestImageInfoImageType = "SVG"
+	LabelRequestImageInfoImageTypeTIFF        LabelRequestImageInfoImageType = "TIFF"
+	LabelRequestImageInfoImageTypeZPL203DPI   LabelRequestImageInfoImageType = "ZPL203DPI"
+	LabelRequestImageInfoImageTypeZPL300DPI   LabelRequestImageInfoImageType = "ZPL300DPI"
+)
+
+// Defines values for LabelRequestImageInfoLabelType.
+const (
+	LabelRequestImageInfoLabelTypeN2X7LABEL LabelRequestImageInfoLabelType = "2X7LABEL"
+	LabelRequestImageInfoLabelTypeN4X4LABEL LabelRequestImageInfoLabelType = "4X4LABEL"
+	LabelRequestImageInfoLabelTypeN4X5LABEL LabelRequestImageInfoLabelType = "4X5LABEL"
+	LabelRequestImageInfoLabelTypeN4X6LABEL LabelRequestImageInfoLabelType = "4X6LABEL"
+	LabelRequestImageInfoLabelTypeN6X4LABEL LabelRequestImageInfoLabelType = "6X4LABEL"
+)
+
+// Defines values for LabelRequestImageInfoReceiptOption.
+const (
+	LabelRequestImageInfoReceiptOptionNONE         LabelRequestImageInfoReceiptOption = "NONE"
+	LabelRequestImageInfoReceiptOptionSAMEPAGE     LabelRequestImageInfoReceiptOption = "SAME_PAGE"
+	LabelRequestImageInfoReceiptOptionSEPARATEPAGE LabelRequestImageInfoReceiptOption = "SEPARATE_PAGE"
+)
+
+// Defines values for LinksMethod.
+const (
+	DELETE LinksMethod = "DELETE"
+	GET    LinksMethod = "GET"
+	POST   LinksMethod = "POST"
+	PUT    LinksMethod = "PUT"
+)
+
+// Defines values for PackageDescriptionDimensionsUOM.
+const (
+	PackageDescriptionDimensionsUOMIn PackageDescriptionDimensionsUOM = "in"
+)
+
+// Defines values for PackageDescriptionWeightUOM.
+const (
+	PackageDescriptionWeightUOMLb PackageDescriptionWeightUOM = "lb"
+)
+
+// Defines values for PackageOptionsNonDeliveryOption.
+const (
+	PackageOptionsNonDeliveryOptionABANDON  PackageOptionsNonDeliveryOption = "ABANDON"
+	PackageOptionsNonDeliveryOptionREDIRECT PackageOptionsNonDeliveryOption = "REDIRECT"
+	PackageOptionsNonDeliveryOptionRETURN   PackageOptionsNonDeliveryOption = "RETURN"
+)
+
+// Defines values for PatchRequestOp.
+const (
+	PatchRequestOpReplace PatchRequestOp = "replace"
+)
+
+// Defines values for PatchRequestPath.
+const (
+	PackageDescriptioncontainers         PatchRequestPath = "/packageDescription/containers"
+	PackageDescriptiongirth              PatchRequestPath = "/packageDescription/girth"
+	PackageDescriptionheight             PatchRequestPath = "/packageDescription/height"
+	PackageDescriptionlength             PatchRequestPath = "/packageDescription/length"
+	PackageDescriptionprocessingCategory PatchRequestPath = "/packageDescription/processingCategory"
+	PackageDescriptionrateIndicator      PatchRequestPath = "/packageDescription/rateIndicator"
+	PackageDescriptionweight             PatchRequestPath = "/packageDescription/weight"
+	PackageDescriptionwidth              PatchRequestPath = "/packageDescription/width"
+)
+
+// Defines values for ReturnLabelRequestImageInfoBrandingImageFormat.
+const (
+	ReturnLabelRequestImageInfoBrandingImageFormatNONE       ReturnLabelRequestImageInfoBrandingImageFormat = "NONE"
+	ReturnLabelRequestImageInfoBrandingImageFormatONESQUARE  ReturnLabelRequestImageInfoBrandingImageFormat = "ONE_SQUARE"
+	ReturnLabelRequestImageInfoBrandingImageFormatRECTANGLE  ReturnLabelRequestImageInfoBrandingImageFormat = "RECTANGLE"
+	ReturnLabelRequestImageInfoBrandingImageFormatTWOSQUARES ReturnLabelRequestImageInfoBrandingImageFormat = "TWO_SQUARES"
+)
+
+// Defines values for ReturnLabelRequestImageInfoImageType.
+const (
+	EPL300DPI   ReturnLabelRequestImageInfoImageType = "EPL300DPI"
+	GIF         ReturnLabelRequestImageInfoImageType = "GIF"
+	JPG         ReturnLabelRequestImageInfoImageType = "JPG"
+	LABELBROKER ReturnLabelRequestImageInfoImageType = "LABEL_BROKER"
+	NONE        ReturnLabelRequestImageInfoImageType = "NONE"
+	PDF         ReturnLabelRequestImageInfoImageType = "PDF"
+	PNG         ReturnLabelRequestImageInfoImageType = "PNG"
+	SVG         ReturnLabelRequestImageInfoImageType = "SVG"
+	TIFF        ReturnLabelRequestImageInfoImageType = "TIFF"
+	ZPL203DPI   ReturnLabelRequestImageInfoImageType = "ZPL203DPI"
+	ZPL300DPI   ReturnLabelRequestImageInfoImageType = "ZPL300DPI"
+)
+
+// Defines values for ReturnLabelRequestImageInfoLabelType.
+const (
+	N2X7LABEL ReturnLabelRequestImageInfoLabelType = "2X7LABEL"
+	N4X4LABEL ReturnLabelRequestImageInfoLabelType = "4X4LABEL"
+	N4X5LABEL ReturnLabelRequestImageInfoLabelType = "4X5LABEL"
+	N4X6LABEL ReturnLabelRequestImageInfoLabelType = "4X6LABEL"
+	N6X4LABEL ReturnLabelRequestImageInfoLabelType = "6X4LABEL"
+)
+
+// Defines values for ReturnsPackageDescriptionDimensionsUOM.
+const (
+	ReturnsPackageDescriptionDimensionsUOMIn ReturnsPackageDescriptionDimensionsUOM = "in"
+)
+
+// Defines values for ReturnsPackageDescriptionMailClass.
+const (
+	ReturnsPackageDescriptionMailClassFIRSTCLASSPACKAGERETURNSERVICE   ReturnsPackageDescriptionMailClass = "FIRST-CLASS_PACKAGE_RETURN_SERVICE"
+	ReturnsPackageDescriptionMailClassGROUNDRETURNSERVICE              ReturnsPackageDescriptionMailClass = "GROUND_RETURN_SERVICE"
+	ReturnsPackageDescriptionMailClassPRIORITYMAILEXPRESSRETURNSERVICE ReturnsPackageDescriptionMailClass = "PRIORITY_MAIL_EXPRESS_RETURN_SERVICE"
+	ReturnsPackageDescriptionMailClassPRIORITYMAILRETURNSERVICE        ReturnsPackageDescriptionMailClass = "PRIORITY_MAIL_RETURN_SERVICE"
+	ReturnsPackageDescriptionMailClassUSPSGROUNDADVANTAGERETURNSERVICE ReturnsPackageDescriptionMailClass = "USPS_GROUND_ADVANTAGE_RETURN_SERVICE"
+)
+
+// Defines values for ReturnsPackageDescriptionProcessingCategory.
+const (
+	ReturnsPackageDescriptionProcessingCategoryFLATS         ReturnsPackageDescriptionProcessingCategory = "FLATS"
+	ReturnsPackageDescriptionProcessingCategoryIRREGULAR     ReturnsPackageDescriptionProcessingCategory = "IRREGULAR"
+	ReturnsPackageDescriptionProcessingCategoryLETTERS       ReturnsPackageDescriptionProcessingCategory = "LETTERS"
+	ReturnsPackageDescriptionProcessingCategoryMACHINABLE    ReturnsPackageDescriptionProcessingCategory = "MACHINABLE"
+	ReturnsPackageDescriptionProcessingCategoryNONMACHINABLE ReturnsPackageDescriptionProcessingCategory = "NON_MACHINABLE"
+	ReturnsPackageDescriptionProcessingCategoryNONSTANDARD   ReturnsPackageDescriptionProcessingCategory = "NONSTANDARD"
+)
+
+// Defines values for ReturnsPackageDescriptionRateIndicator.
+const (
+	ReturnsPackageDescriptionRateIndicatorCP ReturnsPackageDescriptionRateIndicator = "CP"
+	ReturnsPackageDescriptionRateIndicatorDN ReturnsPackageDescriptionRateIndicator = "DN"
+	ReturnsPackageDescriptionRateIndicatorDR ReturnsPackageDescriptionRateIndicator = "DR"
+	ReturnsPackageDescriptionRateIndicatorE4 ReturnsPackageDescriptionRateIndicator = "E4"
+	ReturnsPackageDescriptionRateIndicatorE6 ReturnsPackageDescriptionRateIndicator = "E6"
+	ReturnsPackageDescriptionRateIndicatorFA ReturnsPackageDescriptionRateIndicator = "FA"
+	ReturnsPackageDescriptionRateIndicatorFB ReturnsPackageDescriptionRateIndicator = "FB"
+	ReturnsPackageDescriptionRateIndicatorFE ReturnsPackageDescriptionRateIndicator = "FE"
+	ReturnsPackageDescriptionRateIndicatorFP ReturnsPackageDescriptionRateIndicator = "FP"
+	ReturnsPackageDescriptionRateIndicatorFS ReturnsPackageDescriptionRateIndicator = "FS"
+	ReturnsPackageDescriptionRateIndicatorOS ReturnsPackageDescriptionRateIndicator = "OS"
+	ReturnsPackageDescriptionRateIndicatorP5 ReturnsPackageDescriptionRateIndicator = "P5"
+	ReturnsPackageDescriptionRateIndicatorP6 ReturnsPackageDescriptionRateIndicator = "P6"
+	ReturnsPackageDescriptionRateIndicatorP7 ReturnsPackageDescriptionRateIndicator = "P7"
+	ReturnsPackageDescriptionRateIndicatorP8 ReturnsPackageDescriptionRateIndicator = "P8"
+	ReturnsPackageDescriptionRateIndicatorP9 ReturnsPackageDescriptionRateIndicator = "P9"
+	ReturnsPackageDescriptionRateIndicatorPA ReturnsPackageDescriptionRateIndicator = "PA"
+	ReturnsPackageDescriptionRateIndicatorPL ReturnsPackageDescriptionRateIndicator = "PL"
+	ReturnsPackageDescriptionRateIndicatorPM ReturnsPackageDescriptionRateIndicator = "PM"
+	ReturnsPackageDescriptionRateIndicatorQ0 ReturnsPackageDescriptionRateIndicator = "Q0"
+	ReturnsPackageDescriptionRateIndicatorQ6 ReturnsPackageDescriptionRateIndicator = "Q6"
+	ReturnsPackageDescriptionRateIndicatorQ7 ReturnsPackageDescriptionRateIndicator = "Q7"
+	ReturnsPackageDescriptionRateIndicatorQ8 ReturnsPackageDescriptionRateIndicator = "Q8"
+	ReturnsPackageDescriptionRateIndicatorQ9 ReturnsPackageDescriptionRateIndicator = "Q9"
+	ReturnsPackageDescriptionRateIndicatorSP ReturnsPackageDescriptionRateIndicator = "SP"
+)
+
+// Defines values for ReturnsPackageDescriptionShipperVisibilityMethod.
+const (
+	ReturnsPackageDescriptionShipperVisibilityMethodSENDERINFORMATION ReturnsPackageDescriptionShipperVisibilityMethod = "SENDER_INFORMATION"
+)
+
+// Defines values for ReturnsPackageDescriptionWeightUOM.
+const (
+	ReturnsPackageDescriptionWeightUOMLb ReturnsPackageDescriptionWeightUOM = "lb"
+)
+
+// Defines values for ReturnsPackageDescriptionWithoutRateIndicatorDimensionsUOM.
+const (
+	In ReturnsPackageDescriptionWithoutRateIndicatorDimensionsUOM = "in"
+)
+
+// Defines values for ReturnsPackageDescriptionWithoutRateIndicatorMailClass.
+const (
+	FIRSTCLASSPACKAGERETURNSERVICE   ReturnsPackageDescriptionWithoutRateIndicatorMailClass = "FIRST-CLASS_PACKAGE_RETURN_SERVICE"
+	GROUNDRETURNSERVICE              ReturnsPackageDescriptionWithoutRateIndicatorMailClass = "GROUND_RETURN_SERVICE"
+	PRIORITYMAILEXPRESSRETURNSERVICE ReturnsPackageDescriptionWithoutRateIndicatorMailClass = "PRIORITY_MAIL_EXPRESS_RETURN_SERVICE"
+	PRIORITYMAILRETURNSERVICE        ReturnsPackageDescriptionWithoutRateIndicatorMailClass = "PRIORITY_MAIL_RETURN_SERVICE"
+	USPSGROUNDADVANTAGERETURNSERVICE ReturnsPackageDescriptionWithoutRateIndicatorMailClass = "USPS_GROUND_ADVANTAGE_RETURN_SERVICE"
+)
+
+// Defines values for ReturnsPackageDescriptionWithoutRateIndicatorPackagingType.
+const (
+	ReturnsPackageDescriptionWithoutRateIndicatorPackagingTypeBASICPRESORT           ReturnsPackageDescriptionWithoutRateIndicatorPackagingType = "BASIC_PRESORT"
+	ReturnsPackageDescriptionWithoutRateIndicatorPackagingTypeCUBICPARCELS           ReturnsPackageDescriptionWithoutRateIndicatorPackagingType = "CUBIC_PARCELS"
+	ReturnsPackageDescriptionWithoutRateIndicatorPackagingTypeCUBICSOFTPACK          ReturnsPackageDescriptionWithoutRateIndicatorPackagingType = "CUBIC_SOFT_PACK"
+	ReturnsPackageDescriptionWithoutRateIndicatorPackagingTypeFLATRATEENVELOPE       ReturnsPackageDescriptionWithoutRateIndicatorPackagingType = "FLAT_RATE_ENVELOPE"
+	ReturnsPackageDescriptionWithoutRateIndicatorPackagingTypeLEGALFLATRATEENVELOPE  ReturnsPackageDescriptionWithoutRateIndicatorPackagingType = "LEGAL_FLAT_RATE_ENVELOPE"
+	ReturnsPackageDescriptionWithoutRateIndicatorPackagingTypeLGFLATRATEBOX          ReturnsPackageDescriptionWithoutRateIndicatorPackagingType = "LG_FLAT_RATE_BOX"
+	ReturnsPackageDescriptionWithoutRateIndicatorPackagingTypeMDFLATRATEBOX          ReturnsPackageDescriptionWithoutRateIndicatorPackagingType = "MD_FLAT_RATE_BOX"
+	ReturnsPackageDescriptionWithoutRateIndicatorPackagingTypeN5DIGITPRESORT         ReturnsPackageDescriptionWithoutRateIndicatorPackagingType = "5-DIGIT_PRESORT"
+	ReturnsPackageDescriptionWithoutRateIndicatorPackagingTypePADDEDFLATRATEENVELOPE ReturnsPackageDescriptionWithoutRateIndicatorPackagingType = "PADDED_FLAT_RATE_ENVELOPE"
+	ReturnsPackageDescriptionWithoutRateIndicatorPackagingTypeSMFLATRATEBOX          ReturnsPackageDescriptionWithoutRateIndicatorPackagingType = "SM_FLAT_RATE_BOX"
+	ReturnsPackageDescriptionWithoutRateIndicatorPackagingTypeVARIABLE               ReturnsPackageDescriptionWithoutRateIndicatorPackagingType = "VARIABLE"
+)
+
+// Defines values for ReturnsPackageDescriptionWithoutRateIndicatorProcessingCategory.
+const (
+	ReturnsPackageDescriptionWithoutRateIndicatorProcessingCategoryFLATS         ReturnsPackageDescriptionWithoutRateIndicatorProcessingCategory = "FLATS"
+	ReturnsPackageDescriptionWithoutRateIndicatorProcessingCategoryIRREGULAR     ReturnsPackageDescriptionWithoutRateIndicatorProcessingCategory = "IRREGULAR"
+	ReturnsPackageDescriptionWithoutRateIndicatorProcessingCategoryLETTERS       ReturnsPackageDescriptionWithoutRateIndicatorProcessingCategory = "LETTERS"
+	ReturnsPackageDescriptionWithoutRateIndicatorProcessingCategoryMACHINABLE    ReturnsPackageDescriptionWithoutRateIndicatorProcessingCategory = "MACHINABLE"
+	ReturnsPackageDescriptionWithoutRateIndicatorProcessingCategoryNONMACHINABLE ReturnsPackageDescriptionWithoutRateIndicatorProcessingCategory = "NON_MACHINABLE"
+	ReturnsPackageDescriptionWithoutRateIndicatorProcessingCategoryNONSTANDARD   ReturnsPackageDescriptionWithoutRateIndicatorProcessingCategory = "NONSTANDARD"
+)
+
+// Defines values for ReturnsPackageDescriptionWithoutRateIndicatorShape.
+const (
+	ReturnsPackageDescriptionWithoutRateIndicatorShapeNONRECTANGULAR ReturnsPackageDescriptionWithoutRateIndicatorShape = "NON_RECTANGULAR"
+	ReturnsPackageDescriptionWithoutRateIndicatorShapeRECTANGULAR    ReturnsPackageDescriptionWithoutRateIndicatorShape = "RECTANGULAR"
+)
+
+// Defines values for ReturnsPackageDescriptionWithoutRateIndicatorShipperVisibilityMethod.
+const (
+	ReturnsPackageDescriptionWithoutRateIndicatorShipperVisibilityMethodSENDERINFORMATION ReturnsPackageDescriptionWithoutRateIndicatorShipperVisibilityMethod = "SENDER_INFORMATION"
+)
+
+// Defines values for ReturnsPackageDescriptionWithoutRateIndicatorWeightUOM.
+const (
+	ReturnsPackageDescriptionWithoutRateIndicatorWeightUOMLb ReturnsPackageDescriptionWithoutRateIndicatorWeightUOM = "lb"
+)
+
+// Defines values for SerialNumberFormat.
+const (
+	EXTENDED SerialNumberFormat = "EXTENDED"
+	STANDARD SerialNumberFormat = "STANDARD"
+)
+
+// Defines values for ShippingContentsWeightUOM.
+const (
+	ShippingContentsWeightUOMLb ShippingContentsWeightUOM = "lb"
+)
+
+// Defines values for GetListLabelBrandingParamsOrderBy.
+const (
+	Asc  GetListLabelBrandingParamsOrderBy = "asc"
+	Desc GetListLabelBrandingParamsOrderBy = "desc"
+)
+
+// Defines values for GetListLabelBrandingParamsSortBy.
+const (
+	GetListLabelBrandingParamsSortByCreatedDateTime GetListLabelBrandingParamsSortBy = "createdDateTime"
+	GetListLabelBrandingParamsSortByImageName       GetListLabelBrandingParamsSortBy = "imageName"
+)
+
+// Address Address fields standard to all locations.
+type Address struct {
+	// CityAbbreviation This is the abbreviation of city name for the address.
+	CityAbbreviation *string `json:"cityAbbreviation,omitempty"`
+
+	// SecondaryAddress The secondary unit designator, such as apartment(APT) or suite(STE) number, defining the exact location of the address within a building.  For more information please see [Postal Explorer](https://pe.usps.com/text/pub28/28c2_003.htm).
 	SecondaryAddress *string `json:"secondaryAddress,omitempty"`
-	State            *string `json:"state,omitempty"`
-	StreetAddress    *string `json:"streetAddress,omitempty"`
+
+	// StreetAddress The number of a building along with the name of the road or street on which it is located.
+	StreetAddress *string `json:"streetAddress,omitempty"`
+
+	// StreetAddressAbbreviation This is the abbreviation of street address line for the address.
+	StreetAddressAbbreviation *string                `json:"streetAddressAbbreviation,omitempty"`
+	AdditionalProperties      map[string]interface{} `json:"-"`
 }
 
-// LabelResponse defines model for LabelResponse.
-type LabelResponse struct {
-	Image                *string                     `json:"image,omitempty"`
-	LabelAddress         *LabelResponse_LabelAddress `json:"labelAddress,omitempty"`
-	LabelImage           *string                     `json:"labelImage,omitempty"`
-	TrackingNumber       *string                     `json:"trackingNumber,omitempty"`
-	AdditionalProperties map[string]interface{}      `json:"-"`
-}
+// Addressee Fields used to identity the entity receiving a mail piece or package
+type Addressee struct {
+	// Firm Firm/business name corresponding to the address.
+	Firm *string `json:"firm,omitempty"`
 
-// LabelResponse_LabelAddress defines model for LabelResponse.LabelAddress.
-type LabelResponse_LabelAddress struct {
-	TrackingNumber       *string                `json:"trackingNumber,omitempty"`
+	// FirstName First Name corresponding to the address.
+	FirstName *string `json:"firstName,omitempty"`
+
+	// LastName Last Name corresponding to the address.
+	LastName             *string                `json:"lastName,omitempty"`
 	AdditionalProperties map[string]interface{} `json:"-"`
 }
 
-// PackageDescription defines model for PackageDescription.
+// AnyValue Can be anything: string, number, array, object, etc. (except `null`)
+type AnyValue = interface{}
+
+// BaseDomesticPackageDescription defines model for BaseDomesticPackageDescription.
+type BaseDomesticPackageDescription struct {
+	// CarrierRelease Indicates whether recipients authorize a carrier to leave a shipment if no one is available to receive it at the time of delivery. Priority Mail Express&#174; shipments or items requiring a signature at delivery are not eligible (e.g. Signature Confirmation, Insurance > $500).
+	//
+	// Note:
+	//  * Carrier Release is currently not supported when `holdForPickup` is set to `true`.
+	//  * Carrier Release is currently not supported with mail class values of `PRIORITY_MAIL`, `PRIORITY_MAIL_EXPRESS`, or `USPS_GROUND_ADVANTAGE`.
+	//  * Carrier Release is currently not supported with `extraServices` `910`, `911`, `912`, `913`, `921`, `922`, `923`, `924`, `925`, `930`, `931`, `934`, `955`, or `981`.
+	CarrierRelease *bool `json:"carrierRelease,omitempty"`
+
+	// CustomerReference Used for shippers to print a value on a label and included in the Shipping Services File (SSF).
+	//
+	// Note:
+	//  * Customer Reference #3-4 are only supported with label types `4X5LABEL`, `4X6LABEL`, and `6X4LABEL`.
+	//  * Customer Reference #3-4 cannot be used with a customs form.
+	//  * Customer Reference #3-4 will not be added to the SSF.
+	//  * Customer Reference will not display with `imageInfo.brandingImageFormat` value of `RECTANGLE`.
+	//  * When Customer Reference #4 is provided with a Destination Entry Facility, the Drop-Off Location will not be displayed on the label.
+	CustomerReference *[]DomesticCustomerReference `json:"customerReference,omitempty"`
+
+	// DestinationEntryFacilityAddress Address fields for US locations
+	DestinationEntryFacilityAddress *DomesticAddress `json:"destinationEntryFacilityAddress,omitempty"`
+
+	// DestinationEntryFacilityType Types of Facilities:
+	// * `NONE` - Translate to Destination Rate Indicator N
+	// * `DESTINATION_NETWORK_DISTRIBUTION_CENTER` - Translate to Destination Rate Indicator B
+	// * `DESTINATION_SECTIONAL_CENTER_FACILITY` - Translate to Destination Rate Indicator S
+	// * `DESTINATION_DELIVERY_UNIT` - Translate to Destination Rate Indicator D
+	// * `DESTINATION_SERVICE_HUB` - Translate to Destination Rate Indicator H
+	// * `DESTINATION_REGIONAL_PROCESSING_DISTRIBUTION_CENTER` - Translate to Destination Rate Indicator B
+	//
+	// Note:
+	// * If any value other than `NONE` is selected, a destinationEntryFacilityAddress is required.
+	// * The destinationEntryFacilityAddress must be a valid facility to drop your package
+	// * The destination entry facility type must be set to `NONE` when there is a value provided for the 'inductionZipCode' field
+	// * Effective 01/19/2025: `DESTINATION_DELIVERY_UNIT` is the only valid enumeration when using the 'USPS_CONNECT_MAIL' mail class
+	// * Effective 01/18/2026: `DESTINATION_NETWORK_DISTRIBUTION_CENTER` with `PARCEL_SELECT` is no longer eligible.
+	// * Effective 01/18/2026: (NSA Only) `DESTINATION_REGIONAL_PROCESSING_DISTRIBUTION_CENTER` with `PARCEL_SELECT` is available as an option.
+	DestinationEntryFacilityType BaseDomesticPackageDescriptionDestinationEntryFacilityType `json:"destinationEntryFacilityType"`
+
+	// DimensionsUOM Dimensions unit of measure
+	// * in - Inches
+	DimensionsUOM *BaseDomesticPackageDescriptionDimensionsUOM `json:"dimensionsUOM,omitempty"`
+
+	// ExtraServices Extra Service Code requested.
+	// * 365 - Global Direct Entry
+	// * 415 - USPS Label Delivery
+	// * 480 - Tracking Plus 6 Months
+	// * 481 - Tracking Plus 1 Year
+	// * 482 - Tracking Plus 3 Years
+	// * 483 - Tracking Plus 5 Years
+	// * 484 - Tracking Plus 7 Years
+	// * 485 - Tracking Plus 10 Years
+	// * 486 - Tracking Plus Signature 3 Years
+	// * 487 - Tracking Plus Signature 5 Years
+	// * 488 - Tracking Plus Signature 7 Years
+	// * 489 - Tracking Plus Signature 10 Years
+	// * 810 - HAZMAT Air Eligible Ethanol Package
+	// * 811 - HAZMAT Class 1 - Toy Propellant/Safety Fuse Package
+	// * 812 - HAZMAT Class 3 – Flammable Liquid Package
+	// * 813 - HAZMAT Class 7 - Radioactive Materials Package
+	// * 814 - HAZMAT Class 8 - Corrosive Materials Package
+	// * 815 - HAZMAT Class 8 - Nonspillable Wet Battery Package
+	// * 816 - HAZMAT Class 9 - Lithium Battery Marked - Ground Only Package
+	// * 817 - HAZMAT Class 9 - Lithium Battery - Returns Package
+	// * 818 - HAZMAT Class 9 - Lithium batteries, marked package
+	// * 819 - HAZMAT Class 9 - Dry Ice Package
+	// * 820 - HAZMAT Class 9 - Lithium batteries, unmarked package
+	// * 821 - HAZMAT Class 9 - Magnetized Materials Package
+	// * 822 - HAZMAT Division 4.1 – Flammable Solids or Safety Matches Package
+	// * 823 - HAZMAT Division 5.1 - Oxidizers Package
+	// * 824 - HAZMAT Division 5.2 - Organic Peroxides Package
+	// * 825 - HAZMAT Division 6.1 – Toxic Materials Package
+	// * 826 - HAZMAT Division 6.2 – Infectious Substances Package
+	// * 827 - HAZMAT Excepted Quantity Provision Package
+	// * 828 - HAZMAT Ground Only
+	// * 829 - HAZMAT ID8000 Consumer Commodity Package
+	// * 830 - HAZMAT Lighters Package
+	// * 831 - HAZMAT LTD QTY Ground Package
+	// * 832 - HAZMAT Small Quantity Provision Package
+	// * 857 - Hazardous Material
+	// * 910 - Certified Mail
+	// * 911 - Certified Mail Restricted Delivery
+	// * 912 - Certified Mail Adult Signature Required
+	// * 913 - Certified Mail Adult Signature Restricted Delivery
+	// * 920 - USPS Tracking
+	// * 921 - Signature Confirmation
+	// * 922 - Adult Signature Required 21 or Over
+	// * 923 - Adult Signature Restricted Delivery 21 or Over
+	// * 924 - Signature Confirmation Restricted Delivery
+	// * 925 - Priority Mail Express Merchandise Insurance
+	// * 930 - Insurance <= $500
+	// * 931 - Insurance > $500
+	// * 934 - Insurance Restricted Delivery
+	// * 955 - Return Receipt
+	// * 957 - Return Receipt Electronic
+	// * 981 - Signature Requested (PRIORITY_MAIL_EXPRESS only)
+	// * 986 - PO to Addressee (PRIORITY_MAIL_EXPRESS only)
+	// * 991 - Sunday Delivery
+	//
+	// Note:
+	// * When the extra service code "930" is provided in the request, if the item value is over $500, "930" will automatically be replaced with "931" - Insurance (Greater than $500).
+	// * USPS Label Delivery (Print and Deliver, extra service code "415"): When requesting this service, no images will be returned in the API response. The label and receipt will be printed and mailed to the `fromAddress` provided. The mailed label will always include a receipt on the page. This service is not available at all locations.
+	// * Some service codes require a combination with extra services such as "955" and "957". For all valid combinations, visit [https://postalpro.usps.com/IMPB_Service_Type_Codes](https://postalpro.usps.com/IMPB_Service_Type_Codes).
+	ExtraServices *[]ExtraService `json:"extraServices,omitempty"`
+
+	// Girth The girth of the container, in dimensionsUOM. If partial dimensions are provided, an error response will return. Length, Width, Height are required for accurate pricing of a rectangular package when any dimension of the item exceeds 12 inches. In addition, Girth is required only for a non- rectangular package in addition to Length, Width, Height when any dimension of the package exceeds 12 inches. For rectangular packages, the Girth dimension must be left blank as this dimension is to only be used for non- rectangular packages.
+	Girth *float32 `json:"girth,omitempty"`
+
+	// HasNonstandardCharacteristics Package is nonstandard. Nonstandard packages include cylindrical tubes and rolls, certain high-density items, cartons containing more than 24 ounces of liquids in one or more glass containers, cartons containing 1 gallon or more of liquid in metal or plastic containers, and items in [201.7.6.2](https://pe.usps.com/text/dmm300/201.htm#7.6.2).
+	HasNonstandardCharacteristics *bool `json:"hasNonstandardCharacteristics,omitempty"`
+
+	// Height The height of the container, in dimensionsUOM. If partial dimensions are provided, an error response will return. Length, Width, and Height are required for accurate pricing of a rectangular package when any dimension of the item exceeds 12 inches. Girth is required only for a non-rectangular package in addition to Length, Width, and Height when any dimension of the package exceeds 12 inches. For rectangular packages, the Girth dimension must be left blank as this dimension is to only be used for non-rectangular packages.
+	Height float32 `json:"height"`
+
+	// InductionZIPCode The 5-Digit ZIP Code representing the location where the package is being inducted (i.e. dropped off) into the mailstream.  When provided, this ZIP Code will be used for pricing instead of `fromAddress.ZIPCode`.
+	InductionZIPCode *InductionZIPCode `json:"inductionZIPCode,omitempty"`
+
+	// Length The length of the container, in dimensionsUOM. If partial dimensions are provided, an error response will return. Length, Width, and Height are required for accurate pricing of a rectangular package when any dimension of the item exceeds 12 inches. Girth is required only for a non-rectangular package in addition to Length, Width, and Height when any dimension of the package exceeds 12 inches. For rectangular packages, the Girth dimension must be left blank as this dimension is to only be used for non-rectangular packages.
+	Length float32 `json:"length"`
+
+	// LogisticsManagerMID This is the mailer ID associated with the logistics manager for this label This provides an additional copy of the scan extract file to the MID's outbound folder.
+	LogisticsManagerMID *string `json:"logisticsManagerMID,omitempty"`
+
+	// MailClass The mail service requested.
+	//
+	// Note:
+	// - `PARCEL_SELECT` with a `destinationEntryFacilityType` of `NONE` will convert to `USPS_GROUND_ADVANTAGE`.
+	// - `PARCEL_SELECT_LIGHTWEIGHT` is deprecated and will convert to `PARCEL_SELECT`.
+	// - `FIRST-CLASS_PACKAGE_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE`.
+	// - Certain mail classes, such as `MEDIA_MAIL`, `BOUND_PRINTED_MATTER`, and `LIBRARY_MAIL`, have eligibility rules on what can be mailed using that service.  For more details on these mail classes, please visit [What are Package Services?](https://faq.usps.com/s/article/What-are-Package-Services).
+	// - The Heavy Printed Matter product is supported with `MARKETING_MAIL_PARCELS`. To create Heavy Printed Matter labels, the `rateIndicator` should be set to `PR` or `NP` for Presorted or Nonpresorted USPS Marketing Mail Parcels Heavy Printed Matter or to `PN` or `NN` for Nonprofit Presorted or Nonpresorted USPS Marketing Mail Parcels Heavy Printed Matter respectively.
+	MailClass BaseDomesticPackageDescriptionMailClass `json:"mailClass"`
+
+	// MailOwnerMID This is the mailer ID associated with the mail owner for this label This provides an additional copy of the scan extract file to the MID's outbound folder.
+	MailOwnerMID *string `json:"mailOwnerMID,omitempty"`
+
+	// MailingDate The local date on which the package will be mailed. If the time is not provided, it will be defaulted to 10:00 p.m. local time.  Local time will be based on the `destinationEntryFacilityAddress.ZIPCode` or `inductionZIPCode` when provided, otherwise `fromAddress.ZIPCode` will be used as the origin ZIP Code.
+	MailingDate string `json:"mailingDate"`
+
+	// Nonprofit Used to specify if the shipment is a nonprofit mailing.  Shippers must be authorized for nonprofit mailings to qualify for nonprofit pricing.  All nonprofit mailings must not be used for product fulfillment.  For more details on Nonprofit Mailers, visit [Nonprofit Mailers](https://pe.usps.com/BusinessMail101?ViewName=NonprofitPrices).
+	//
+	// When `nonprofit` is `true` and `mailClass` is `MARKETING_MAIL_PARCELS`, nonprofit rates will be applied.  When using `rateIndicator` values, the `rateIndicator` must also be `NN` or `PN`.
+	//
+	// When `nonprofit` is `false` and `mailClass` is `MARKETING_MAIL_PARCELS`, standard rates will be applied.
+	//
+	// `nonprofit` is not supported for any other mail class.
+	Nonprofit      *Nonprofit                                     `json:"nonprofit,omitempty"`
+	PackageOptions *BaseDomesticPackageDescription_PackageOptions `json:"packageOptions,omitempty"`
+
+	// PhysicalSignatureRequired Indicates the method for the signature that will be used when signing for the package.  Required when requesting signature `extraServices` including `910`, `911`, `912`, `913`, `921`, `922`, `923`, `924`, `925`, `931`, `934`, `955`, and `981`.  Additionally required when requesting `extraServices` code `930` with a `packageValue` greater than $500.
+	//
+	// When `physicalSignatureRequired` is `false`, a USPS Electronic Signature Online (USPS eSOL) may be used to sign for the item.  For more information on USPS eSOL, please visit the [USPS eSOL FAQ](https://faq.usps.com/s/article/USPS-Electronic-Signature-Online).
+	//
+	// When `physicalSignatureRequired` is `true`, the recipient will be required to physically sign for the item.  A USPS eSOL on record will not be accepted as a valid signature for the item.
+	//
+	// Notes:
+	//  * Regardless of the boolean, the printed label will still display "SIGNATURE REQUIRED" if a signature service is included with the label.
+	//  * `carrierRelease` is not eligible to be used with `physicalSignatureRequired`.
+	PhysicalSignatureRequired *bool `json:"physicalSignatureRequired,omitempty"`
+
+	// ProcessingCategory Value designates if shipment is `MACHINABLE`, `NONSTANDARD`, `LETTERS`, or `FLATS`.
+	//
+	// Note:
+	// * When requesting the mail class `USPS_CONNECT_MAIL`, users are required to use a processing category of `FLATS`.
+	// * The processing category `LETTERS` is only valid for mail classes `PRIORITY_MAIL` and `PRIORITY_MAIL_EXPRESS` for outbound shipments.
+	// * The processing category `FLATS` is not valid for mail class `USPS_GROUND_ADVANTAGE`.
+	// * `IRREGULAR` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+	// * `NON_MACHINABLE` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+	ProcessingCategory BaseDomesticPackageDescriptionProcessingCategory `json:"processingCategory"`
+
+	// SerialNumberFormat Used to specify the barcode construct used for the generated tracking number.  For details on barcode constructs, reference Appendix J in [Pub 199](https://postalpro.usps.com/pub199).
+	//
+	// `STANDARD` - Will generate a `C01`, `C03`, `C05`, or `C07` barcode construct, based on the Label Owner's `MID` in the Payment Authorization Token.
+	//
+	// `EXTENDED` - Will generate a `C02` or `C06` barcode construct, based on the Label Owner's `MID` in the Payment Authorization Token.
+	SerialNumberFormat *SerialNumberFormat `json:"serialNumberFormat,omitempty"`
+
+	// ShipperVisibilityMethod When generating labels for a third party shipper the label provider must capture and provide contact details of the individual or entity to whom they provide the label. There are two methods for reporting shipper information to USPS:
+	//
+	// 1. The label provider creates a unique USPS Mailer ID (MID) using the name, validated address, phone, and email contact information of each shipper. When using this method the Mailer ID should be submitted in the MID field in the LABEL_OWNER role when generating the payment authorization token and this field should be populated with 'MID_INFORMATION'
+	//
+	// 2. An alternative method allows for the label provider to assign a unique alphanumeric value known as a platformUserId to each shipper and to report the platformUserId together with the required shipper contact details. When using this method the shipper contact details are required in the `senderAddress` object (including `streetAddress`, `city`, `state`, `ZIPCode`, `phone`, `email`, `platformUserId` & `firstName`/`lastName` or `firm`) and this field should be populated with 'SENDER_INFORMATION'.
+	ShipperVisibilityMethod *BaseDomesticPackageDescriptionShipperVisibilityMethod `json:"shipperVisibilityMethod,omitempty"`
+
+	// Weight The package weight, in weightUOM (Unit Of Measure). Items must weigh 70 pounds (1120 ounces) or less.
+	Weight float32 `json:"weight"`
+
+	// WeightUOM Weight Unit of Measurement
+	//   * lb - Pounds
+	WeightUOM *BaseDomesticPackageDescriptionWeightUOM `json:"weightUOM,omitempty"`
+
+	// Width The width of the container, in dimensionsUOM. If partial dimensions are provided, an error response will return. Length, Width, and Height are required for accurate pricing of a rectangular package when any dimension of the item exceeds 12 inches. Girth is required only for a non-rectangular package in addition to Length, Width, and Height when any dimension of the package exceeds 12 inches. For rectangular packages, the Girth dimension must be left blank as this dimension is to only be used for non- rectangular packages.
+	Width                float32                `json:"width"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// BaseDomesticPackageDescriptionDestinationEntryFacilityType Types of Facilities:
+// * `NONE` - Translate to Destination Rate Indicator N
+// * `DESTINATION_NETWORK_DISTRIBUTION_CENTER` - Translate to Destination Rate Indicator B
+// * `DESTINATION_SECTIONAL_CENTER_FACILITY` - Translate to Destination Rate Indicator S
+// * `DESTINATION_DELIVERY_UNIT` - Translate to Destination Rate Indicator D
+// * `DESTINATION_SERVICE_HUB` - Translate to Destination Rate Indicator H
+// * `DESTINATION_REGIONAL_PROCESSING_DISTRIBUTION_CENTER` - Translate to Destination Rate Indicator B
+//
+// Note:
+// * If any value other than `NONE` is selected, a destinationEntryFacilityAddress is required.
+// * The destinationEntryFacilityAddress must be a valid facility to drop your package
+// * The destination entry facility type must be set to `NONE` when there is a value provided for the 'inductionZipCode' field
+// * Effective 01/19/2025: `DESTINATION_DELIVERY_UNIT` is the only valid enumeration when using the 'USPS_CONNECT_MAIL' mail class
+// * Effective 01/18/2026: `DESTINATION_NETWORK_DISTRIBUTION_CENTER` with `PARCEL_SELECT` is no longer eligible.
+// * Effective 01/18/2026: (NSA Only) `DESTINATION_REGIONAL_PROCESSING_DISTRIBUTION_CENTER` with `PARCEL_SELECT` is available as an option.
+type BaseDomesticPackageDescriptionDestinationEntryFacilityType string
+
+// BaseDomesticPackageDescriptionDimensionsUOM Dimensions unit of measure
+// * in - Inches
+type BaseDomesticPackageDescriptionDimensionsUOM string
+
+// BaseDomesticPackageDescriptionMailClass The mail service requested.
+//
+// Note:
+// - `PARCEL_SELECT` with a `destinationEntryFacilityType` of `NONE` will convert to `USPS_GROUND_ADVANTAGE`.
+// - `PARCEL_SELECT_LIGHTWEIGHT` is deprecated and will convert to `PARCEL_SELECT`.
+// - `FIRST-CLASS_PACKAGE_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE`.
+// - Certain mail classes, such as `MEDIA_MAIL`, `BOUND_PRINTED_MATTER`, and `LIBRARY_MAIL`, have eligibility rules on what can be mailed using that service.  For more details on these mail classes, please visit [What are Package Services?](https://faq.usps.com/s/article/What-are-Package-Services).
+// - The Heavy Printed Matter product is supported with `MARKETING_MAIL_PARCELS`. To create Heavy Printed Matter labels, the `rateIndicator` should be set to `PR` or `NP` for Presorted or Nonpresorted USPS Marketing Mail Parcels Heavy Printed Matter or to `PN` or `NN` for Nonprofit Presorted or Nonpresorted USPS Marketing Mail Parcels Heavy Printed Matter respectively.
+type BaseDomesticPackageDescriptionMailClass string
+
+// BaseDomesticPackageDescriptionPackageOptionsAncillaryServiceEndorsements Endorsements allow the sender to obtain the addressee's new (forwarding) address
+// (provided the appropriate endorsement is used and if the addressee filed a
+// Change-of-Address Order with the Postal Service) or the reason for non-delivery.
+// For more information see [PostalPro](https://postalpro.usps.com/address-quality/ancillary-service-endorsements).
+//
+// Note:
+//   - Ancillary Service Endorsements are currently not supported when 'holdForPickup' is set to 'true'.
+//   - 'CHANGE_SERVICE_REQUESTED' with a mail class value of 'PRIORITY_MAIL' currently only supports a contentType of 'PERISHABLE'.
+//   - 'CHANGE_SERVICE_REQUESTED' cannot be requested with a 'contentType' of 'HAZMAT' or any hazmat shipments.
+//   - 'CHANGE_SERVICE_REQUESTED' with mail classes 'PARCEL_SELECT', 'USPS_GROUND_ADVANTAGE', and 'PRIORITY_MAIL' can only be used with extraServices '920' and '921'.
+//   - Ancillary Service Endorsements are currently only supported with mail class values 'PARCEL_SELECT', 'USPS_GROUND_ADVANTAGE', 'PRIORITY_MAIL', and 'PRIORITY_MAIL_EXPRESS'.
+//   - 'ELECTRONIC_SERVICE_REQUESTED' with a mail class value of 'PARCEL_SELECT' cannot be requested with a 'contentType' of 'HAZMAT' or any hazmat shipments.
+type BaseDomesticPackageDescriptionPackageOptionsAncillaryServiceEndorsements string
+
+// BaseDomesticPackageDescriptionPackageOptionsContentType The type of contents in the package.
+//
+// Note:
+// * `CREMATED_REMAINS` is currently only eligible for the `PRIORITY_MAIL_EXPRESS` mail class and is not eligible for Hold for Pickup shipments.  Please refer to [Publication 139](https://about.usps.com/publications/pub139/welcome.htm) for guidelines on how to package and ship `CREMATED_REMAINS`.
+// * `DAY_OLD_POULTRY` is currently only eligible with mail class values of `USPS_GROUND_ADVANTAGE`, `PRIORITY_MAIL` and `PRIORITY_MAIL_EXPRESS`.
+// * Shipments that contain Live Animals or Perishables will incur a Live Animal and Perishables Handling Fee per mail piece. Content types `HAZMAT`, `CREMATED_REMAINS`, and `MEDICAL_SUPPLIES` do not apply and will not incur a fee. For `DAY_OLD_POULTRY` shipments only, an additional Live Animal Transport Fee per pound is applied. For more information, please visit [Live Animals Transportation Fee FAQ](https://faq.usps.com/s/article/Live-Animal-Transportation-Fee#:~:text=The%20Live%20Animal%20Transportation%20fee%20is%20charged%20%240.20%20per%20pound,prices%20to%20Zones%205%2D9)
+// * `HAZMAT` domestic labels with destination addresses to APO/FPO/DPO and PTFAS (except Puerto Rico) will not contain any Hazmat markings/indicators, including service type codes in the IMpb. When users indicate a shipment contains hazmat materials in the API request (via content type and/or extra services), that information will still be captured and sent in the shipping services file. For more information, please review the [USPS APIs release notes](https://postalpro.usps.gov/usps-apis-releases)
+// * For guidelines on shipping Perishable and Hazardous Material, please refer to [Publication 52](https://pe.usps.com/text/pub52/welcome.htm).
+// * For ZIP codes with restrictions:
+//   - Please refer to the most recent [Postal Bulletin](https://about.usps.com/resources/postal-bulletin.htm) ZIP restriction table for more information. You can find this data under `Pull-Out information` -> `Other Information` -> `Overseas Military/Diplomatic Mail`.
+//   - When restriction `M` applies, then `BEES`, `DAY_OLD_POULTRY`, `ADULT_BIRDS`, `OTHER_LIVES`, `FRUITS`, `VEGETABLES`, and `LIVE_PLANTS` are not allowed.
+//   - When restriction `X` applies, then `CREMATED_REMAINS` are not allowed.
+type BaseDomesticPackageDescriptionPackageOptionsContentType string
+
+// BaseDomesticPackageDescriptionPackageOptionsNonDeliveryOption Requested action in the case a package is undeliverable:
+//   - `RETURN` for package to be returned to `fromAddress`.
+//   - `REDIRECT` to return package to address specified in the `redirectAddress`.
+//   - `ABANDON` to dispose of undeliverable package
+//
+// Note:
+//   - `REDIRECT` and `ABANDON` will not impact the domestic package endpoint. Please use ancillary service endorsements instead.
+//   - An address must be provided in `redirectAddress` when a value of `REDIRECT` is provided.
+type BaseDomesticPackageDescriptionPackageOptionsNonDeliveryOption string
+
+// BaseDomesticPackageDescription_PackageOptions defines model for BaseDomesticPackageDescription.PackageOptions.
+type BaseDomesticPackageDescription_PackageOptions struct {
+	// AncillaryServiceEndorsements Endorsements allow the sender to obtain the addressee's new (forwarding) address
+	// (provided the appropriate endorsement is used and if the addressee filed a
+	// Change-of-Address Order with the Postal Service) or the reason for non-delivery.
+	// For more information see [PostalPro](https://postalpro.usps.com/address-quality/ancillary-service-endorsements).
+	//
+	// Note:
+	//   * Ancillary Service Endorsements are currently not supported when 'holdForPickup' is set to 'true'.
+	//   * 'CHANGE_SERVICE_REQUESTED' with a mail class value of 'PRIORITY_MAIL' currently only supports a contentType of 'PERISHABLE'.
+	//   * 'CHANGE_SERVICE_REQUESTED' cannot be requested with a 'contentType' of 'HAZMAT' or any hazmat shipments.
+	//   * 'CHANGE_SERVICE_REQUESTED' with mail classes 'PARCEL_SELECT', 'USPS_GROUND_ADVANTAGE', and 'PRIORITY_MAIL' can only be used with extraServices '920' and '921'.
+	//   * Ancillary Service Endorsements are currently only supported with mail class values 'PARCEL_SELECT', 'USPS_GROUND_ADVANTAGE', 'PRIORITY_MAIL', and 'PRIORITY_MAIL_EXPRESS'.
+	//   * 'ELECTRONIC_SERVICE_REQUESTED' with a mail class value of 'PARCEL_SELECT' cannot be requested with a 'contentType' of 'HAZMAT' or any hazmat shipments.
+	AncillaryServiceEndorsements *BaseDomesticPackageDescriptionPackageOptionsAncillaryServiceEndorsements `json:"ancillaryServiceEndorsements,omitempty"`
+
+	// Containers containers
+	Containers *[]Container `json:"containers,omitempty"`
+
+	// ContentType The type of contents in the package.
+	//
+	// Note:
+	// * `CREMATED_REMAINS` is currently only eligible for the `PRIORITY_MAIL_EXPRESS` mail class and is not eligible for Hold for Pickup shipments.  Please refer to [Publication 139](https://about.usps.com/publications/pub139/welcome.htm) for guidelines on how to package and ship `CREMATED_REMAINS`.
+	// * `DAY_OLD_POULTRY` is currently only eligible with mail class values of `USPS_GROUND_ADVANTAGE`, `PRIORITY_MAIL` and `PRIORITY_MAIL_EXPRESS`.
+	// * Shipments that contain Live Animals or Perishables will incur a Live Animal and Perishables Handling Fee per mail piece. Content types `HAZMAT`, `CREMATED_REMAINS`, and `MEDICAL_SUPPLIES` do not apply and will not incur a fee. For `DAY_OLD_POULTRY` shipments only, an additional Live Animal Transport Fee per pound is applied. For more information, please visit [Live Animals Transportation Fee FAQ](https://faq.usps.com/s/article/Live-Animal-Transportation-Fee#:~:text=The%20Live%20Animal%20Transportation%20fee%20is%20charged%20%240.20%20per%20pound,prices%20to%20Zones%205%2D9)
+	// * `HAZMAT` domestic labels with destination addresses to APO/FPO/DPO and PTFAS (except Puerto Rico) will not contain any Hazmat markings/indicators, including service type codes in the IMpb. When users indicate a shipment contains hazmat materials in the API request (via content type and/or extra services), that information will still be captured and sent in the shipping services file. For more information, please review the [USPS APIs release notes](https://postalpro.usps.gov/usps-apis-releases)
+	// * For guidelines on shipping Perishable and Hazardous Material, please refer to [Publication 52](https://pe.usps.com/text/pub52/welcome.htm).
+	// * For ZIP codes with restrictions:
+	//   * Please refer to the most recent [Postal Bulletin](https://about.usps.com/resources/postal-bulletin.htm) ZIP restriction table for more information. You can find this data under `Pull-Out information` -> `Other Information` -> `Overseas Military/Diplomatic Mail`.
+	//   * When restriction `M` applies, then `BEES`, `DAY_OLD_POULTRY`, `ADULT_BIRDS`, `OTHER_LIVES`, `FRUITS`, `VEGETABLES`, and `LIVE_PLANTS` are not allowed.
+	//   * When restriction `X` applies, then `CREMATED_REMAINS` are not allowed.
+	ContentType *BaseDomesticPackageDescriptionPackageOptionsContentType `json:"contentType,omitempty"`
+
+	// GenerateGXEvent Provides the option for a user to not create a "GX" event for the package. By default, a GX event will be created.
+	GenerateGXEvent *bool `json:"generateGXEvent,omitempty"`
+
+	// ImmediateManifest Setting this field to `true` will send electronic data to Postal systems within 15 minutes of label creation.
+	//
+	// If invoked, this label <u><strong>cannot</strong></u> be canceled. Instead, one must request an unused label refund – which may be subject to an admin fee.
+	//
+	// Depending on time of label creation, your packages could be charged same day instead of next day.
+	ImmediateManifest *bool `json:"immediateManifest,omitempty"`
+
+	// NonDeliveryOption Requested action in the case a package is undeliverable:
+	//   - `RETURN` for package to be returned to `fromAddress`.
+	//   - `REDIRECT` to return package to address specified in the `redirectAddress`.
+	//   - `ABANDON` to dispose of undeliverable package
+	//
+	// Note:
+	//   * `REDIRECT` and `ABANDON` will not impact the domestic package endpoint. Please use ancillary service endorsements instead.
+	//   * An address must be provided in `redirectAddress` when a value of `REDIRECT` is provided.
+	NonDeliveryOption *BaseDomesticPackageDescriptionPackageOptionsNonDeliveryOption `json:"nonDeliveryOption,omitempty"`
+
+	// Omas Fields specific to Official Mail Accounting System (OMAS).  Used for Federal Agencies.
+	Omas *struct {
+		// ChargebackCode Code used with OMAS transactions.
+		ChargebackCode *string `json:"chargebackCode,omitempty"`
+	} `json:"omas,omitempty"`
+
+	// OriginalPackage * Note: packageOptions.originalPackage fields cannot be used in combination with packageOptions.returnReceiptTracking.
+	OriginalPackage *struct {
+		// OriginalConstructCode A 3-character code to identify the construct of the Original Label Tracking Number
+		OriginalConstructCode string `json:"originalConstructCode"`
+
+		// OriginalTrackingNumber The tracking number associated with the package before it was over labeled.
+		// For accurate tracking, this field requires a concatenated string consisting of the routingInformation and trackingNumber from the original label response.
+		OriginalTrackingNumber string `json:"originalTrackingNumber"`
+	} `json:"originalPackage,omitempty"`
+
+	// PackageValue The merchandise value of the package, in US dollars. Used as the declared value for Insurance and for fee calculation when provided.
+	//
+	//  Note:
+	//   * `packageValue` is required when `extraServices` includes `930` or `931`.
+	PackageValue *float32 `json:"packageValue,omitempty"`
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+	RedirectAddress *DomesticLabelAddress `json:"redirectAddress,omitempty"`
+
+	// ReturnReceiptTracking Indicates whether a return receipt tracking number should be generated for the package.
+	// If set to `true`, the system will automatically add the Extra Service Code (ESC) `955`
+	// if it is not already present. When enabled, the `returnReceiptTrackingNumber` field will be populated in the response.
+	//
+	// Note:
+	//   * `returnReceiptTracking` cannot be used in combination with `packageOptions.originalPackage` fields.
+	//   * Utilizing `returnReceiptTracking` will incur the `955` ESC associated fee.
+	ReturnReceiptTracking *bool                  `json:"returnReceiptTracking,omitempty"`
+	AdditionalProperties  map[string]interface{} `json:"-"`
+}
+
+// BaseDomesticPackageDescriptionProcessingCategory Value designates if shipment is `MACHINABLE`, `NONSTANDARD`, `LETTERS`, or `FLATS`.
+//
+// Note:
+// * When requesting the mail class `USPS_CONNECT_MAIL`, users are required to use a processing category of `FLATS`.
+// * The processing category `LETTERS` is only valid for mail classes `PRIORITY_MAIL` and `PRIORITY_MAIL_EXPRESS` for outbound shipments.
+// * The processing category `FLATS` is not valid for mail class `USPS_GROUND_ADVANTAGE`.
+// * `IRREGULAR` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+// * `NON_MACHINABLE` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+type BaseDomesticPackageDescriptionProcessingCategory string
+
+// BaseDomesticPackageDescriptionShipperVisibilityMethod When generating labels for a third party shipper the label provider must capture and provide contact details of the individual or entity to whom they provide the label. There are two methods for reporting shipper information to USPS:
+//
+// 1. The label provider creates a unique USPS Mailer ID (MID) using the name, validated address, phone, and email contact information of each shipper. When using this method the Mailer ID should be submitted in the MID field in the LABEL_OWNER role when generating the payment authorization token and this field should be populated with 'MID_INFORMATION'
+//
+// 2. An alternative method allows for the label provider to assign a unique alphanumeric value known as a platformUserId to each shipper and to report the platformUserId together with the required shipper contact details. When using this method the shipper contact details are required in the `senderAddress` object (including `streetAddress`, `city`, `state`, `ZIPCode`, `phone`, `email`, `platformUserId` & `firstName`/`lastName` or `firm`) and this field should be populated with 'SENDER_INFORMATION'.
+type BaseDomesticPackageDescriptionShipperVisibilityMethod string
+
+// BaseDomesticPackageDescriptionWeightUOM Weight Unit of Measurement
+//   - lb - Pounds
+type BaseDomesticPackageDescriptionWeightUOM string
+
+// BaseReturnsPackageDescription defines model for BaseReturnsPackageDescription.
+type BaseReturnsPackageDescription struct {
+	// CustomerReference Used for shippers to print a value on a label and included in the Shipping Services Files.
+	CustomerReference *[]DomesticCustomerReference `json:"customerReference,omitempty"`
+
+	// DestinationEntryFacilityAddress Destination entry facility address
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+	DestinationEntryFacilityAddress *DomesticAddress `json:"destinationEntryFacilityAddress,omitempty"`
+
+	// DimensionsUOM Dimensions unit of measure
+	// * in - Inches
+	DimensionsUOM *BaseReturnsPackageDescriptionDimensionsUOM `json:"dimensionsUOM,omitempty"`
+
+	// ExtraServices Extra Service Code requested.
+	// * 365 - Global Direct Entry
+	// * 415 - USPS Label Delivery
+	// * 480 - Tracking Plus 6 Months
+	// * 481 - Tracking Plus 1 Year
+	// * 482 - Tracking Plus 3 Years
+	// * 483 - Tracking Plus 5 Years
+	// * 484 - Tracking Plus 7 Years
+	// * 485 - Tracking Plus 10 Years
+	// * 486 - Tracking Plus Signature 3 Years
+	// * 487 - Tracking Plus Signature 5 Years
+	// * 488 - Tracking Plus Signature 7 Years
+	// * 489 - Tracking Plus Signature 10 Years
+	// * 810 - HAZMAT Air Eligible Ethanol Package
+	// * 811 - HAZMAT Class 1 - Toy Propellant/Safety Fuse Package
+	// * 812 - HAZMAT Class 3 – Flammable Liquid Package
+	// * 813 - HAZMAT Class 7 - Radioactive Materials Package
+	// * 814 - HAZMAT Class 8 - Corrosive Materials Package
+	// * 815 - HAZMAT Class 8 - Nonspillable Wet Battery Package
+	// * 816 - HAZMAT Class 9 - Lithium Battery Marked - Ground Only Package
+	// * 817 - HAZMAT Class 9 - Lithium Battery - Returns Package
+	// * 818 - HAZMAT Class 9 - Lithium batteries, marked package
+	// * 819 - HAZMAT Class 9 - Dry Ice Package
+	// * 820 - HAZMAT Class 9 - Lithium batteries, unmarked package
+	// * 821 - HAZMAT Class 9 - Magnetized Materials Package
+	// * 822 - HAZMAT Division 4.1 – Flammable Solids or Safety Matches Package
+	// * 823 - HAZMAT Division 5.1 - Oxidizers Package
+	// * 824 - HAZMAT Division 5.2 - Organic Peroxides Package
+	// * 825 - HAZMAT Division 6.1 – Toxic Materials Package
+	// * 826 - HAZMAT Division 6.2 – Infectious Substances Package
+	// * 827 - HAZMAT Excepted Quantity Provision Package
+	// * 828 - HAZMAT Ground Only
+	// * 829 - HAZMAT ID8000 Consumer Commodity Package
+	// * 830 - HAZMAT Lighters Package
+	// * 831 - HAZMAT LTD QTY Ground Package
+	// * 832 - HAZMAT Small Quantity Provision Package
+	// * 857 - Hazardous Material
+	// * 910 - Certified Mail
+	// * 911 - Certified Mail Restricted Delivery
+	// * 912 - Certified Mail Adult Signature Required
+	// * 913 - Certified Mail Adult Signature Restricted Delivery
+	// * 920 - USPS Tracking
+	// * 921 - Signature Confirmation
+	// * 922 - Adult Signature Required 21 or Over
+	// * 923 - Adult Signature Restricted Delivery 21 or Over
+	// * 924 - Signature Confirmation Restricted Delivery
+	// * 925 - Priority Mail Express Merchandise Insurance
+	// * 930 - Insurance <= $500
+	// * 931 - Insurance > $500
+	// * 934 - Insurance Restricted Delivery
+	// * 955 - Return Receipt
+	// * 957 - Return Receipt Electronic
+	// * 981 - Signature Requested (PRIORITY_MAIL_EXPRESS only)
+	// * 986 - PO to Addressee (PRIORITY_MAIL_EXPRESS only)
+	// * 991 - Sunday Delivery
+	//
+	// Note:
+	//  * When the extra service code "930" is provided in the request, if the item value is over $500, "930" will automatically be replaced with "931" - Insurance (Greater than $500).
+	//  * USPS Label Delivery (Extra Service Code "415"): When requesting this service, no images will be returned in the API response. The label and receipt will be printed and mailed to the `fromAddress` provided. The mailed label will always include a receipt on the page. This service is not available at all locations.
+	//  * Some service codes require a combination with extra services such as "955" and "957". For all valid combinations, visit [https://postalpro.usps.com/IMPB_Service_Type_Codes](https://postalpro.usps.com/IMPB_Service_Type_Codes).
+	ExtraServices *[]ExtraService `json:"extraServices,omitempty"`
+
+	// Girth The girth of the container, in dimensionsUOM. If partial dimensions are provided, an error response will return. Length, Width, Height are required for accurate pricing of a rectangular package when any dimension of the item exceeds 12 inches. In addition, Girth is required only for a non- rectangular package in addition to Length, Width, Height when any dimension of the package exceeds 12 inches. For rectangular packages, the Girth dimension must be left blank as this dimension is to only be used for non- rectangular packages.
+	Girth *float32 `json:"girth,omitempty"`
+
+	// HasNonstandardCharacteristics Package is nonstandard. Nonstandard packages include cylindrical tubes and rolls, certain high-density items, cartons containing more than 24 ounces of liquids in one or more glass containers, cartons containing 1 gallon or more of liquid in metal or plastic containers, and items in [201.7.6.2](https://pe.usps.com/text/dmm300/201.htm#7.6.2).
+	HasNonstandardCharacteristics *bool `json:"hasNonstandardCharacteristics,omitempty"`
+
+	// Height The height of the container, in dimensionsUOM. If partial dimensions are provided, an error response will return. Length, Width, and Height are required for accurate pricing of a rectangular package when any dimension of the item exceeds 12 inches. Girth is required only for a non-rectangular package in addition to Length, Width, and Height when any dimension of the package exceeds 12 inches. For rectangular packages, the Girth dimension must be left blank as this dimension is to only be used for non-rectangular packages.
+	Height float32 `json:"height"`
+
+	// InductionZIPCode The 5-Digit ZIP Code representing the location where the package is being inducted (i.e. dropped off) into the mailstream.  When provided, this ZIP Code will be used for pricing instead of `fromAddress.ZIPCode`.
+	InductionZIPCode *InductionZIPCode `json:"inductionZIPCode,omitempty"`
+
+	// Length The length of the container, in dimensionsUOM. If partial dimensions are provided, an error response will return. Length, Width, and Height are required for accurate pricing of a rectangular package when any dimension of the item exceeds 12 inches. Girth is required only for a non-rectangular package in addition to Length, Width, and Height when any dimension of the package exceeds 12 inches. For rectangular packages, the Girth dimension must be left blank as this dimension is to only be used for non-rectangular packages.
+	Length float32 `json:"length"`
+
+	// MailClass The mail service requested.
+	//
+	// Note:
+	// - `FIRST-CLASS_PACKAGE_RETURN_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE_RETURN_SERVICE`
+	// - `GROUND_RETURN_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE_RETURN_SERVICE`
+	MailClass BaseReturnsPackageDescriptionMailClass `json:"mailClass"`
+
+	// PackageOptions Options added to packages that are less frequently used
+	PackageOptions *DomesticPackageReturnOptions `json:"packageOptions,omitempty"`
+
+	// ProcessingCategory Value designates if the shipment is `MACHINABLE`, `NONSTANDARD`, `LETTERS`, or `FLATS`.
+	//
+	// Note:
+	// * The processing category `LETTERS` is only valid when the mail class is `PRIORITY_MAIL_RETURN_SERVICE` or `PRIORITY_MAIL_EXPRESS_RETURN_SERVICE` for returns shipments.
+	// * The processing category `FLATS` is not valid for mail class `USPS_GROUND_ADVANTAGE_RETURN_SERVICE`.
+	// * `IRREGULAR` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+	// * `NON_MACHINABLE` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+	ProcessingCategory BaseReturnsPackageDescriptionProcessingCategory `json:"processingCategory"`
+
+	// ShipperVisibilityMethod When generating labels for a third party shipper the label provider must capture and provide contact details of the individual or entity to whom they provide the label. For return labels, there is one method for reporting shipper information to USPS:
+	//
+	// 1. An alternative method allows for the label provider to assign a unique alphanumeric value known as a `platformUserId` to each shipper and to report the `platformUserId` together with the required shipper contact details. When using this method the shipper contact details are required in the `senderAddress` object (including `streetAddress`, `city`, `state`, `ZIPCode`, `phone`, `email`, `platformUserId` & `firstName`/`lastName` or `firm`) and this field should be populated with 'SENDER_INFORMATION'.
+	ShipperVisibilityMethod *BaseReturnsPackageDescriptionShipperVisibilityMethod `json:"shipperVisibilityMethod,omitempty"`
+
+	// Weight The package weight, in weightUOM (Unit Of Measure). Items must weigh 70 pounds (1120 ounces) or less.
+	Weight float32 `json:"weight"`
+
+	// WeightUOM Weight Unit of Measurement
+	//   * lb - Pounds
+	WeightUOM *BaseReturnsPackageDescriptionWeightUOM `json:"weightUOM,omitempty"`
+
+	// Width The width of the container, in dimensionsUOM. If partial dimensions are provided, an error response will return. Length, Width, and Height are required for accurate pricing of a rectangular package when any dimension of the item exceeds 12 inches. Girth is required only for a non-rectangular package in addition to Length, Width, and Height when any dimension of the package exceeds 12 inches. For rectangular packages, the Girth dimension must be left blank as this dimension is to only be used for non- rectangular packages.
+	Width                float32                `json:"width"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// BaseReturnsPackageDescriptionDimensionsUOM Dimensions unit of measure
+// * in - Inches
+type BaseReturnsPackageDescriptionDimensionsUOM string
+
+// BaseReturnsPackageDescriptionMailClass The mail service requested.
+//
+// Note:
+// - `FIRST-CLASS_PACKAGE_RETURN_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE_RETURN_SERVICE`
+// - `GROUND_RETURN_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE_RETURN_SERVICE`
+type BaseReturnsPackageDescriptionMailClass string
+
+// BaseReturnsPackageDescriptionProcessingCategory Value designates if the shipment is `MACHINABLE`, `NONSTANDARD`, `LETTERS`, or `FLATS`.
+//
+// Note:
+// * The processing category `LETTERS` is only valid when the mail class is `PRIORITY_MAIL_RETURN_SERVICE` or `PRIORITY_MAIL_EXPRESS_RETURN_SERVICE` for returns shipments.
+// * The processing category `FLATS` is not valid for mail class `USPS_GROUND_ADVANTAGE_RETURN_SERVICE`.
+// * `IRREGULAR` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+// * `NON_MACHINABLE` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+type BaseReturnsPackageDescriptionProcessingCategory string
+
+// BaseReturnsPackageDescriptionShipperVisibilityMethod When generating labels for a third party shipper the label provider must capture and provide contact details of the individual or entity to whom they provide the label. For return labels, there is one method for reporting shipper information to USPS:
+//
+// 1. An alternative method allows for the label provider to assign a unique alphanumeric value known as a `platformUserId` to each shipper and to report the `platformUserId` together with the required shipper contact details. When using this method the shipper contact details are required in the `senderAddress` object (including `streetAddress`, `city`, `state`, `ZIPCode`, `phone`, `email`, `platformUserId` & `firstName`/`lastName` or `firm`) and this field should be populated with 'SENDER_INFORMATION'.
+type BaseReturnsPackageDescriptionShipperVisibilityMethod string
+
+// BaseReturnsPackageDescriptionWeightUOM Weight Unit of Measurement
+//   - lb - Pounds
+type BaseReturnsPackageDescriptionWeightUOM string
+
+// BrandingPatchRequest Request to update branding information for labels using JSON Patch. Refer to the IETF JSON PATCH specification at https://datatracker.ietf.org/doc/html/rfc6902 for detailed guidelines.
+type BrandingPatchRequest = []struct {
+	// Op The operation to perform on the resource.
+	Op BrandingPatchRequestOp `json:"op"`
+
+	// Path The object or array location to perform the update to the resource. Must be a JSON pointer value.
+	Path BrandingPatchRequestPath `json:"path"`
+
+	// Value value of a branding patch request
+	Value *string `json:"value,omitempty"`
+}
+
+// BrandingPatchRequestOp The operation to perform on the resource.
+type BrandingPatchRequestOp string
+
+// BrandingPatchRequestPath The object or array location to perform the update to the resource. Must be a JSON pointer value.
+type BrandingPatchRequestPath string
+
+// CancelResponse defines model for CancelResponse.
+type CancelResponse struct {
+	// DisputeId The Id of the submitted refund request.
+	DisputeId *string `json:"disputeId,omitempty"`
+
+	// Status * `CANCELED` indicates that the label has been successfully canceled.
+	// * `DISPUTED` indicates that a refund request has been submitted.
+	Status *CancelResponseStatus `json:"status,omitempty"`
+
+	// TrackingNumber The tracking number associated with the label that has been canceled or for which a refund request has been submitted.
+	TrackingNumber *string `json:"trackingNumber,omitempty"`
+}
+
+// CancelResponseStatus * `CANCELED` indicates that the label has been successfully canceled.
+// * `DISPUTED` indicates that a refund request has been submitted.
+type CancelResponseStatus string
+
+// Commitment The commitment and scheduled delivery date of the package.
+type Commitment struct {
+	// ExpectedDeliveryDate Date in the YYYY-MM-DD format.
+	ExpectedDeliveryDate *string `json:"expectedDeliveryDate,omitempty"`
+
+	// IsPriorityMailNextDay Indicates if the commitment is for Priority Mail Next Day service.
+	IsPriorityMailNextDay *bool `json:"isPriorityMailNextDay,omitempty"`
+
+	// Name Commitment name such as 1-day, 2-day, 3-day, Military, DPO.
+	Name *string `json:"name,omitempty"`
+
+	// ScheduleDeliveryDate Date in the `YYYY-MM-DD` format. Date USPS expects that the package or mailpiece will be delivered based on the origin, destination, and drop-off time and date in the request. Actual delivery date may vary based on when the package or mailpiece is entered or other conditions.
+	//
+	// Note: This field has been deprecated in favor of `expectedDeliveryDate` and will be removed in a future release. Please transition to using `expectedDeliveryDate`.
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+	ScheduleDeliveryDate *string                `json:"scheduleDeliveryDate,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// Container containers
+type Container struct {
+	// ContainerID Unique identifier for a container.
+	ContainerID string `json:"containerID"`
+
+	// SortType Sort Types requested.
+	SortType ContainerSortType `json:"sortType"`
+}
+
+// ContainerSortType Sort Types requested.
+type ContainerSortType string
+
+// CustomerReference Customer Reference
+type CustomerReference struct {
+	// ReferenceNumber A user-assigned number for internal use, such as Order, Invoice, Customer, or Return Merchandise Authorization Numbers.
+	//
+	// Note:
+	// * Domestic outbound label and return label with `labelType` of `4X6LABEL`, `4X5LABEL`, and `6X4LABEL` will display the entire value.
+	// * Return label with `labelType` of `4X6LABEL` with `brandingImageFormat` of `TWO_SQUARES` will show the first 25 characters.
+	// * These values will also be included in the Shipping Services File.
+	ReferenceNumber      *string                `json:"referenceNumber,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// CustomsForm Additional details required when creating shipments originating from or destinating to MPOs, APOs, FPOs, or DPOs (Military, Army, Fleet, and Diplomatic Post Offices) and some Military and U.S. Possessions, Territories, and Freely Associated States (PTFAS).
+// Required only if a customs form is required based on Customs Content Type and Weight.
+//
+// Note:
+//   - Mail addressed to military and diplomatic post offices overseas is subject to certain conditions or restrictions of mailing regarding content, preparation, and handling. The APO/FPO/DPO table may be found on the most recent [postal bulletin](https://about.usps.com/resources/postal-bulletin.htm) found under `Pull-Out information` -> `Other Information` -> `Overseas Military/Diplomatic Mail`
+type CustomsForm struct {
+	// AESITN AES/ITN Exemption should be populated with the electronic export internal transaction number (if required), or the appropriate Exemption/Exclusion Legend.
+	//
+	// * **AES - Automated Export System /   ITN - Internal Transaction Number**\
+	//   The [internal transaction number (ITN)](https://pe.usps.com/text/imm/immc5_010.htm) is a 14-digit number that corresponds to an export transaction in the Automated Export System. It serves as proof that an exporter met his or her legal obligation to inform the U.S. government about the details of an export shipment.
+	// * **EEL- Exemptions, Exclusions, Legend**\
+	//   An [AES exemption](https://pe.usps.com/text/imm/immc5_012.htm) is an instance in which you would not have to file in AES to get the 14-digit ITN. Instead of the ITN, you would enter the exemption’s section in the U.S. Foreign Trade Regulations on the export documentation where you would otherwise put the ITN.
+	//
+	// Sample - `NO EEI 30.37(a)`: Shipments valued at $2,500 or less.
+	AESITN *string `json:"AESITN,omitempty"`
+
+	// CertificateNumber Certificate Number
+	CertificateNumber *string `json:"certificateNumber,omitempty"`
+
+	// ContentComments Required when customContentType is OTHER.
+	ContentComments *string `json:"contentComments,omitempty"`
+
+	// InvoiceNumber Invoice Number
+	InvoiceNumber *string `json:"invoiceNumber,omitempty"`
+
+	// LicenseNumber License Number
+	LicenseNumber *string `json:"licenseNumber,omitempty"`
+
+	// RestrictionComments Restriction Comments.  Required when `restrictionType`=`OTHER`.
+	RestrictionComments *string `json:"restrictionComments,omitempty"`
+
+	// RestrictionType Restriction Types
+	//   * QUARANTINE
+	//   * SANITARY_INSPECTION
+	//   * PHYTOSANITARY_INSPECTION
+	//   * OTHER
+	RestrictionType      *CustomsFormRestrictionType `json:"restrictionType,omitempty"`
+	AdditionalProperties map[string]interface{}      `json:"-"`
+}
+
+// CustomsFormRestrictionType Restriction Types
+//   - QUARANTINE
+//   - SANITARY_INSPECTION
+//   - PHYTOSANITARY_INSPECTION
+//   - OTHER
+type CustomsFormRestrictionType string
+
+// DomesticAddress defines model for DomesticAddress.
+type DomesticAddress struct {
+	// ZIPCode This is the 5-digit ZIP code.
+	ZIPCode *string `json:"ZIPCode,omitempty"`
+
+	// ZIPPlus4 This is the 4-digit component of the ZIP+4 code. Using the correct Zip+4 reduces the number of times your mail is handled and can decrease the chance of a misdelivery or error.
+	ZIPPlus4 *string `json:"ZIPPlus4"`
+
+	// City This is the city name of the address.
+	City *string `json:"city,omitempty"`
+
+	// CityAbbreviation This is the abbreviation of city name for the address.
+	CityAbbreviation *string `json:"cityAbbreviation,omitempty"`
+
+	// SecondaryAddress The secondary unit designator, such as apartment(APT) or suite(STE) number, defining the exact location of the address within a building.  For more information please see [Postal Explorer](https://pe.usps.com/text/pub28/28c2_003.htm).
+	SecondaryAddress *string `json:"secondaryAddress,omitempty"`
+
+	// State This is the two-character state code of the address.
+	State *State `json:"state,omitempty"`
+
+	// StreetAddress The number of a building along with the name of the road or street on which it is located.
+	StreetAddress *string `json:"streetAddress,omitempty"`
+
+	// StreetAddressAbbreviation This is the abbreviation of street address line for the address.
+	StreetAddressAbbreviation *string `json:"streetAddressAbbreviation,omitempty"`
+
+	// Urbanization An area, sector, or residential development within a geographic area (typically used for addresses in Puerto Rico).
+	Urbanization         *string                `json:"urbanization,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// DomesticCustomerReference defines model for DomesticCustomerReference.
+type DomesticCustomerReference struct {
+	// PrintReferenceNumber Indicates whether or not to print the customer reference number on the label in the Additional Information and User Segment.
+	//
+	// Note:
+	// - Customer Reference numbers are not displayed on label types `2X7LABEL` or `4X4LABEL`.
+	// - Customer Reference numbers are not displayed with Customs Forms.
+	PrintReferenceNumber *bool `json:"printReferenceNumber,omitempty"`
+
+	// ReferenceNumber A user-assigned number for internal use, such as Order, Invoice, Customer, or Return Merchandise Authorization Numbers.
+	//
+	// Note:
+	// * Domestic outbound label and return label with `labelType` of `4X6LABEL`, `4X5LABEL`, and `6X4LABEL` will display the entire value.
+	// * Return label with `labelType` of `4X6LABEL` with `brandingImageFormat` of `TWO_SQUARES` will show the first 25 characters.
+	// * These values will also be included in the Shipping Services File.
+	ReferenceNumber      *string                `json:"referenceNumber,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// DomesticCustomsForm defines model for DomesticCustomsForm.
+type DomesticCustomsForm struct {
+	// AESITN AES/ITN Exemption should be populated with the electronic export internal transaction number (if required), or the appropriate Exemption/Exclusion Legend.
+	//
+	// * **AES - Automated Export System /   ITN - Internal Transaction Number**\
+	//   The [internal transaction number (ITN)](https://pe.usps.com/text/imm/immc5_010.htm) is a 14-digit number that corresponds to an export transaction in the Automated Export System. It serves as proof that an exporter met his or her legal obligation to inform the U.S. government about the details of an export shipment.
+	// * **EEL- Exemptions, Exclusions, Legend**\
+	//   An [AES exemption](https://pe.usps.com/text/imm/immc5_012.htm) is an instance in which you would not have to file in AES to get the 14-digit ITN. Instead of the ITN, you would enter the exemption’s section in the U.S. Foreign Trade Regulations on the export documentation where you would otherwise put the ITN.
+	//
+	// Sample - `NO EEI 30.37(a)`: Shipments valued at $2,500 or less.
+	AESITN *string `json:"AESITN,omitempty"`
+
+	// CertificateNumber Certificate Number
+	CertificateNumber *string `json:"certificateNumber,omitempty"`
+
+	// ContentComments Required when customContentType is OTHER.
+	ContentComments *string `json:"contentComments,omitempty"`
+
+	// Contents Details of the contents of the package. The first five items will print on the label of the customs form, and the rest will print on a separate continuation page.
+	Contents []ShippingContents `json:"contents"`
+
+	// CustomsContentType Specifies the content of the package or envelope.
+	//  * MERCHANDISE
+	//  * GIFT
+	//  * DOCUMENT
+	//  * COMMERCIAL_SAMPLE
+	//  * RETURNED_GOODS
+	//  * OTHER
+	//  * HUMANITARIAN_DONATIONS
+	//  * DANGEROUS_GOODS
+	CustomsContentType DomesticCustomsFormCustomsContentType `json:"customsContentType"`
+
+	// ExportersContact Exporters Contact. Enter, if known, the Exporter’s telephone number, fax number, or email address, as such information might facilitate customs clearance or delivery.
+	ExportersContact *string `json:"exportersContact,omitempty"`
+
+	// ExportersReference Exporters Reference. The Exporter’s Reference might be a tax code, importer code, or VAT number used for sales tax.
+	ExportersReference *string `json:"exportersReference,omitempty"`
+
+	// ImportersContact Importers Contact. Enter, if known, the Importer’s telephone number, fax number, or email address, as such information might facilitate customs clearance or delivery.
+	ImportersContact *string `json:"importersContact,omitempty"`
+
+	// ImportersReference Importers Reference. The Importer’s Reference might be a tax code, importer code, or VAT number used for sales tax.
+	ImportersReference *string `json:"importersReference,omitempty"`
+
+	// InvoiceNumber Invoice Number
+	InvoiceNumber *string `json:"invoiceNumber,omitempty"`
+
+	// LicenseNumber License Number
+	LicenseNumber *string `json:"licenseNumber,omitempty"`
+
+	// RestrictionComments Restriction Comments.  Required when `restrictionType`=`OTHER`.
+	RestrictionComments *string `json:"restrictionComments,omitempty"`
+
+	// RestrictionType Restriction Types
+	//   * QUARANTINE
+	//   * SANITARY_INSPECTION
+	//   * PHYTOSANITARY_INSPECTION
+	//   * OTHER
+	RestrictionType      *DomesticCustomsFormRestrictionType `json:"restrictionType,omitempty"`
+	AdditionalProperties map[string]interface{}              `json:"-"`
+}
+
+// DomesticCustomsFormCustomsContentType Specifies the content of the package or envelope.
+//   - MERCHANDISE
+//   - GIFT
+//   - DOCUMENT
+//   - COMMERCIAL_SAMPLE
+//   - RETURNED_GOODS
+//   - OTHER
+//   - HUMANITARIAN_DONATIONS
+//   - DANGEROUS_GOODS
+type DomesticCustomsFormCustomsContentType string
+
+// DomesticCustomsFormRestrictionType Restriction Types
+//   - QUARANTINE
+//   - SANITARY_INSPECTION
+//   - PHYTOSANITARY_INSPECTION
+//   - OTHER
+type DomesticCustomsFormRestrictionType string
+
+// DomesticLabelAddress defines model for DomesticLabelAddress.
+type DomesticLabelAddress struct {
+	// ZIPCode This is the 5-digit ZIP code.
+	ZIPCode *string `json:"ZIPCode,omitempty"`
+
+	// ZIPPlus4 This is the 4-digit component of the ZIP+4 code. Using the correct Zip+4 reduces the number of times your mail is handled and can decrease the chance of a misdelivery or error.
+	ZIPPlus4 *string `json:"ZIPPlus4"`
+
+	// City This is the city name of the address.
+	City *string `json:"city,omitempty"`
+
+	// CityAbbreviation This is the abbreviation of city name for the address.
+	CityAbbreviation *string `json:"cityAbbreviation,omitempty"`
+
+	// Email Email address used for redirect notification via email.
+	Email *Email `json:"email,omitempty"`
+
+	// Firm Firm/business name corresponding to the address.
+	Firm *string `json:"firm,omitempty"`
+
+	// FirstName First Name corresponding to the address.
+	FirstName *string `json:"firstName,omitempty"`
+
+	// IgnoreBadAddress Allows Non-Validated Origin Street Address. Enter `true` to bypass street address validation failures/errors or `false` if only validated addresses should be allowed.
+	//
+	// Note: Integrators are recommended to always use `false` to ensure no delivery issues. In the event USPS cannot validate the street address, this tag will “bypass” address validation error when `true` is indicated to allow label creation which could impact delivery.
+	IgnoreBadAddress *bool `json:"ignoreBadAddress,omitempty"`
+
+	// LastName Last Name corresponding to the address.
+	LastName *string `json:"lastName,omitempty"`
+
+	// Phone The phone number, including the country extension and area code or the local national format, with no punctuation.
+	Phone *Phone `json:"phone,omitempty"`
+
+	// SecondaryAddress The secondary unit designator, such as apartment(APT) or suite(STE) number, defining the exact location of the address within a building.  For more information please see [Postal Explorer](https://pe.usps.com/text/pub28/28c2_003.htm).
+	SecondaryAddress *string `json:"secondaryAddress,omitempty"`
+
+	// State This is the two-character state code of the address.
+	State *State `json:"state,omitempty"`
+
+	// StreetAddress The number of a building along with the name of the road or street on which it is located.
+	StreetAddress *string `json:"streetAddress,omitempty"`
+
+	// StreetAddressAbbreviation This is the abbreviation of street address line for the address.
+	StreetAddressAbbreviation *string `json:"streetAddressAbbreviation,omitempty"`
+
+	// Urbanization An area, sector, or residential development within a geographic area (typically used for addresses in Puerto Rico).
+	Urbanization         *string                `json:"urbanization,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// DomesticLabelSenderAddress defines model for DomesticLabelSenderAddress.
+type DomesticLabelSenderAddress struct {
+	// ZIPCode This is the 5-digit ZIP code.
+	ZIPCode *string `json:"ZIPCode,omitempty"`
+
+	// ZIPPlus4 This is the 4-digit component of the ZIP+4 code. Using the correct Zip+4 reduces the number of times your mail is handled and can decrease the chance of a misdelivery or error.
+	ZIPPlus4 *string `json:"ZIPPlus4"`
+
+	// City This is the city name of the address.
+	City *string `json:"city,omitempty"`
+
+	// CityAbbreviation This is the abbreviation of city name for the address.
+	CityAbbreviation *string `json:"cityAbbreviation,omitempty"`
+
+	// Email Email address used for redirect notification via email.
+	Email *Email `json:"email,omitempty"`
+
+	// Firm Firm/business name corresponding to the address.
+	Firm *string `json:"firm,omitempty"`
+
+	// FirstName First Name corresponding to the address.
+	FirstName *string `json:"firstName,omitempty"`
+
+	// IgnoreBadAddress Allows Non-Validated Origin Street Address. Enter `true` to bypass street address validation failures/errors or `false` if only validated addresses should be allowed.
+	//
+	// Note: Integrators are recommended to always use `false` to ensure no delivery issues. In the event USPS cannot validate the street address, this tag will “bypass” address validation error when `true` is indicated to allow label creation which could impact delivery.
+	IgnoreBadAddress *bool `json:"ignoreBadAddress,omitempty"`
+
+	// LastName Last Name corresponding to the address.
+	LastName *string `json:"lastName,omitempty"`
+
+	// Phone The phone number, including the country extension and area code or the local national format, with no punctuation.
+	Phone *Phone `json:"phone,omitempty"`
+
+	// PlatformUserId This is a third-party unique identifier for the sender used for correlation purposes.
+	PlatformUserId *string `json:"platformUserId,omitempty"`
+
+	// SecondaryAddress The secondary unit designator, such as apartment(APT) or suite(STE) number, defining the exact location of the address within a building.  For more information please see [Postal Explorer](https://pe.usps.com/text/pub28/28c2_003.htm).
+	SecondaryAddress *string `json:"secondaryAddress,omitempty"`
+
+	// State This is the two-character state code of the address.
+	State *State `json:"state,omitempty"`
+
+	// StreetAddress The number of a building along with the name of the road or street on which it is located.
+	StreetAddress *string `json:"streetAddress,omitempty"`
+
+	// StreetAddressAbbreviation This is the abbreviation of street address line for the address.
+	StreetAddressAbbreviation *string `json:"streetAddressAbbreviation,omitempty"`
+
+	// Urbanization An area, sector, or residential development within a geographic area (typically used for addresses in Puerto Rico).
+	Urbanization         *string                `json:"urbanization,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// DomesticLabelToAddress defines model for DomesticLabelToAddress.
+type DomesticLabelToAddress struct {
+	// ZIPCode This is the 5-digit ZIP code.
+	ZIPCode *string `json:"ZIPCode,omitempty"`
+
+	// ZIPPlus4 This is the 4-digit component of the ZIP+4 code. Using the correct Zip+4 reduces the number of times your mail is handled and can decrease the chance of a misdelivery or error.
+	ZIPPlus4 *string `json:"ZIPPlus4"`
+
+	// City This is the city name of the address.
+	City *string `json:"city,omitempty"`
+
+	// CityAbbreviation This is the abbreviation of city name for the address.
+	CityAbbreviation *string `json:"cityAbbreviation,omitempty"`
+
+	// Email Email address used for redirect notification via email.
+	Email *Email `json:"email,omitempty"`
+
+	// FacilityId Facility ID is required when generating a label for Parcel Locker delivery or Hold for Pickup. Facility ID can be retrieved through the Locations API (v3).
+	//
+	// Notes:
+	// * For Hold for Pickup services, the Facility ID is obtained from the `GET /post-office-locations` endpoint.
+	// * For Parcel Locker delivery, the Facility ID is obtained from the `GET /parcel-locker-locations` endpoint.
+	FacilityId *string `json:"facilityId,omitempty"`
+
+	// Firm Firm/business name corresponding to the address.
+	Firm *string `json:"firm,omitempty"`
+
+	// FirstName First Name corresponding to the address.
+	FirstName *string `json:"firstName,omitempty"`
+
+	// HoldForPickup Indicator to request Hold for Pickup at a Post Office Facility. If this field is set as true then the `toAddress` object: 'facilityID', 'email', and 'phone' as well as the `fromAddress` object: 'firstName',  'lastName', 'email', and 'phone' fields are required.
+	HoldForPickup *bool `json:"holdForPickup,omitempty"`
+
+	// IgnoreBadAddress Allows Non-Validated Destination Street Address. Enter `true` to bypass street address validation failures/errors or `false` if only validated addresses should be allowed.
+	//
+	// Note: Integrators are recommended to always use `false` to ensure no delivery issues.
+	//
+	// In the event USPS cannot validate the street address, this tag will “bypass” address validation error when `true` is indicated to allow label creation which could impact delivery.
+	//
+	// This will automatically be set to `false` if extra service code `415 - USPS Label Delivery` is requested.
+	IgnoreBadAddress *bool `json:"ignoreBadAddress,omitempty"`
+
+	// LastName Last Name corresponding to the address.
+	LastName *string `json:"lastName,omitempty"`
+
+	// ParcelLockerDelivery Indicator to request delivery to a parcel locker instead of the recipient's address. If this field is set as true then the facilityId, email, and firstName/lastName or firm fields are required.
+	//
+	// Note:
+	// * Packages that require customs forms are not eligible to be shipped to a Smart Locker. Parcel lockers are not eligible for Hold for Pickup shipments.
+	ParcelLockerDelivery *bool `json:"parcelLockerDelivery,omitempty"`
+
+	// Phone The phone number, including the country extension and area code or the local national format, with no punctuation.
+	Phone *Phone `json:"phone,omitempty"`
+
+	// SecondaryAddress The secondary unit designator, such as apartment(APT) or suite(STE) number, defining the exact location of the address within a building.  For more information please see [Postal Explorer](https://pe.usps.com/text/pub28/28c2_003.htm).
+	SecondaryAddress *string `json:"secondaryAddress,omitempty"`
+
+	// State This is the two-character state code of the address.
+	State *State `json:"state,omitempty"`
+
+	// StreetAddress The number of a building along with the name of the road or street on which it is located.
+	StreetAddress *string `json:"streetAddress,omitempty"`
+
+	// StreetAddressAbbreviation This is the abbreviation of street address line for the address.
+	StreetAddressAbbreviation *string `json:"streetAddressAbbreviation,omitempty"`
+
+	// Urbanization An area, sector, or residential development within a geographic area (typically used for addresses in Puerto Rico).
+	Urbanization         *string                `json:"urbanization,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// DomesticPackageDescription defines model for DomesticPackageDescription.
+type DomesticPackageDescription struct {
+	// CarrierRelease Indicates whether recipients authorize a carrier to leave a shipment if no one is available to receive it at the time of delivery. Priority Mail Express&#174; shipments or items requiring a signature at delivery are not eligible (e.g. Signature Confirmation, Insurance > $500).
+	//
+	// Note:
+	//  * Carrier Release is currently not supported when `holdForPickup` is set to `true`.
+	//  * Carrier Release is currently not supported with mail class values of `PRIORITY_MAIL`, `PRIORITY_MAIL_EXPRESS`, or `USPS_GROUND_ADVANTAGE`.
+	//  * Carrier Release is currently not supported with `extraServices` `910`, `911`, `912`, `913`, `921`, `922`, `923`, `924`, `925`, `930`, `931`, `934`, `955`, or `981`.
+	CarrierRelease *bool `json:"carrierRelease,omitempty"`
+
+	// CustomerReference Used for shippers to print a value on a label and included in the Shipping Services File (SSF).
+	//
+	// Note:
+	//  * Customer Reference #3-4 are only supported with label types `4X5LABEL`, `4X6LABEL`, and `6X4LABEL`.
+	//  * Customer Reference #3-4 cannot be used with a customs form.
+	//  * Customer Reference #3-4 will not be added to the SSF.
+	//  * Customer Reference will not display with `imageInfo.brandingImageFormat` value of `RECTANGLE`.
+	//  * When Customer Reference #4 is provided with a Destination Entry Facility, the Drop-Off Location will not be displayed on the label.
+	CustomerReference *[]DomesticCustomerReference `json:"customerReference,omitempty"`
+
+	// DestinationEntryFacilityAddress Address fields for US locations
+	DestinationEntryFacilityAddress *DomesticAddress `json:"destinationEntryFacilityAddress,omitempty"`
+
+	// DestinationEntryFacilityType Types of Facilities:
+	// * `NONE` - Translate to Destination Rate Indicator N
+	// * `DESTINATION_NETWORK_DISTRIBUTION_CENTER` - Translate to Destination Rate Indicator B
+	// * `DESTINATION_SECTIONAL_CENTER_FACILITY` - Translate to Destination Rate Indicator S
+	// * `DESTINATION_DELIVERY_UNIT` - Translate to Destination Rate Indicator D
+	// * `DESTINATION_SERVICE_HUB` - Translate to Destination Rate Indicator H
+	// * `DESTINATION_REGIONAL_PROCESSING_DISTRIBUTION_CENTER` - Translate to Destination Rate Indicator B
+	//
+	// Note:
+	// * If any value other than `NONE` is selected, a destinationEntryFacilityAddress is required.
+	// * The destinationEntryFacilityAddress must be a valid facility to drop your package
+	// * The destination entry facility type must be set to `NONE` when there is a value provided for the 'inductionZipCode' field
+	// * Effective 01/19/2025: `DESTINATION_DELIVERY_UNIT` is the only valid enumeration when using the 'USPS_CONNECT_MAIL' mail class
+	// * Effective 01/18/2026: `DESTINATION_NETWORK_DISTRIBUTION_CENTER` with `PARCEL_SELECT` is no longer eligible.
+	// * Effective 01/18/2026: (NSA Only) `DESTINATION_REGIONAL_PROCESSING_DISTRIBUTION_CENTER` with `PARCEL_SELECT` is available as an option.
+	DestinationEntryFacilityType DomesticPackageDescriptionDestinationEntryFacilityType `json:"destinationEntryFacilityType"`
+
+	// DimensionsUOM Dimensions unit of measure
+	// * in - Inches
+	DimensionsUOM *DomesticPackageDescriptionDimensionsUOM `json:"dimensionsUOM,omitempty"`
+
+	// ExtraServices Extra Service Code requested.
+	// * 365 - Global Direct Entry
+	// * 415 - USPS Label Delivery
+	// * 480 - Tracking Plus 6 Months
+	// * 481 - Tracking Plus 1 Year
+	// * 482 - Tracking Plus 3 Years
+	// * 483 - Tracking Plus 5 Years
+	// * 484 - Tracking Plus 7 Years
+	// * 485 - Tracking Plus 10 Years
+	// * 486 - Tracking Plus Signature 3 Years
+	// * 487 - Tracking Plus Signature 5 Years
+	// * 488 - Tracking Plus Signature 7 Years
+	// * 489 - Tracking Plus Signature 10 Years
+	// * 810 - HAZMAT Air Eligible Ethanol Package
+	// * 811 - HAZMAT Class 1 - Toy Propellant/Safety Fuse Package
+	// * 812 - HAZMAT Class 3 – Flammable Liquid Package
+	// * 813 - HAZMAT Class 7 - Radioactive Materials Package
+	// * 814 - HAZMAT Class 8 - Corrosive Materials Package
+	// * 815 - HAZMAT Class 8 - Nonspillable Wet Battery Package
+	// * 816 - HAZMAT Class 9 - Lithium Battery Marked - Ground Only Package
+	// * 817 - HAZMAT Class 9 - Lithium Battery - Returns Package
+	// * 818 - HAZMAT Class 9 - Lithium batteries, marked package
+	// * 819 - HAZMAT Class 9 - Dry Ice Package
+	// * 820 - HAZMAT Class 9 - Lithium batteries, unmarked package
+	// * 821 - HAZMAT Class 9 - Magnetized Materials Package
+	// * 822 - HAZMAT Division 4.1 – Flammable Solids or Safety Matches Package
+	// * 823 - HAZMAT Division 5.1 - Oxidizers Package
+	// * 824 - HAZMAT Division 5.2 - Organic Peroxides Package
+	// * 825 - HAZMAT Division 6.1 – Toxic Materials Package
+	// * 826 - HAZMAT Division 6.2 – Infectious Substances Package
+	// * 827 - HAZMAT Excepted Quantity Provision Package
+	// * 828 - HAZMAT Ground Only
+	// * 829 - HAZMAT ID8000 Consumer Commodity Package
+	// * 830 - HAZMAT Lighters Package
+	// * 831 - HAZMAT LTD QTY Ground Package
+	// * 832 - HAZMAT Small Quantity Provision Package
+	// * 857 - Hazardous Material
+	// * 910 - Certified Mail
+	// * 911 - Certified Mail Restricted Delivery
+	// * 912 - Certified Mail Adult Signature Required
+	// * 913 - Certified Mail Adult Signature Restricted Delivery
+	// * 920 - USPS Tracking
+	// * 921 - Signature Confirmation
+	// * 922 - Adult Signature Required 21 or Over
+	// * 923 - Adult Signature Restricted Delivery 21 or Over
+	// * 924 - Signature Confirmation Restricted Delivery
+	// * 925 - Priority Mail Express Merchandise Insurance
+	// * 930 - Insurance <= $500
+	// * 931 - Insurance > $500
+	// * 934 - Insurance Restricted Delivery
+	// * 955 - Return Receipt
+	// * 957 - Return Receipt Electronic
+	// * 981 - Signature Requested (PRIORITY_MAIL_EXPRESS only)
+	// * 986 - PO to Addressee (PRIORITY_MAIL_EXPRESS only)
+	// * 991 - Sunday Delivery
+	//
+	// Note:
+	// * When the extra service code "930" is provided in the request, if the item value is over $500, "930" will automatically be replaced with "931" - Insurance (Greater than $500).
+	// * USPS Label Delivery (Print and Deliver, extra service code "415"): When requesting this service, no images will be returned in the API response. The label and receipt will be printed and mailed to the `fromAddress` provided. The mailed label will always include a receipt on the page. This service is not available at all locations.
+	// * Some service codes require a combination with extra services such as "955" and "957". For all valid combinations, visit [https://postalpro.usps.com/IMPB_Service_Type_Codes](https://postalpro.usps.com/IMPB_Service_Type_Codes).
+	ExtraServices *[]ExtraService `json:"extraServices,omitempty"`
+
+	// Girth The girth of the container, in dimensionsUOM. If partial dimensions are provided, an error response will return. Length, Width, Height are required for accurate pricing of a rectangular package when any dimension of the item exceeds 12 inches. In addition, Girth is required only for a non- rectangular package in addition to Length, Width, Height when any dimension of the package exceeds 12 inches. For rectangular packages, the Girth dimension must be left blank as this dimension is to only be used for non- rectangular packages.
+	Girth *float32 `json:"girth,omitempty"`
+
+	// HasNonstandardCharacteristics Package is nonstandard. Nonstandard packages include cylindrical tubes and rolls, certain high-density items, cartons containing more than 24 ounces of liquids in one or more glass containers, cartons containing 1 gallon or more of liquid in metal or plastic containers, and items in [201.7.6.2](https://pe.usps.com/text/dmm300/201.htm#7.6.2).
+	HasNonstandardCharacteristics *bool `json:"hasNonstandardCharacteristics,omitempty"`
+
+	// Height The height of the container, in dimensionsUOM. If partial dimensions are provided, an error response will return. Length, Width, and Height are required for accurate pricing of a rectangular package when any dimension of the item exceeds 12 inches. Girth is required only for a non-rectangular package in addition to Length, Width, and Height when any dimension of the package exceeds 12 inches. For rectangular packages, the Girth dimension must be left blank as this dimension is to only be used for non-rectangular packages.
+	Height float32 `json:"height"`
+
+	// InductionZIPCode The 5-Digit ZIP Code representing the location where the package is being inducted (i.e. dropped off) into the mailstream.  When provided, this ZIP Code will be used for pricing instead of `fromAddress.ZIPCode`.
+	InductionZIPCode *InductionZIPCode `json:"inductionZIPCode,omitempty"`
+
+	// Length The length of the container, in dimensionsUOM. If partial dimensions are provided, an error response will return. Length, Width, and Height are required for accurate pricing of a rectangular package when any dimension of the item exceeds 12 inches. Girth is required only for a non-rectangular package in addition to Length, Width, and Height when any dimension of the package exceeds 12 inches. For rectangular packages, the Girth dimension must be left blank as this dimension is to only be used for non-rectangular packages.
+	Length float32 `json:"length"`
+
+	// LogisticsManagerMID This is the mailer ID associated with the logistics manager for this label This provides an additional copy of the scan extract file to the MID's outbound folder.
+	LogisticsManagerMID *string `json:"logisticsManagerMID,omitempty"`
+
+	// MailClass The mail service requested.
+	//
+	// Note:
+	// - `PARCEL_SELECT` with a `destinationEntryFacilityType` of `NONE` will convert to `USPS_GROUND_ADVANTAGE`.
+	// - `PARCEL_SELECT_LIGHTWEIGHT` is deprecated and will convert to `PARCEL_SELECT`.
+	// - `FIRST-CLASS_PACKAGE_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE`.
+	// - Certain mail classes, such as `MEDIA_MAIL`, `BOUND_PRINTED_MATTER`, and `LIBRARY_MAIL`, have eligibility rules on what can be mailed using that service.  For more details on these mail classes, please visit [What are Package Services?](https://faq.usps.com/s/article/What-are-Package-Services).
+	// - The Heavy Printed Matter product is supported with `MARKETING_MAIL_PARCELS`. To create Heavy Printed Matter labels, the `rateIndicator` should be set to `PR` or `NP` for Presorted or Nonpresorted USPS Marketing Mail Parcels Heavy Printed Matter or to `PN` or `NN` for Nonprofit Presorted or Nonpresorted USPS Marketing Mail Parcels Heavy Printed Matter respectively.
+	MailClass DomesticPackageDescriptionMailClass `json:"mailClass"`
+
+	// MailOwnerMID This is the mailer ID associated with the mail owner for this label This provides an additional copy of the scan extract file to the MID's outbound folder.
+	MailOwnerMID *string `json:"mailOwnerMID,omitempty"`
+
+	// MailingDate The local date on which the package will be mailed. If the time is not provided, it will be defaulted to 10:00 p.m. local time.  Local time will be based on the `destinationEntryFacilityAddress.ZIPCode` or `inductionZIPCode` when provided, otherwise `fromAddress.ZIPCode` will be used as the origin ZIP Code.
+	MailingDate string `json:"mailingDate"`
+
+	// Nonprofit Used to specify if the shipment is a nonprofit mailing.  Shippers must be authorized for nonprofit mailings to qualify for nonprofit pricing.  All nonprofit mailings must not be used for product fulfillment.  For more details on Nonprofit Mailers, visit [Nonprofit Mailers](https://pe.usps.com/BusinessMail101?ViewName=NonprofitPrices).
+	//
+	// When `nonprofit` is `true` and `mailClass` is `MARKETING_MAIL_PARCELS`, nonprofit rates will be applied.  When using `rateIndicator` values, the `rateIndicator` must also be `NN` or `PN`.
+	//
+	// When `nonprofit` is `false` and `mailClass` is `MARKETING_MAIL_PARCELS`, standard rates will be applied.
+	//
+	// `nonprofit` is not supported for any other mail class.
+	Nonprofit      *Nonprofit                                 `json:"nonprofit,omitempty"`
+	PackageOptions *DomesticPackageDescription_PackageOptions `json:"packageOptions,omitempty"`
+
+	// PhysicalSignatureRequired Indicates the method for the signature that will be used when signing for the package.  Required when requesting signature `extraServices` including `910`, `911`, `912`, `913`, `921`, `922`, `923`, `924`, `925`, `931`, `934`, `955`, and `981`.  Additionally required when requesting `extraServices` code `930` with a `packageValue` greater than $500.
+	//
+	// When `physicalSignatureRequired` is `false`, a USPS Electronic Signature Online (USPS eSOL) may be used to sign for the item.  For more information on USPS eSOL, please visit the [USPS eSOL FAQ](https://faq.usps.com/s/article/USPS-Electronic-Signature-Online).
+	//
+	// When `physicalSignatureRequired` is `true`, the recipient will be required to physically sign for the item.  A USPS eSOL on record will not be accepted as a valid signature for the item.
+	//
+	// Notes:
+	//  * Regardless of the boolean, the printed label will still display "SIGNATURE REQUIRED" if a signature service is included with the label.
+	//  * `carrierRelease` is not eligible to be used with `physicalSignatureRequired`.
+	PhysicalSignatureRequired *bool `json:"physicalSignatureRequired,omitempty"`
+
+	// ProcessingCategory Value designates if shipment is `MACHINABLE`, `NONSTANDARD`, `LETTERS`, or `FLATS`.
+	//
+	// Note:
+	// * When requesting the mail class `USPS_CONNECT_MAIL`, users are required to use a processing category of `FLATS`.
+	// * The processing category `LETTERS` is only valid for mail classes `PRIORITY_MAIL` and `PRIORITY_MAIL_EXPRESS` for outbound shipments.
+	// * The processing category `FLATS` is not valid for mail class `USPS_GROUND_ADVANTAGE`.
+	// * `IRREGULAR` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+	// * `NON_MACHINABLE` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+	ProcessingCategory DomesticPackageDescriptionProcessingCategory `json:"processingCategory"`
+
+	// RateIndicator Use to specify USPS&#174; containers/packaging or container attributes that may affect postage.
+	//
+	// Note:
+	//   * Effective 07/12/2026:  Rate indicators `Q6`, `Q7`, `Q8`, `Q9`, and `Q0` are no longer supported.  The dimensions for Cubic Soft Pack tiers `P5`, `P6`, `P7`, `P8`, and `P9` will be updated to include the dimensions for Tiers 6-10.  For updated tiers and more information, please view the [Postal Bulletin](https://about.usps.com/postal-bulletin/2026/pb22705/html/updt_001.htm).
+	//
+	// Rate indicator list:
+	//   * 3D - 3-Digit
+	//   * 3N - 3-Digit Dimensional Rectangular
+	//   * 3R - 3-Digit Dimensional Nonrectangular
+	//   * 5D - 5-Digit
+	//   * BA - Basic
+	//   * BB - Mixed NDC
+	//   * CP - Cubic Parcel
+	//   * CM - USPS Connect&#174; Local Mail
+	//   * DC - NDC
+	//   * DE - SCF
+	//   * DF - 5-Digit
+	//   * DN - Dimensional Nonrectangular
+	//   * DR - Dimensional Rectangular
+	//   * E4 - Priority Mail Express Flat Rate Envelope - Post Office To Addressee
+	//   * E6 - Priority Mail Express Legal Flat Rate Envelope
+	//   * FA - Legal Flat Rate Envelope
+	//   * FB - Medium Flat Rate Box/Large Flat Rate Bag
+	//   * FE - Flat Rate Envelope
+	//   * FP - Padded Flat Rate Envelope
+	//   * FS - Small Flat Rate Box
+	//   * LC - USPS Connect&#174; Local Single Piece
+	//   * LF - USPS Connect&#174; Local Flat Rate Box
+	//   * LL - USPS Connect&#174; Local Large Flat Rate Bag
+	//   * LO - USPS Connect&#174; Local Oversized
+	//   * LS - USPS Connect&#174; Local Small Flat Rate Bag
+	//   * NN - Non-Presorted Nonprofit
+	//   * NP - Non-Presorted
+	//   * OS - Oversized
+	//   * PN - Presorted Nonprofit
+	//   * P5 - Cubic Soft Pack Tier 1
+	//   * P6 - Cubic Soft Pack Tier 2
+	//   * P7 - Cubic Soft Pack Tier 3
+	//   * P8 - Cubic Soft Pack Tier 4
+	//   * P9 - Cubic Soft Pack Tier 5
+	//   * Q6 - Cubic Soft Pack Tier 6
+	//   * Q7 - Cubic Soft Pack Tier 7
+	//   * Q8 - Cubic Soft Pack Tier 8
+	//   * Q9 - Cubic Soft Pack Tier 9
+	//   * Q0 - Cubic Soft Pack Tier 10
+	//   * PA - Priority Mail Express Single Piece
+	//   * PL - Large Flat Rate Box
+	//   * PM - Large Flat Rate Box APO/FPO/DPO
+	//   * PR - Presorted
+	//   * SN - SCF Dimensional Nonrectangular
+	//   * SP - Single Piece
+	//   * SR - SCF Dimensional Rectangular
+	RateIndicator DomesticPackageDescriptionRateIndicator `json:"rateIndicator"`
+
+	// SerialNumberFormat Used to specify the barcode construct used for the generated tracking number.  For details on barcode constructs, reference Appendix J in [Pub 199](https://postalpro.usps.com/pub199).
+	//
+	// `STANDARD` - Will generate a `C01`, `C03`, `C05`, or `C07` barcode construct, based on the Label Owner's `MID` in the Payment Authorization Token.
+	//
+	// `EXTENDED` - Will generate a `C02` or `C06` barcode construct, based on the Label Owner's `MID` in the Payment Authorization Token.
+	SerialNumberFormat *SerialNumberFormat `json:"serialNumberFormat,omitempty"`
+
+	// ShipperVisibilityMethod When generating labels for a third party shipper the label provider must capture and provide contact details of the individual or entity to whom they provide the label. There are two methods for reporting shipper information to USPS:
+	//
+	// 1. The label provider creates a unique USPS Mailer ID (MID) using the name, validated address, phone, and email contact information of each shipper. When using this method the Mailer ID should be submitted in the MID field in the LABEL_OWNER role when generating the payment authorization token and this field should be populated with 'MID_INFORMATION'
+	//
+	// 2. An alternative method allows for the label provider to assign a unique alphanumeric value known as a platformUserId to each shipper and to report the platformUserId together with the required shipper contact details. When using this method the shipper contact details are required in the `senderAddress` object (including `streetAddress`, `city`, `state`, `ZIPCode`, `phone`, `email`, `platformUserId` & `firstName`/`lastName` or `firm`) and this field should be populated with 'SENDER_INFORMATION'.
+	ShipperVisibilityMethod *DomesticPackageDescriptionShipperVisibilityMethod `json:"shipperVisibilityMethod,omitempty"`
+
+	// Weight The package weight, in weightUOM (Unit Of Measure). Items must weigh 70 pounds (1120 ounces) or less.
+	Weight float32 `json:"weight"`
+
+	// WeightUOM Weight Unit of Measurement
+	//   * lb - Pounds
+	WeightUOM *DomesticPackageDescriptionWeightUOM `json:"weightUOM,omitempty"`
+
+	// Width The width of the container, in dimensionsUOM. If partial dimensions are provided, an error response will return. Length, Width, and Height are required for accurate pricing of a rectangular package when any dimension of the item exceeds 12 inches. Girth is required only for a non-rectangular package in addition to Length, Width, and Height when any dimension of the package exceeds 12 inches. For rectangular packages, the Girth dimension must be left blank as this dimension is to only be used for non- rectangular packages.
+	Width                float32                `json:"width"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// DomesticPackageDescriptionDestinationEntryFacilityType Types of Facilities:
+// * `NONE` - Translate to Destination Rate Indicator N
+// * `DESTINATION_NETWORK_DISTRIBUTION_CENTER` - Translate to Destination Rate Indicator B
+// * `DESTINATION_SECTIONAL_CENTER_FACILITY` - Translate to Destination Rate Indicator S
+// * `DESTINATION_DELIVERY_UNIT` - Translate to Destination Rate Indicator D
+// * `DESTINATION_SERVICE_HUB` - Translate to Destination Rate Indicator H
+// * `DESTINATION_REGIONAL_PROCESSING_DISTRIBUTION_CENTER` - Translate to Destination Rate Indicator B
+//
+// Note:
+// * If any value other than `NONE` is selected, a destinationEntryFacilityAddress is required.
+// * The destinationEntryFacilityAddress must be a valid facility to drop your package
+// * The destination entry facility type must be set to `NONE` when there is a value provided for the 'inductionZipCode' field
+// * Effective 01/19/2025: `DESTINATION_DELIVERY_UNIT` is the only valid enumeration when using the 'USPS_CONNECT_MAIL' mail class
+// * Effective 01/18/2026: `DESTINATION_NETWORK_DISTRIBUTION_CENTER` with `PARCEL_SELECT` is no longer eligible.
+// * Effective 01/18/2026: (NSA Only) `DESTINATION_REGIONAL_PROCESSING_DISTRIBUTION_CENTER` with `PARCEL_SELECT` is available as an option.
+type DomesticPackageDescriptionDestinationEntryFacilityType string
+
+// DomesticPackageDescriptionDimensionsUOM Dimensions unit of measure
+// * in - Inches
+type DomesticPackageDescriptionDimensionsUOM string
+
+// DomesticPackageDescriptionMailClass The mail service requested.
+//
+// Note:
+// - `PARCEL_SELECT` with a `destinationEntryFacilityType` of `NONE` will convert to `USPS_GROUND_ADVANTAGE`.
+// - `PARCEL_SELECT_LIGHTWEIGHT` is deprecated and will convert to `PARCEL_SELECT`.
+// - `FIRST-CLASS_PACKAGE_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE`.
+// - Certain mail classes, such as `MEDIA_MAIL`, `BOUND_PRINTED_MATTER`, and `LIBRARY_MAIL`, have eligibility rules on what can be mailed using that service.  For more details on these mail classes, please visit [What are Package Services?](https://faq.usps.com/s/article/What-are-Package-Services).
+// - The Heavy Printed Matter product is supported with `MARKETING_MAIL_PARCELS`. To create Heavy Printed Matter labels, the `rateIndicator` should be set to `PR` or `NP` for Presorted or Nonpresorted USPS Marketing Mail Parcels Heavy Printed Matter or to `PN` or `NN` for Nonprofit Presorted or Nonpresorted USPS Marketing Mail Parcels Heavy Printed Matter respectively.
+type DomesticPackageDescriptionMailClass string
+
+// DomesticPackageDescriptionPackageOptionsAncillaryServiceEndorsements Endorsements allow the sender to obtain the addressee's new (forwarding) address
+// (provided the appropriate endorsement is used and if the addressee filed a
+// Change-of-Address Order with the Postal Service) or the reason for non-delivery.
+// For more information see [PostalPro](https://postalpro.usps.com/address-quality/ancillary-service-endorsements).
+//
+// Note:
+//   - Ancillary Service Endorsements are currently not supported when 'holdForPickup' is set to 'true'.
+//   - 'CHANGE_SERVICE_REQUESTED' with a mail class value of 'PRIORITY_MAIL' currently only supports a contentType of 'PERISHABLE'.
+//   - 'CHANGE_SERVICE_REQUESTED' cannot be requested with a 'contentType' of 'HAZMAT' or any hazmat shipments.
+//   - 'CHANGE_SERVICE_REQUESTED' with mail classes 'PARCEL_SELECT', 'USPS_GROUND_ADVANTAGE', and 'PRIORITY_MAIL' can only be used with extraServices '920' and '921'.
+//   - Ancillary Service Endorsements are currently only supported with mail class values 'PARCEL_SELECT', 'USPS_GROUND_ADVANTAGE', 'PRIORITY_MAIL', and 'PRIORITY_MAIL_EXPRESS'.
+//   - 'ELECTRONIC_SERVICE_REQUESTED' with a mail class value of 'PARCEL_SELECT' cannot be requested with a 'contentType' of 'HAZMAT' or any hazmat shipments.
+type DomesticPackageDescriptionPackageOptionsAncillaryServiceEndorsements string
+
+// DomesticPackageDescriptionPackageOptionsContentType The type of contents in the package.
+//
+// Note:
+// * `CREMATED_REMAINS` is currently only eligible for the `PRIORITY_MAIL_EXPRESS` mail class and is not eligible for Hold for Pickup shipments.  Please refer to [Publication 139](https://about.usps.com/publications/pub139/welcome.htm) for guidelines on how to package and ship `CREMATED_REMAINS`.
+// * `DAY_OLD_POULTRY` is currently only eligible with mail class values of `USPS_GROUND_ADVANTAGE`, `PRIORITY_MAIL` and `PRIORITY_MAIL_EXPRESS`.
+// * Shipments that contain Live Animals or Perishables will incur a Live Animal and Perishables Handling Fee per mail piece. Content types `HAZMAT`, `CREMATED_REMAINS`, and `MEDICAL_SUPPLIES` do not apply and will not incur a fee. For `DAY_OLD_POULTRY` shipments only, an additional Live Animal Transport Fee per pound is applied. For more information, please visit [Live Animals Transportation Fee FAQ](https://faq.usps.com/s/article/Live-Animal-Transportation-Fee#:~:text=The%20Live%20Animal%20Transportation%20fee%20is%20charged%20%240.20%20per%20pound,prices%20to%20Zones%205%2D9)
+// * `HAZMAT` domestic labels with destination addresses to APO/FPO/DPO and PTFAS (except Puerto Rico) will not contain any Hazmat markings/indicators, including service type codes in the IMpb. When users indicate a shipment contains hazmat materials in the API request (via content type and/or extra services), that information will still be captured and sent in the shipping services file. For more information, please review the [USPS APIs release notes](https://postalpro.usps.gov/usps-apis-releases)
+// * For guidelines on shipping Perishable and Hazardous Material, please refer to [Publication 52](https://pe.usps.com/text/pub52/welcome.htm).
+// * For ZIP codes with restrictions:
+//   - Please refer to the most recent [Postal Bulletin](https://about.usps.com/resources/postal-bulletin.htm) ZIP restriction table for more information. You can find this data under `Pull-Out information` -> `Other Information` -> `Overseas Military/Diplomatic Mail`.
+//   - When restriction `M` applies, then `BEES`, `DAY_OLD_POULTRY`, `ADULT_BIRDS`, `OTHER_LIVES`, `FRUITS`, `VEGETABLES`, and `LIVE_PLANTS` are not allowed.
+//   - When restriction `X` applies, then `CREMATED_REMAINS` are not allowed.
+type DomesticPackageDescriptionPackageOptionsContentType string
+
+// DomesticPackageDescriptionPackageOptionsNonDeliveryOption Requested action in the case a package is undeliverable:
+//   - `RETURN` for package to be returned to `fromAddress`.
+//   - `REDIRECT` to return package to address specified in the `redirectAddress`.
+//   - `ABANDON` to dispose of undeliverable package
+//
+// Note:
+//   - `REDIRECT` and `ABANDON` will not impact the domestic package endpoint. Please use ancillary service endorsements instead.
+//   - An address must be provided in `redirectAddress` when a value of `REDIRECT` is provided.
+type DomesticPackageDescriptionPackageOptionsNonDeliveryOption string
+
+// DomesticPackageDescription_PackageOptions defines model for DomesticPackageDescription.PackageOptions.
+type DomesticPackageDescription_PackageOptions struct {
+	// AncillaryServiceEndorsements Endorsements allow the sender to obtain the addressee's new (forwarding) address
+	// (provided the appropriate endorsement is used and if the addressee filed a
+	// Change-of-Address Order with the Postal Service) or the reason for non-delivery.
+	// For more information see [PostalPro](https://postalpro.usps.com/address-quality/ancillary-service-endorsements).
+	//
+	// Note:
+	//   * Ancillary Service Endorsements are currently not supported when 'holdForPickup' is set to 'true'.
+	//   * 'CHANGE_SERVICE_REQUESTED' with a mail class value of 'PRIORITY_MAIL' currently only supports a contentType of 'PERISHABLE'.
+	//   * 'CHANGE_SERVICE_REQUESTED' cannot be requested with a 'contentType' of 'HAZMAT' or any hazmat shipments.
+	//   * 'CHANGE_SERVICE_REQUESTED' with mail classes 'PARCEL_SELECT', 'USPS_GROUND_ADVANTAGE', and 'PRIORITY_MAIL' can only be used with extraServices '920' and '921'.
+	//   * Ancillary Service Endorsements are currently only supported with mail class values 'PARCEL_SELECT', 'USPS_GROUND_ADVANTAGE', 'PRIORITY_MAIL', and 'PRIORITY_MAIL_EXPRESS'.
+	//   * 'ELECTRONIC_SERVICE_REQUESTED' with a mail class value of 'PARCEL_SELECT' cannot be requested with a 'contentType' of 'HAZMAT' or any hazmat shipments.
+	AncillaryServiceEndorsements *DomesticPackageDescriptionPackageOptionsAncillaryServiceEndorsements `json:"ancillaryServiceEndorsements,omitempty"`
+
+	// Containers containers
+	Containers *[]Container `json:"containers,omitempty"`
+
+	// ContentType The type of contents in the package.
+	//
+	// Note:
+	// * `CREMATED_REMAINS` is currently only eligible for the `PRIORITY_MAIL_EXPRESS` mail class and is not eligible for Hold for Pickup shipments.  Please refer to [Publication 139](https://about.usps.com/publications/pub139/welcome.htm) for guidelines on how to package and ship `CREMATED_REMAINS`.
+	// * `DAY_OLD_POULTRY` is currently only eligible with mail class values of `USPS_GROUND_ADVANTAGE`, `PRIORITY_MAIL` and `PRIORITY_MAIL_EXPRESS`.
+	// * Shipments that contain Live Animals or Perishables will incur a Live Animal and Perishables Handling Fee per mail piece. Content types `HAZMAT`, `CREMATED_REMAINS`, and `MEDICAL_SUPPLIES` do not apply and will not incur a fee. For `DAY_OLD_POULTRY` shipments only, an additional Live Animal Transport Fee per pound is applied. For more information, please visit [Live Animals Transportation Fee FAQ](https://faq.usps.com/s/article/Live-Animal-Transportation-Fee#:~:text=The%20Live%20Animal%20Transportation%20fee%20is%20charged%20%240.20%20per%20pound,prices%20to%20Zones%205%2D9)
+	// * `HAZMAT` domestic labels with destination addresses to APO/FPO/DPO and PTFAS (except Puerto Rico) will not contain any Hazmat markings/indicators, including service type codes in the IMpb. When users indicate a shipment contains hazmat materials in the API request (via content type and/or extra services), that information will still be captured and sent in the shipping services file. For more information, please review the [USPS APIs release notes](https://postalpro.usps.gov/usps-apis-releases)
+	// * For guidelines on shipping Perishable and Hazardous Material, please refer to [Publication 52](https://pe.usps.com/text/pub52/welcome.htm).
+	// * For ZIP codes with restrictions:
+	//   * Please refer to the most recent [Postal Bulletin](https://about.usps.com/resources/postal-bulletin.htm) ZIP restriction table for more information. You can find this data under `Pull-Out information` -> `Other Information` -> `Overseas Military/Diplomatic Mail`.
+	//   * When restriction `M` applies, then `BEES`, `DAY_OLD_POULTRY`, `ADULT_BIRDS`, `OTHER_LIVES`, `FRUITS`, `VEGETABLES`, and `LIVE_PLANTS` are not allowed.
+	//   * When restriction `X` applies, then `CREMATED_REMAINS` are not allowed.
+	ContentType *DomesticPackageDescriptionPackageOptionsContentType `json:"contentType,omitempty"`
+
+	// GenerateGXEvent Provides the option for a user to not create a "GX" event for the package. By default, a GX event will be created.
+	GenerateGXEvent *bool `json:"generateGXEvent,omitempty"`
+
+	// ImmediateManifest Setting this field to `true` will send electronic data to Postal systems within 15 minutes of label creation.
+	//
+	// If invoked, this label <u><strong>cannot</strong></u> be canceled. Instead, one must request an unused label refund – which may be subject to an admin fee.
+	//
+	// Depending on time of label creation, your packages could be charged same day instead of next day.
+	ImmediateManifest *bool `json:"immediateManifest,omitempty"`
+
+	// NonDeliveryOption Requested action in the case a package is undeliverable:
+	//   - `RETURN` for package to be returned to `fromAddress`.
+	//   - `REDIRECT` to return package to address specified in the `redirectAddress`.
+	//   - `ABANDON` to dispose of undeliverable package
+	//
+	// Note:
+	//   * `REDIRECT` and `ABANDON` will not impact the domestic package endpoint. Please use ancillary service endorsements instead.
+	//   * An address must be provided in `redirectAddress` when a value of `REDIRECT` is provided.
+	NonDeliveryOption *DomesticPackageDescriptionPackageOptionsNonDeliveryOption `json:"nonDeliveryOption,omitempty"`
+
+	// Omas Fields specific to Official Mail Accounting System (OMAS).  Used for Federal Agencies.
+	Omas *struct {
+		// ChargebackCode Code used with OMAS transactions.
+		ChargebackCode *string `json:"chargebackCode,omitempty"`
+	} `json:"omas,omitempty"`
+
+	// OriginalPackage * Note: packageOptions.originalPackage fields cannot be used in combination with packageOptions.returnReceiptTracking.
+	OriginalPackage *struct {
+		// OriginalConstructCode A 3-character code to identify the construct of the Original Label Tracking Number
+		OriginalConstructCode string `json:"originalConstructCode"`
+
+		// OriginalTrackingNumber The tracking number associated with the package before it was over labeled.
+		// For accurate tracking, this field requires a concatenated string consisting of the routingInformation and trackingNumber from the original label response.
+		OriginalTrackingNumber string `json:"originalTrackingNumber"`
+	} `json:"originalPackage,omitempty"`
+
+	// PackageValue The merchandise value of the package, in US dollars. Used as the declared value for Insurance and for fee calculation when provided.
+	//
+	//  Note:
+	//   * `packageValue` is required when `extraServices` includes `930` or `931`.
+	PackageValue *float32 `json:"packageValue,omitempty"`
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+	RedirectAddress *DomesticLabelAddress `json:"redirectAddress,omitempty"`
+
+	// ReturnReceiptTracking Indicates whether a return receipt tracking number should be generated for the package.
+	// If set to `true`, the system will automatically add the Extra Service Code (ESC) `955`
+	// if it is not already present. When enabled, the `returnReceiptTrackingNumber` field will be populated in the response.
+	//
+	// Note:
+	//   * `returnReceiptTracking` cannot be used in combination with `packageOptions.originalPackage` fields.
+	//   * Utilizing `returnReceiptTracking` will incur the `955` ESC associated fee.
+	ReturnReceiptTracking *bool                  `json:"returnReceiptTracking,omitempty"`
+	AdditionalProperties  map[string]interface{} `json:"-"`
+}
+
+// DomesticPackageDescriptionProcessingCategory Value designates if shipment is `MACHINABLE`, `NONSTANDARD`, `LETTERS`, or `FLATS`.
+//
+// Note:
+// * When requesting the mail class `USPS_CONNECT_MAIL`, users are required to use a processing category of `FLATS`.
+// * The processing category `LETTERS` is only valid for mail classes `PRIORITY_MAIL` and `PRIORITY_MAIL_EXPRESS` for outbound shipments.
+// * The processing category `FLATS` is not valid for mail class `USPS_GROUND_ADVANTAGE`.
+// * `IRREGULAR` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+// * `NON_MACHINABLE` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+type DomesticPackageDescriptionProcessingCategory string
+
+// DomesticPackageDescriptionRateIndicator Use to specify USPS&#174; containers/packaging or container attributes that may affect postage.
+//
+// Note:
+//   - Effective 07/12/2026:  Rate indicators `Q6`, `Q7`, `Q8`, `Q9`, and `Q0` are no longer supported.  The dimensions for Cubic Soft Pack tiers `P5`, `P6`, `P7`, `P8`, and `P9` will be updated to include the dimensions for Tiers 6-10.  For updated tiers and more information, please view the [Postal Bulletin](https://about.usps.com/postal-bulletin/2026/pb22705/html/updt_001.htm).
+//
+// Rate indicator list:
+//   - 3D - 3-Digit
+//   - 3N - 3-Digit Dimensional Rectangular
+//   - 3R - 3-Digit Dimensional Nonrectangular
+//   - 5D - 5-Digit
+//   - BA - Basic
+//   - BB - Mixed NDC
+//   - CP - Cubic Parcel
+//   - CM - USPS Connect&#174; Local Mail
+//   - DC - NDC
+//   - DE - SCF
+//   - DF - 5-Digit
+//   - DN - Dimensional Nonrectangular
+//   - DR - Dimensional Rectangular
+//   - E4 - Priority Mail Express Flat Rate Envelope - Post Office To Addressee
+//   - E6 - Priority Mail Express Legal Flat Rate Envelope
+//   - FA - Legal Flat Rate Envelope
+//   - FB - Medium Flat Rate Box/Large Flat Rate Bag
+//   - FE - Flat Rate Envelope
+//   - FP - Padded Flat Rate Envelope
+//   - FS - Small Flat Rate Box
+//   - LC - USPS Connect&#174; Local Single Piece
+//   - LF - USPS Connect&#174; Local Flat Rate Box
+//   - LL - USPS Connect&#174; Local Large Flat Rate Bag
+//   - LO - USPS Connect&#174; Local Oversized
+//   - LS - USPS Connect&#174; Local Small Flat Rate Bag
+//   - NN - Non-Presorted Nonprofit
+//   - NP - Non-Presorted
+//   - OS - Oversized
+//   - PN - Presorted Nonprofit
+//   - P5 - Cubic Soft Pack Tier 1
+//   - P6 - Cubic Soft Pack Tier 2
+//   - P7 - Cubic Soft Pack Tier 3
+//   - P8 - Cubic Soft Pack Tier 4
+//   - P9 - Cubic Soft Pack Tier 5
+//   - Q6 - Cubic Soft Pack Tier 6
+//   - Q7 - Cubic Soft Pack Tier 7
+//   - Q8 - Cubic Soft Pack Tier 8
+//   - Q9 - Cubic Soft Pack Tier 9
+//   - Q0 - Cubic Soft Pack Tier 10
+//   - PA - Priority Mail Express Single Piece
+//   - PL - Large Flat Rate Box
+//   - PM - Large Flat Rate Box APO/FPO/DPO
+//   - PR - Presorted
+//   - SN - SCF Dimensional Nonrectangular
+//   - SP - Single Piece
+//   - SR - SCF Dimensional Rectangular
+type DomesticPackageDescriptionRateIndicator string
+
+// DomesticPackageDescriptionShipperVisibilityMethod When generating labels for a third party shipper the label provider must capture and provide contact details of the individual or entity to whom they provide the label. There are two methods for reporting shipper information to USPS:
+//
+// 1. The label provider creates a unique USPS Mailer ID (MID) using the name, validated address, phone, and email contact information of each shipper. When using this method the Mailer ID should be submitted in the MID field in the LABEL_OWNER role when generating the payment authorization token and this field should be populated with 'MID_INFORMATION'
+//
+// 2. An alternative method allows for the label provider to assign a unique alphanumeric value known as a platformUserId to each shipper and to report the platformUserId together with the required shipper contact details. When using this method the shipper contact details are required in the `senderAddress` object (including `streetAddress`, `city`, `state`, `ZIPCode`, `phone`, `email`, `platformUserId` & `firstName`/`lastName` or `firm`) and this field should be populated with 'SENDER_INFORMATION'.
+type DomesticPackageDescriptionShipperVisibilityMethod string
+
+// DomesticPackageDescriptionWeightUOM Weight Unit of Measurement
+//   - lb - Pounds
+type DomesticPackageDescriptionWeightUOM string
+
+// DomesticPackageDescriptionWithoutRateIndicator defines model for DomesticPackageDescriptionWithoutRateIndicator.
+type DomesticPackageDescriptionWithoutRateIndicator struct {
+	// CarrierRelease Indicates whether recipients authorize a carrier to leave a shipment if no one is available to receive it at the time of delivery. Priority Mail Express&#174; shipments or items requiring a signature at delivery are not eligible (e.g. Signature Confirmation, Insurance > $500).
+	//
+	// Note:
+	//  * Carrier Release is currently not supported when `holdForPickup` is set to `true`.
+	//  * Carrier Release is currently not supported with mail class values of `PRIORITY_MAIL`, `PRIORITY_MAIL_EXPRESS`, or `USPS_GROUND_ADVANTAGE`.
+	//  * Carrier Release is currently not supported with `extraServices` `910`, `911`, `912`, `913`, `921`, `922`, `923`, `924`, `925`, `930`, `931`, `934`, `955`, or `981`.
+	CarrierRelease *bool `json:"carrierRelease,omitempty"`
+
+	// CustomerReference Used for shippers to print a value on a label and included in the Shipping Services File (SSF).
+	//
+	// Note:
+	//  * Customer Reference #3-4 are only supported with label types `4X5LABEL`, `4X6LABEL`, and `6X4LABEL`.
+	//  * Customer Reference #3-4 cannot be used with a customs form.
+	//  * Customer Reference #3-4 will not be added to the SSF.
+	//  * Customer Reference will not display with `imageInfo.brandingImageFormat` value of `RECTANGLE`.
+	//  * When Customer Reference #4 is provided with a Destination Entry Facility, the Drop-Off Location will not be displayed on the label.
+	CustomerReference *[]DomesticCustomerReference `json:"customerReference,omitempty"`
+
+	// DestinationEntryFacilityAddress Address fields for US locations
+	DestinationEntryFacilityAddress *DomesticAddress `json:"destinationEntryFacilityAddress,omitempty"`
+
+	// DestinationEntryFacilityType Types of Facilities:
+	// * `NONE` - Translate to Destination Rate Indicator N
+	// * `DESTINATION_NETWORK_DISTRIBUTION_CENTER` - Translate to Destination Rate Indicator B
+	// * `DESTINATION_SECTIONAL_CENTER_FACILITY` - Translate to Destination Rate Indicator S
+	// * `DESTINATION_DELIVERY_UNIT` - Translate to Destination Rate Indicator D
+	// * `DESTINATION_SERVICE_HUB` - Translate to Destination Rate Indicator H
+	// * `DESTINATION_REGIONAL_PROCESSING_DISTRIBUTION_CENTER` - Translate to Destination Rate Indicator B
+	//
+	// Note:
+	// * If any value other than `NONE` is selected, a destinationEntryFacilityAddress is required.
+	// * The destinationEntryFacilityAddress must be a valid facility to drop your package
+	// * The destination entry facility type must be set to `NONE` when there is a value provided for the 'inductionZipCode' field
+	// * Effective 01/19/2025: `DESTINATION_DELIVERY_UNIT` is the only valid enumeration when using the 'USPS_CONNECT_MAIL' mail class
+	// * Effective 01/18/2026: `DESTINATION_NETWORK_DISTRIBUTION_CENTER` with `PARCEL_SELECT` is no longer eligible.
+	// * Effective 01/18/2026: (NSA Only) `DESTINATION_REGIONAL_PROCESSING_DISTRIBUTION_CENTER` with `PARCEL_SELECT` is available as an option.
+	DestinationEntryFacilityType DomesticPackageDescriptionWithoutRateIndicatorDestinationEntryFacilityType `json:"destinationEntryFacilityType"`
+
+	// DimensionsUOM Dimensions unit of measure
+	// * in - Inches
+	DimensionsUOM *DomesticPackageDescriptionWithoutRateIndicatorDimensionsUOM `json:"dimensionsUOM,omitempty"`
+
+	// ExtraServices Extra Service Code requested.
+	// * 365 - Global Direct Entry
+	// * 415 - USPS Label Delivery
+	// * 480 - Tracking Plus 6 Months
+	// * 481 - Tracking Plus 1 Year
+	// * 482 - Tracking Plus 3 Years
+	// * 483 - Tracking Plus 5 Years
+	// * 484 - Tracking Plus 7 Years
+	// * 485 - Tracking Plus 10 Years
+	// * 486 - Tracking Plus Signature 3 Years
+	// * 487 - Tracking Plus Signature 5 Years
+	// * 488 - Tracking Plus Signature 7 Years
+	// * 489 - Tracking Plus Signature 10 Years
+	// * 810 - HAZMAT Air Eligible Ethanol Package
+	// * 811 - HAZMAT Class 1 - Toy Propellant/Safety Fuse Package
+	// * 812 - HAZMAT Class 3 – Flammable Liquid Package
+	// * 813 - HAZMAT Class 7 - Radioactive Materials Package
+	// * 814 - HAZMAT Class 8 - Corrosive Materials Package
+	// * 815 - HAZMAT Class 8 - Nonspillable Wet Battery Package
+	// * 816 - HAZMAT Class 9 - Lithium Battery Marked - Ground Only Package
+	// * 817 - HAZMAT Class 9 - Lithium Battery - Returns Package
+	// * 818 - HAZMAT Class 9 - Lithium batteries, marked package
+	// * 819 - HAZMAT Class 9 - Dry Ice Package
+	// * 820 - HAZMAT Class 9 - Lithium batteries, unmarked package
+	// * 821 - HAZMAT Class 9 - Magnetized Materials Package
+	// * 822 - HAZMAT Division 4.1 – Flammable Solids or Safety Matches Package
+	// * 823 - HAZMAT Division 5.1 - Oxidizers Package
+	// * 824 - HAZMAT Division 5.2 - Organic Peroxides Package
+	// * 825 - HAZMAT Division 6.1 – Toxic Materials Package
+	// * 826 - HAZMAT Division 6.2 – Infectious Substances Package
+	// * 827 - HAZMAT Excepted Quantity Provision Package
+	// * 828 - HAZMAT Ground Only
+	// * 829 - HAZMAT ID8000 Consumer Commodity Package
+	// * 830 - HAZMAT Lighters Package
+	// * 831 - HAZMAT LTD QTY Ground Package
+	// * 832 - HAZMAT Small Quantity Provision Package
+	// * 857 - Hazardous Material
+	// * 910 - Certified Mail
+	// * 911 - Certified Mail Restricted Delivery
+	// * 912 - Certified Mail Adult Signature Required
+	// * 913 - Certified Mail Adult Signature Restricted Delivery
+	// * 920 - USPS Tracking
+	// * 921 - Signature Confirmation
+	// * 922 - Adult Signature Required 21 or Over
+	// * 923 - Adult Signature Restricted Delivery 21 or Over
+	// * 924 - Signature Confirmation Restricted Delivery
+	// * 925 - Priority Mail Express Merchandise Insurance
+	// * 930 - Insurance <= $500
+	// * 931 - Insurance > $500
+	// * 934 - Insurance Restricted Delivery
+	// * 955 - Return Receipt
+	// * 957 - Return Receipt Electronic
+	// * 981 - Signature Requested (PRIORITY_MAIL_EXPRESS only)
+	// * 986 - PO to Addressee (PRIORITY_MAIL_EXPRESS only)
+	// * 991 - Sunday Delivery
+	//
+	// Note:
+	// * When the extra service code "930" is provided in the request, if the item value is over $500, "930" will automatically be replaced with "931" - Insurance (Greater than $500).
+	// * USPS Label Delivery (Print and Deliver, extra service code "415"): When requesting this service, no images will be returned in the API response. The label and receipt will be printed and mailed to the `fromAddress` provided. The mailed label will always include a receipt on the page. This service is not available at all locations.
+	// * Some service codes require a combination with extra services such as "955" and "957". For all valid combinations, visit [https://postalpro.usps.com/IMPB_Service_Type_Codes](https://postalpro.usps.com/IMPB_Service_Type_Codes).
+	ExtraServices *[]ExtraService `json:"extraServices,omitempty"`
+
+	// Girth The girth of the container, in dimensionsUOM. If partial dimensions are provided, an error response will return. Length, Width, Height are required for accurate pricing of a rectangular package when any dimension of the item exceeds 12 inches. In addition, Girth is required only for a non- rectangular package in addition to Length, Width, Height when any dimension of the package exceeds 12 inches. For rectangular packages, the Girth dimension must be left blank as this dimension is to only be used for non- rectangular packages.
+	Girth *float32 `json:"girth,omitempty"`
+
+	// HasNonstandardCharacteristics Package is nonstandard. Nonstandard packages include cylindrical tubes and rolls, certain high-density items, cartons containing more than 24 ounces of liquids in one or more glass containers, cartons containing 1 gallon or more of liquid in metal or plastic containers, and items in [201.7.6.2](https://pe.usps.com/text/dmm300/201.htm#7.6.2).
+	HasNonstandardCharacteristics *bool `json:"hasNonstandardCharacteristics,omitempty"`
+
+	// Height The height of the container, in dimensionsUOM. If partial dimensions are provided, an error response will return. Length, Width, and Height are required for accurate pricing of a rectangular package when any dimension of the item exceeds 12 inches. Girth is required only for a non-rectangular package in addition to Length, Width, and Height when any dimension of the package exceeds 12 inches. For rectangular packages, the Girth dimension must be left blank as this dimension is to only be used for non-rectangular packages.
+	Height float32 `json:"height"`
+
+	// InductionZIPCode The 5-Digit ZIP Code representing the location where the package is being inducted (i.e. dropped off) into the mailstream.  When provided, this ZIP Code will be used for pricing instead of `fromAddress.ZIPCode`.
+	InductionZIPCode *InductionZIPCode `json:"inductionZIPCode,omitempty"`
+
+	// Length The length of the container, in dimensionsUOM. If partial dimensions are provided, an error response will return. Length, Width, and Height are required for accurate pricing of a rectangular package when any dimension of the item exceeds 12 inches. Girth is required only for a non-rectangular package in addition to Length, Width, and Height when any dimension of the package exceeds 12 inches. For rectangular packages, the Girth dimension must be left blank as this dimension is to only be used for non-rectangular packages.
+	Length float32 `json:"length"`
+
+	// LogisticsManagerMID This is the mailer ID associated with the logistics manager for this label This provides an additional copy of the scan extract file to the MID's outbound folder.
+	LogisticsManagerMID *string `json:"logisticsManagerMID,omitempty"`
+
+	// MailClass The mail service requested.
+	//
+	// Note:
+	// - `PARCEL_SELECT` with a `destinationEntryFacilityType` of `NONE` will convert to `USPS_GROUND_ADVANTAGE`.
+	// - `PARCEL_SELECT_LIGHTWEIGHT` is deprecated and will convert to `PARCEL_SELECT`.
+	// - `FIRST-CLASS_PACKAGE_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE`.
+	// - Certain mail classes, such as `MEDIA_MAIL`, `BOUND_PRINTED_MATTER`, and `LIBRARY_MAIL`, have eligibility rules on what can be mailed using that service.  For more details on these mail classes, please visit [What are Package Services?](https://faq.usps.com/s/article/What-are-Package-Services).
+	// - The Heavy Printed Matter product is supported with `MARKETING_MAIL_PARCELS`. To create Heavy Printed Matter labels, the `rateIndicator` should be set to `PR` or `NP` for Presorted or Nonpresorted USPS Marketing Mail Parcels Heavy Printed Matter or to `PN` or `NN` for Nonprofit Presorted or Nonpresorted USPS Marketing Mail Parcels Heavy Printed Matter respectively.
+	MailClass DomesticPackageDescriptionWithoutRateIndicatorMailClass `json:"mailClass"`
+
+	// MailOwnerMID This is the mailer ID associated with the mail owner for this label This provides an additional copy of the scan extract file to the MID's outbound folder.
+	MailOwnerMID *string `json:"mailOwnerMID,omitempty"`
+
+	// MailingDate The local date on which the package will be mailed. If the time is not provided, it will be defaulted to 10:00 p.m. local time.  Local time will be based on the `destinationEntryFacilityAddress.ZIPCode` or `inductionZIPCode` when provided, otherwise `fromAddress.ZIPCode` will be used as the origin ZIP Code.
+	MailingDate string `json:"mailingDate"`
+
+	// Nonprofit Used to specify if the shipment is a nonprofit mailing.  Shippers must be authorized for nonprofit mailings to qualify for nonprofit pricing.  All nonprofit mailings must not be used for product fulfillment.  For more details on Nonprofit Mailers, visit [Nonprofit Mailers](https://pe.usps.com/BusinessMail101?ViewName=NonprofitPrices).
+	//
+	// When `nonprofit` is `true` and `mailClass` is `MARKETING_MAIL_PARCELS`, nonprofit rates will be applied.  When using `rateIndicator` values, the `rateIndicator` must also be `NN` or `PN`.
+	//
+	// When `nonprofit` is `false` and `mailClass` is `MARKETING_MAIL_PARCELS`, standard rates will be applied.
+	//
+	// `nonprofit` is not supported for any other mail class.
+	Nonprofit      *Nonprofit                                                     `json:"nonprofit,omitempty"`
+	PackageOptions *DomesticPackageDescriptionWithoutRateIndicator_PackageOptions `json:"packageOptions,omitempty"`
+
+	// PackagingType USPS packaging or container attributes that may affect postage. If the packaging is customer provided, use `VARIABLE`.
+	PackagingType DomesticPackageDescriptionWithoutRateIndicatorPackagingType `json:"packagingType"`
+
+	// PhysicalSignatureRequired Indicates the method for the signature that will be used when signing for the package.  Required when requesting signature `extraServices` including `910`, `911`, `912`, `913`, `921`, `922`, `923`, `924`, `925`, `931`, `934`, `955`, and `981`.  Additionally required when requesting `extraServices` code `930` with a `packageValue` greater than $500.
+	//
+	// When `physicalSignatureRequired` is `false`, a USPS Electronic Signature Online (USPS eSOL) may be used to sign for the item.  For more information on USPS eSOL, please visit the [USPS eSOL FAQ](https://faq.usps.com/s/article/USPS-Electronic-Signature-Online).
+	//
+	// When `physicalSignatureRequired` is `true`, the recipient will be required to physically sign for the item.  A USPS eSOL on record will not be accepted as a valid signature for the item.
+	//
+	// Notes:
+	//  * Regardless of the boolean, the printed label will still display "SIGNATURE REQUIRED" if a signature service is included with the label.
+	//  * `carrierRelease` is not eligible to be used with `physicalSignatureRequired`.
+	PhysicalSignatureRequired *bool `json:"physicalSignatureRequired,omitempty"`
+
+	// ProcessingCategory Value designates if shipment is `MACHINABLE`, `NONSTANDARD`, `LETTERS`, or `FLATS`.
+	//
+	// Note:
+	// * When requesting the mail class `USPS_CONNECT_MAIL`, users are required to use a processing category of `FLATS`.
+	// * The processing category `LETTERS` is only valid for mail classes `PRIORITY_MAIL` and `PRIORITY_MAIL_EXPRESS` for outbound shipments.
+	// * The processing category `FLATS` is not valid for mail class `USPS_GROUND_ADVANTAGE`.
+	// * `IRREGULAR` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+	// * `NON_MACHINABLE` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+	ProcessingCategory DomesticPackageDescriptionWithoutRateIndicatorProcessingCategory `json:"processingCategory"`
+
+	// SerialNumberFormat Used to specify the barcode construct used for the generated tracking number.  For details on barcode constructs, reference Appendix J in [Pub 199](https://postalpro.usps.com/pub199).
+	//
+	// `STANDARD` - Will generate a `C01`, `C03`, `C05`, or `C07` barcode construct, based on the Label Owner's `MID` in the Payment Authorization Token.
+	//
+	// `EXTENDED` - Will generate a `C02` or `C06` barcode construct, based on the Label Owner's `MID` in the Payment Authorization Token.
+	SerialNumberFormat *SerialNumberFormat `json:"serialNumberFormat,omitempty"`
+
+	// Shape The shape of the package
+	Shape DomesticPackageDescriptionWithoutRateIndicatorShape `json:"shape"`
+
+	// ShipperVisibilityMethod When generating labels for a third party shipper the label provider must capture and provide contact details of the individual or entity to whom they provide the label. There are two methods for reporting shipper information to USPS:
+	//
+	// 1. The label provider creates a unique USPS Mailer ID (MID) using the name, validated address, phone, and email contact information of each shipper. When using this method the Mailer ID should be submitted in the MID field in the LABEL_OWNER role when generating the payment authorization token and this field should be populated with 'MID_INFORMATION'
+	//
+	// 2. An alternative method allows for the label provider to assign a unique alphanumeric value known as a platformUserId to each shipper and to report the platformUserId together with the required shipper contact details. When using this method the shipper contact details are required in the `senderAddress` object (including `streetAddress`, `city`, `state`, `ZIPCode`, `phone`, `email`, `platformUserId` & `firstName`/`lastName` or `firm`) and this field should be populated with 'SENDER_INFORMATION'.
+	ShipperVisibilityMethod *DomesticPackageDescriptionWithoutRateIndicatorShipperVisibilityMethod `json:"shipperVisibilityMethod,omitempty"`
+
+	// Weight The package weight, in weightUOM (Unit Of Measure). Items must weigh 70 pounds (1120 ounces) or less.
+	Weight float32 `json:"weight"`
+
+	// WeightUOM Weight Unit of Measurement
+	//   * lb - Pounds
+	WeightUOM *DomesticPackageDescriptionWithoutRateIndicatorWeightUOM `json:"weightUOM,omitempty"`
+
+	// Width The width of the container, in dimensionsUOM. If partial dimensions are provided, an error response will return. Length, Width, and Height are required for accurate pricing of a rectangular package when any dimension of the item exceeds 12 inches. Girth is required only for a non-rectangular package in addition to Length, Width, and Height when any dimension of the package exceeds 12 inches. For rectangular packages, the Girth dimension must be left blank as this dimension is to only be used for non- rectangular packages.
+	Width                float32                `json:"width"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// DomesticPackageDescriptionWithoutRateIndicatorDestinationEntryFacilityType Types of Facilities:
+// * `NONE` - Translate to Destination Rate Indicator N
+// * `DESTINATION_NETWORK_DISTRIBUTION_CENTER` - Translate to Destination Rate Indicator B
+// * `DESTINATION_SECTIONAL_CENTER_FACILITY` - Translate to Destination Rate Indicator S
+// * `DESTINATION_DELIVERY_UNIT` - Translate to Destination Rate Indicator D
+// * `DESTINATION_SERVICE_HUB` - Translate to Destination Rate Indicator H
+// * `DESTINATION_REGIONAL_PROCESSING_DISTRIBUTION_CENTER` - Translate to Destination Rate Indicator B
+//
+// Note:
+// * If any value other than `NONE` is selected, a destinationEntryFacilityAddress is required.
+// * The destinationEntryFacilityAddress must be a valid facility to drop your package
+// * The destination entry facility type must be set to `NONE` when there is a value provided for the 'inductionZipCode' field
+// * Effective 01/19/2025: `DESTINATION_DELIVERY_UNIT` is the only valid enumeration when using the 'USPS_CONNECT_MAIL' mail class
+// * Effective 01/18/2026: `DESTINATION_NETWORK_DISTRIBUTION_CENTER` with `PARCEL_SELECT` is no longer eligible.
+// * Effective 01/18/2026: (NSA Only) `DESTINATION_REGIONAL_PROCESSING_DISTRIBUTION_CENTER` with `PARCEL_SELECT` is available as an option.
+type DomesticPackageDescriptionWithoutRateIndicatorDestinationEntryFacilityType string
+
+// DomesticPackageDescriptionWithoutRateIndicatorDimensionsUOM Dimensions unit of measure
+// * in - Inches
+type DomesticPackageDescriptionWithoutRateIndicatorDimensionsUOM string
+
+// DomesticPackageDescriptionWithoutRateIndicatorMailClass The mail service requested.
+//
+// Note:
+// - `PARCEL_SELECT` with a `destinationEntryFacilityType` of `NONE` will convert to `USPS_GROUND_ADVANTAGE`.
+// - `PARCEL_SELECT_LIGHTWEIGHT` is deprecated and will convert to `PARCEL_SELECT`.
+// - `FIRST-CLASS_PACKAGE_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE`.
+// - Certain mail classes, such as `MEDIA_MAIL`, `BOUND_PRINTED_MATTER`, and `LIBRARY_MAIL`, have eligibility rules on what can be mailed using that service.  For more details on these mail classes, please visit [What are Package Services?](https://faq.usps.com/s/article/What-are-Package-Services).
+// - The Heavy Printed Matter product is supported with `MARKETING_MAIL_PARCELS`. To create Heavy Printed Matter labels, the `rateIndicator` should be set to `PR` or `NP` for Presorted or Nonpresorted USPS Marketing Mail Parcels Heavy Printed Matter or to `PN` or `NN` for Nonprofit Presorted or Nonpresorted USPS Marketing Mail Parcels Heavy Printed Matter respectively.
+type DomesticPackageDescriptionWithoutRateIndicatorMailClass string
+
+// DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsAncillaryServiceEndorsements Endorsements allow the sender to obtain the addressee's new (forwarding) address
+// (provided the appropriate endorsement is used and if the addressee filed a
+// Change-of-Address Order with the Postal Service) or the reason for non-delivery.
+// For more information see [PostalPro](https://postalpro.usps.com/address-quality/ancillary-service-endorsements).
+//
+// Note:
+//   - Ancillary Service Endorsements are currently not supported when 'holdForPickup' is set to 'true'.
+//   - 'CHANGE_SERVICE_REQUESTED' with a mail class value of 'PRIORITY_MAIL' currently only supports a contentType of 'PERISHABLE'.
+//   - 'CHANGE_SERVICE_REQUESTED' cannot be requested with a 'contentType' of 'HAZMAT' or any hazmat shipments.
+//   - 'CHANGE_SERVICE_REQUESTED' with mail classes 'PARCEL_SELECT', 'USPS_GROUND_ADVANTAGE', and 'PRIORITY_MAIL' can only be used with extraServices '920' and '921'.
+//   - Ancillary Service Endorsements are currently only supported with mail class values 'PARCEL_SELECT', 'USPS_GROUND_ADVANTAGE', 'PRIORITY_MAIL', and 'PRIORITY_MAIL_EXPRESS'.
+//   - 'ELECTRONIC_SERVICE_REQUESTED' with a mail class value of 'PARCEL_SELECT' cannot be requested with a 'contentType' of 'HAZMAT' or any hazmat shipments.
+type DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsAncillaryServiceEndorsements string
+
+// DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsContentType The type of contents in the package.
+//
+// Note:
+// * `CREMATED_REMAINS` is currently only eligible for the `PRIORITY_MAIL_EXPRESS` mail class and is not eligible for Hold for Pickup shipments.  Please refer to [Publication 139](https://about.usps.com/publications/pub139/welcome.htm) for guidelines on how to package and ship `CREMATED_REMAINS`.
+// * `DAY_OLD_POULTRY` is currently only eligible with mail class values of `USPS_GROUND_ADVANTAGE`, `PRIORITY_MAIL` and `PRIORITY_MAIL_EXPRESS`.
+// * Shipments that contain Live Animals or Perishables will incur a Live Animal and Perishables Handling Fee per mail piece. Content types `HAZMAT`, `CREMATED_REMAINS`, and `MEDICAL_SUPPLIES` do not apply and will not incur a fee. For `DAY_OLD_POULTRY` shipments only, an additional Live Animal Transport Fee per pound is applied. For more information, please visit [Live Animals Transportation Fee FAQ](https://faq.usps.com/s/article/Live-Animal-Transportation-Fee#:~:text=The%20Live%20Animal%20Transportation%20fee%20is%20charged%20%240.20%20per%20pound,prices%20to%20Zones%205%2D9)
+// * `HAZMAT` domestic labels with destination addresses to APO/FPO/DPO and PTFAS (except Puerto Rico) will not contain any Hazmat markings/indicators, including service type codes in the IMpb. When users indicate a shipment contains hazmat materials in the API request (via content type and/or extra services), that information will still be captured and sent in the shipping services file. For more information, please review the [USPS APIs release notes](https://postalpro.usps.gov/usps-apis-releases)
+// * For guidelines on shipping Perishable and Hazardous Material, please refer to [Publication 52](https://pe.usps.com/text/pub52/welcome.htm).
+// * For ZIP codes with restrictions:
+//   - Please refer to the most recent [Postal Bulletin](https://about.usps.com/resources/postal-bulletin.htm) ZIP restriction table for more information. You can find this data under `Pull-Out information` -> `Other Information` -> `Overseas Military/Diplomatic Mail`.
+//   - When restriction `M` applies, then `BEES`, `DAY_OLD_POULTRY`, `ADULT_BIRDS`, `OTHER_LIVES`, `FRUITS`, `VEGETABLES`, and `LIVE_PLANTS` are not allowed.
+//   - When restriction `X` applies, then `CREMATED_REMAINS` are not allowed.
+type DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsContentType string
+
+// DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsNonDeliveryOption Requested action in the case a package is undeliverable:
+//   - `RETURN` for package to be returned to `fromAddress`.
+//   - `REDIRECT` to return package to address specified in the `redirectAddress`.
+//   - `ABANDON` to dispose of undeliverable package
+//
+// Note:
+//   - `REDIRECT` and `ABANDON` will not impact the domestic package endpoint. Please use ancillary service endorsements instead.
+//   - An address must be provided in `redirectAddress` when a value of `REDIRECT` is provided.
+type DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsNonDeliveryOption string
+
+// DomesticPackageDescriptionWithoutRateIndicator_PackageOptions defines model for DomesticPackageDescriptionWithoutRateIndicator.PackageOptions.
+type DomesticPackageDescriptionWithoutRateIndicator_PackageOptions struct {
+	// AncillaryServiceEndorsements Endorsements allow the sender to obtain the addressee's new (forwarding) address
+	// (provided the appropriate endorsement is used and if the addressee filed a
+	// Change-of-Address Order with the Postal Service) or the reason for non-delivery.
+	// For more information see [PostalPro](https://postalpro.usps.com/address-quality/ancillary-service-endorsements).
+	//
+	// Note:
+	//   * Ancillary Service Endorsements are currently not supported when 'holdForPickup' is set to 'true'.
+	//   * 'CHANGE_SERVICE_REQUESTED' with a mail class value of 'PRIORITY_MAIL' currently only supports a contentType of 'PERISHABLE'.
+	//   * 'CHANGE_SERVICE_REQUESTED' cannot be requested with a 'contentType' of 'HAZMAT' or any hazmat shipments.
+	//   * 'CHANGE_SERVICE_REQUESTED' with mail classes 'PARCEL_SELECT', 'USPS_GROUND_ADVANTAGE', and 'PRIORITY_MAIL' can only be used with extraServices '920' and '921'.
+	//   * Ancillary Service Endorsements are currently only supported with mail class values 'PARCEL_SELECT', 'USPS_GROUND_ADVANTAGE', 'PRIORITY_MAIL', and 'PRIORITY_MAIL_EXPRESS'.
+	//   * 'ELECTRONIC_SERVICE_REQUESTED' with a mail class value of 'PARCEL_SELECT' cannot be requested with a 'contentType' of 'HAZMAT' or any hazmat shipments.
+	AncillaryServiceEndorsements *DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsAncillaryServiceEndorsements `json:"ancillaryServiceEndorsements,omitempty"`
+
+	// Containers containers
+	Containers *[]Container `json:"containers,omitempty"`
+
+	// ContentType The type of contents in the package.
+	//
+	// Note:
+	// * `CREMATED_REMAINS` is currently only eligible for the `PRIORITY_MAIL_EXPRESS` mail class and is not eligible for Hold for Pickup shipments.  Please refer to [Publication 139](https://about.usps.com/publications/pub139/welcome.htm) for guidelines on how to package and ship `CREMATED_REMAINS`.
+	// * `DAY_OLD_POULTRY` is currently only eligible with mail class values of `USPS_GROUND_ADVANTAGE`, `PRIORITY_MAIL` and `PRIORITY_MAIL_EXPRESS`.
+	// * Shipments that contain Live Animals or Perishables will incur a Live Animal and Perishables Handling Fee per mail piece. Content types `HAZMAT`, `CREMATED_REMAINS`, and `MEDICAL_SUPPLIES` do not apply and will not incur a fee. For `DAY_OLD_POULTRY` shipments only, an additional Live Animal Transport Fee per pound is applied. For more information, please visit [Live Animals Transportation Fee FAQ](https://faq.usps.com/s/article/Live-Animal-Transportation-Fee#:~:text=The%20Live%20Animal%20Transportation%20fee%20is%20charged%20%240.20%20per%20pound,prices%20to%20Zones%205%2D9)
+	// * `HAZMAT` domestic labels with destination addresses to APO/FPO/DPO and PTFAS (except Puerto Rico) will not contain any Hazmat markings/indicators, including service type codes in the IMpb. When users indicate a shipment contains hazmat materials in the API request (via content type and/or extra services), that information will still be captured and sent in the shipping services file. For more information, please review the [USPS APIs release notes](https://postalpro.usps.gov/usps-apis-releases)
+	// * For guidelines on shipping Perishable and Hazardous Material, please refer to [Publication 52](https://pe.usps.com/text/pub52/welcome.htm).
+	// * For ZIP codes with restrictions:
+	//   * Please refer to the most recent [Postal Bulletin](https://about.usps.com/resources/postal-bulletin.htm) ZIP restriction table for more information. You can find this data under `Pull-Out information` -> `Other Information` -> `Overseas Military/Diplomatic Mail`.
+	//   * When restriction `M` applies, then `BEES`, `DAY_OLD_POULTRY`, `ADULT_BIRDS`, `OTHER_LIVES`, `FRUITS`, `VEGETABLES`, and `LIVE_PLANTS` are not allowed.
+	//   * When restriction `X` applies, then `CREMATED_REMAINS` are not allowed.
+	ContentType *DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsContentType `json:"contentType,omitempty"`
+
+	// GenerateGXEvent Provides the option for a user to not create a "GX" event for the package. By default, a GX event will be created.
+	GenerateGXEvent *bool `json:"generateGXEvent,omitempty"`
+
+	// ImmediateManifest Setting this field to `true` will send electronic data to Postal systems within 15 minutes of label creation.
+	//
+	// If invoked, this label <u><strong>cannot</strong></u> be canceled. Instead, one must request an unused label refund – which may be subject to an admin fee.
+	//
+	// Depending on time of label creation, your packages could be charged same day instead of next day.
+	ImmediateManifest *bool `json:"immediateManifest,omitempty"`
+
+	// NonDeliveryOption Requested action in the case a package is undeliverable:
+	//   - `RETURN` for package to be returned to `fromAddress`.
+	//   - `REDIRECT` to return package to address specified in the `redirectAddress`.
+	//   - `ABANDON` to dispose of undeliverable package
+	//
+	// Note:
+	//   * `REDIRECT` and `ABANDON` will not impact the domestic package endpoint. Please use ancillary service endorsements instead.
+	//   * An address must be provided in `redirectAddress` when a value of `REDIRECT` is provided.
+	NonDeliveryOption *DomesticPackageDescriptionWithoutRateIndicatorPackageOptionsNonDeliveryOption `json:"nonDeliveryOption,omitempty"`
+
+	// Omas Fields specific to Official Mail Accounting System (OMAS).  Used for Federal Agencies.
+	Omas *struct {
+		// ChargebackCode Code used with OMAS transactions.
+		ChargebackCode *string `json:"chargebackCode,omitempty"`
+	} `json:"omas,omitempty"`
+
+	// OriginalPackage * Note: packageOptions.originalPackage fields cannot be used in combination with packageOptions.returnReceiptTracking.
+	OriginalPackage *struct {
+		// OriginalConstructCode A 3-character code to identify the construct of the Original Label Tracking Number
+		OriginalConstructCode string `json:"originalConstructCode"`
+
+		// OriginalTrackingNumber The tracking number associated with the package before it was over labeled.
+		// For accurate tracking, this field requires a concatenated string consisting of the routingInformation and trackingNumber from the original label response.
+		OriginalTrackingNumber string `json:"originalTrackingNumber"`
+	} `json:"originalPackage,omitempty"`
+
+	// PackageValue The merchandise value of the package, in US dollars. Used as the declared value for Insurance and for fee calculation when provided.
+	//
+	//  Note:
+	//   * `packageValue` is required when `extraServices` includes `930` or `931`.
+	PackageValue *float32 `json:"packageValue,omitempty"`
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+	RedirectAddress *DomesticLabelAddress `json:"redirectAddress,omitempty"`
+
+	// ReturnReceiptTracking Indicates whether a return receipt tracking number should be generated for the package.
+	// If set to `true`, the system will automatically add the Extra Service Code (ESC) `955`
+	// if it is not already present. When enabled, the `returnReceiptTrackingNumber` field will be populated in the response.
+	//
+	// Note:
+	//   * `returnReceiptTracking` cannot be used in combination with `packageOptions.originalPackage` fields.
+	//   * Utilizing `returnReceiptTracking` will incur the `955` ESC associated fee.
+	ReturnReceiptTracking *bool                  `json:"returnReceiptTracking,omitempty"`
+	AdditionalProperties  map[string]interface{} `json:"-"`
+}
+
+// DomesticPackageDescriptionWithoutRateIndicatorPackagingType USPS packaging or container attributes that may affect postage. If the packaging is customer provided, use `VARIABLE`.
+type DomesticPackageDescriptionWithoutRateIndicatorPackagingType string
+
+// DomesticPackageDescriptionWithoutRateIndicatorProcessingCategory Value designates if shipment is `MACHINABLE`, `NONSTANDARD`, `LETTERS`, or `FLATS`.
+//
+// Note:
+// * When requesting the mail class `USPS_CONNECT_MAIL`, users are required to use a processing category of `FLATS`.
+// * The processing category `LETTERS` is only valid for mail classes `PRIORITY_MAIL` and `PRIORITY_MAIL_EXPRESS` for outbound shipments.
+// * The processing category `FLATS` is not valid for mail class `USPS_GROUND_ADVANTAGE`.
+// * `IRREGULAR` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+// * `NON_MACHINABLE` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+type DomesticPackageDescriptionWithoutRateIndicatorProcessingCategory string
+
+// DomesticPackageDescriptionWithoutRateIndicatorShape The shape of the package
+type DomesticPackageDescriptionWithoutRateIndicatorShape string
+
+// DomesticPackageDescriptionWithoutRateIndicatorShipperVisibilityMethod When generating labels for a third party shipper the label provider must capture and provide contact details of the individual or entity to whom they provide the label. There are two methods for reporting shipper information to USPS:
+//
+// 1. The label provider creates a unique USPS Mailer ID (MID) using the name, validated address, phone, and email contact information of each shipper. When using this method the Mailer ID should be submitted in the MID field in the LABEL_OWNER role when generating the payment authorization token and this field should be populated with 'MID_INFORMATION'
+//
+// 2. An alternative method allows for the label provider to assign a unique alphanumeric value known as a platformUserId to each shipper and to report the platformUserId together with the required shipper contact details. When using this method the shipper contact details are required in the `senderAddress` object (including `streetAddress`, `city`, `state`, `ZIPCode`, `phone`, `email`, `platformUserId` & `firstName`/`lastName` or `firm`) and this field should be populated with 'SENDER_INFORMATION'.
+type DomesticPackageDescriptionWithoutRateIndicatorShipperVisibilityMethod string
+
+// DomesticPackageDescriptionWithoutRateIndicatorWeightUOM Weight Unit of Measurement
+//   - lb - Pounds
+type DomesticPackageDescriptionWithoutRateIndicatorWeightUOM string
+
+// DomesticPackageOptions defines model for DomesticPackageOptions.
+type DomesticPackageOptions struct {
+	// AncillaryServiceEndorsements Endorsements allow the sender to obtain the addressee's new (forwarding) address
+	// (provided the appropriate endorsement is used and if the addressee filed a
+	// Change-of-Address Order with the Postal Service) or the reason for non-delivery.
+	// For more information see [PostalPro](https://postalpro.usps.com/address-quality/ancillary-service-endorsements).
+	//
+	// Note:
+	//   * Ancillary Service Endorsements are currently not supported when 'holdForPickup' is set to 'true'.
+	//   * 'CHANGE_SERVICE_REQUESTED' with a mail class value of 'PRIORITY_MAIL' currently only supports a contentType of 'PERISHABLE'.
+	//   * 'CHANGE_SERVICE_REQUESTED' cannot be requested with a 'contentType' of 'HAZMAT' or any hazmat shipments.
+	//   * 'CHANGE_SERVICE_REQUESTED' with mail classes 'PARCEL_SELECT', 'USPS_GROUND_ADVANTAGE', and 'PRIORITY_MAIL' can only be used with extraServices '920' and '921'.
+	//   * Ancillary Service Endorsements are currently only supported with mail class values 'PARCEL_SELECT', 'USPS_GROUND_ADVANTAGE', 'PRIORITY_MAIL', and 'PRIORITY_MAIL_EXPRESS'.
+	//   * 'ELECTRONIC_SERVICE_REQUESTED' with a mail class value of 'PARCEL_SELECT' cannot be requested with a 'contentType' of 'HAZMAT' or any hazmat shipments.
+	AncillaryServiceEndorsements *DomesticPackageOptionsAncillaryServiceEndorsements `json:"ancillaryServiceEndorsements,omitempty"`
+
+	// Containers containers
+	Containers *[]Container `json:"containers,omitempty"`
+
+	// ContentType The type of contents in the package.
+	//
+	// Note:
+	// * `CREMATED_REMAINS` is currently only eligible for the `PRIORITY_MAIL_EXPRESS` mail class and is not eligible for Hold for Pickup shipments.  Please refer to [Publication 139](https://about.usps.com/publications/pub139/welcome.htm) for guidelines on how to package and ship `CREMATED_REMAINS`.
+	// * `DAY_OLD_POULTRY` is currently only eligible with mail class values of `USPS_GROUND_ADVANTAGE`, `PRIORITY_MAIL` and `PRIORITY_MAIL_EXPRESS`.
+	// * Shipments that contain Live Animals or Perishables will incur a Live Animal and Perishables Handling Fee per mail piece. Content types `HAZMAT`, `CREMATED_REMAINS`, and `MEDICAL_SUPPLIES` do not apply and will not incur a fee. For `DAY_OLD_POULTRY` shipments only, an additional Live Animal Transport Fee per pound is applied. For more information, please visit [Live Animals Transportation Fee FAQ](https://faq.usps.com/s/article/Live-Animal-Transportation-Fee#:~:text=The%20Live%20Animal%20Transportation%20fee%20is%20charged%20%240.20%20per%20pound,prices%20to%20Zones%205%2D9)
+	// * `HAZMAT` domestic labels with destination addresses to APO/FPO/DPO and PTFAS (except Puerto Rico) will not contain any Hazmat markings/indicators, including service type codes in the IMpb. When users indicate a shipment contains hazmat materials in the API request (via content type and/or extra services), that information will still be captured and sent in the shipping services file. For more information, please review the [USPS APIs release notes](https://postalpro.usps.gov/usps-apis-releases)
+	// * For guidelines on shipping Perishable and Hazardous Material, please refer to [Publication 52](https://pe.usps.com/text/pub52/welcome.htm).
+	// * For ZIP codes with restrictions:
+	//   * Please refer to the most recent [Postal Bulletin](https://about.usps.com/resources/postal-bulletin.htm) ZIP restriction table for more information. You can find this data under `Pull-Out information` -> `Other Information` -> `Overseas Military/Diplomatic Mail`.
+	//   * When restriction `M` applies, then `BEES`, `DAY_OLD_POULTRY`, `ADULT_BIRDS`, `OTHER_LIVES`, `FRUITS`, `VEGETABLES`, and `LIVE_PLANTS` are not allowed.
+	//   * When restriction `X` applies, then `CREMATED_REMAINS` are not allowed.
+	ContentType *DomesticPackageOptionsContentType `json:"contentType,omitempty"`
+
+	// GenerateGXEvent Provides the option for a user to not create a "GX" event for the package. By default, a GX event will be created.
+	GenerateGXEvent *bool `json:"generateGXEvent,omitempty"`
+
+	// NonDeliveryOption Requested action in the case a package is undeliverable:
+	//   - `RETURN` for package to be returned to `fromAddress`.
+	//   - `REDIRECT` to return package to address specified in the `redirectAddress`.
+	//   - `ABANDON` to dispose of undeliverable package
+	//
+	// Note:
+	//   * `REDIRECT` and `ABANDON` will not impact the domestic package endpoint. Please use ancillary service endorsements instead.
+	//   * An address must be provided in `redirectAddress` when a value of `REDIRECT` is provided.
+	NonDeliveryOption *DomesticPackageOptionsNonDeliveryOption `json:"nonDeliveryOption,omitempty"`
+
+	// Omas Fields specific to Official Mail Accounting System (OMAS).  Used for Federal Agencies.
+	Omas *struct {
+		// ChargebackCode Code used with OMAS transactions.
+		ChargebackCode *string `json:"chargebackCode,omitempty"`
+	} `json:"omas,omitempty"`
+
+	// PackageValue The merchandise value of the package, in US dollars. Used as the declared value for Insurance and for fee calculation when provided.
+	//
+	//  Note:
+	//   * `packageValue` is required when `extraServices` includes `930` or `931`.
+	PackageValue *float32 `json:"packageValue,omitempty"`
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+	RedirectAddress *DomesticLabelAddress `json:"redirectAddress,omitempty"`
+
+	// ReturnReceiptTracking Indicates whether a return receipt tracking number should be generated for the package.
+	// If set to `true`, the system will automatically add the Extra Service Code (ESC) `955`
+	// if it is not already present. When enabled, the `returnReceiptTrackingNumber` field will be populated in the response.
+	//
+	// Note:
+	//   * `returnReceiptTracking` cannot be used in combination with `packageOptions.originalPackage` fields.
+	//   * Utilizing `returnReceiptTracking` will incur the `955` ESC associated fee.
+	ReturnReceiptTracking *bool                  `json:"returnReceiptTracking,omitempty"`
+	AdditionalProperties  map[string]interface{} `json:"-"`
+}
+
+// DomesticPackageOptionsAncillaryServiceEndorsements Endorsements allow the sender to obtain the addressee's new (forwarding) address
+// (provided the appropriate endorsement is used and if the addressee filed a
+// Change-of-Address Order with the Postal Service) or the reason for non-delivery.
+// For more information see [PostalPro](https://postalpro.usps.com/address-quality/ancillary-service-endorsements).
+//
+// Note:
+//   - Ancillary Service Endorsements are currently not supported when 'holdForPickup' is set to 'true'.
+//   - 'CHANGE_SERVICE_REQUESTED' with a mail class value of 'PRIORITY_MAIL' currently only supports a contentType of 'PERISHABLE'.
+//   - 'CHANGE_SERVICE_REQUESTED' cannot be requested with a 'contentType' of 'HAZMAT' or any hazmat shipments.
+//   - 'CHANGE_SERVICE_REQUESTED' with mail classes 'PARCEL_SELECT', 'USPS_GROUND_ADVANTAGE', and 'PRIORITY_MAIL' can only be used with extraServices '920' and '921'.
+//   - Ancillary Service Endorsements are currently only supported with mail class values 'PARCEL_SELECT', 'USPS_GROUND_ADVANTAGE', 'PRIORITY_MAIL', and 'PRIORITY_MAIL_EXPRESS'.
+//   - 'ELECTRONIC_SERVICE_REQUESTED' with a mail class value of 'PARCEL_SELECT' cannot be requested with a 'contentType' of 'HAZMAT' or any hazmat shipments.
+type DomesticPackageOptionsAncillaryServiceEndorsements string
+
+// DomesticPackageOptionsContentType The type of contents in the package.
+//
+// Note:
+// * `CREMATED_REMAINS` is currently only eligible for the `PRIORITY_MAIL_EXPRESS` mail class and is not eligible for Hold for Pickup shipments.  Please refer to [Publication 139](https://about.usps.com/publications/pub139/welcome.htm) for guidelines on how to package and ship `CREMATED_REMAINS`.
+// * `DAY_OLD_POULTRY` is currently only eligible with mail class values of `USPS_GROUND_ADVANTAGE`, `PRIORITY_MAIL` and `PRIORITY_MAIL_EXPRESS`.
+// * Shipments that contain Live Animals or Perishables will incur a Live Animal and Perishables Handling Fee per mail piece. Content types `HAZMAT`, `CREMATED_REMAINS`, and `MEDICAL_SUPPLIES` do not apply and will not incur a fee. For `DAY_OLD_POULTRY` shipments only, an additional Live Animal Transport Fee per pound is applied. For more information, please visit [Live Animals Transportation Fee FAQ](https://faq.usps.com/s/article/Live-Animal-Transportation-Fee#:~:text=The%20Live%20Animal%20Transportation%20fee%20is%20charged%20%240.20%20per%20pound,prices%20to%20Zones%205%2D9)
+// * `HAZMAT` domestic labels with destination addresses to APO/FPO/DPO and PTFAS (except Puerto Rico) will not contain any Hazmat markings/indicators, including service type codes in the IMpb. When users indicate a shipment contains hazmat materials in the API request (via content type and/or extra services), that information will still be captured and sent in the shipping services file. For more information, please review the [USPS APIs release notes](https://postalpro.usps.gov/usps-apis-releases)
+// * For guidelines on shipping Perishable and Hazardous Material, please refer to [Publication 52](https://pe.usps.com/text/pub52/welcome.htm).
+// * For ZIP codes with restrictions:
+//   - Please refer to the most recent [Postal Bulletin](https://about.usps.com/resources/postal-bulletin.htm) ZIP restriction table for more information. You can find this data under `Pull-Out information` -> `Other Information` -> `Overseas Military/Diplomatic Mail`.
+//   - When restriction `M` applies, then `BEES`, `DAY_OLD_POULTRY`, `ADULT_BIRDS`, `OTHER_LIVES`, `FRUITS`, `VEGETABLES`, and `LIVE_PLANTS` are not allowed.
+//   - When restriction `X` applies, then `CREMATED_REMAINS` are not allowed.
+type DomesticPackageOptionsContentType string
+
+// DomesticPackageOptionsNonDeliveryOption Requested action in the case a package is undeliverable:
+//   - `RETURN` for package to be returned to `fromAddress`.
+//   - `REDIRECT` to return package to address specified in the `redirectAddress`.
+//   - `ABANDON` to dispose of undeliverable package
+//
+// Note:
+//   - `REDIRECT` and `ABANDON` will not impact the domestic package endpoint. Please use ancillary service endorsements instead.
+//   - An address must be provided in `redirectAddress` when a value of `REDIRECT` is provided.
+type DomesticPackageOptionsNonDeliveryOption string
+
+// DomesticPackageReturnOptions defines model for DomesticPackageReturnOptions.
+type DomesticPackageReturnOptions struct {
+	// AncillaryServiceEndorsements Endorsements allow the sender to obtain the addressee's new (forwarding) address (provided the appropriate endorsement is used
+	// and if the addressee filed a Change-of-Address Order with the Postal Service) or the reason for non-delivery.
+	// For more information see [PostalPro](https://postalpro.usps.com/address-quality/ancillary-service-endorsements)
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+	AncillaryServiceEndorsements *DomesticPackageReturnOptionsAncillaryServiceEndorsements `json:"ancillaryServiceEndorsements,omitempty"`
+
+	// Containers containers
+	Containers *[]Container `json:"containers,omitempty"`
+
+	// ContentType The type of contents in the package.
+	// * HAZMAT
+	// * CREMATED_REMAINS
+	// * BEES
+	// * DAY_OLD_POULTRY
+	// * ADULT_BIRDS
+	// * OTHER_LIVES
+	// * PERISHABLE
+	// * PHARMACEUTICALS
+	// * MEDICAL_SUPPLIES
+	// * FRUITS
+	// * VEGETABLES
+	// * LIVE_PLANTS
+	//
+	// Note:
+	// * `CREMATED_REMAINS` is currently only eligible for the `PRIORITY_MAIL_EXPRESS_RETURN_SERVICE` mail class.  Please refer to [Publication 139](https://about.usps.com/publications/pub139/welcome.htm) for guidelines on how to package and ship `CREMATED_REMAINS`.
+	// * `HAZMAT` domestic labels with destination addresses to APO/FPO/DPO and PTFAS (except Puerto Rico) will not contain any Hazmat markings/indicators, including service type codes in the IMpb. When users indicate a shipment contains hazmat materials in the API request (via content type and/or extra services), that information will still be captured and sent in the shipping services file. For more information, please review the [USPS APIs release notes](https://postalpro.usps.gov/usps-apis-releases)
+	// * For guidelines on shipping Hazardous Material, please refer to [Publication 52](https://pe.usps.com/text/pub52/welcome.htm).
+	ContentType *DomesticPackageReturnOptionsContentType `json:"contentType,omitempty"`
+
+	// GenerateGXEvent Provides the option for a user to not create a "GX" event for the package. By default, a GX event will be created.
+	GenerateGXEvent *bool `json:"generateGXEvent,omitempty"`
+
+	// ImmediateManifest Setting this field to `true` will send electronic data to Postal systems within 15 minutes of label creation.
+	ImmediateManifest *bool `json:"immediateManifest,omitempty"`
+
+	// NonDeliveryOption Requested action in the case a package is undeliverable:
+	//   - `RETURN` for package to be returned to `fromAddress`.
+	//   - `REDIRECT` to return package to address specified in the `redirectAddress`.
+	//   - `ABANDON` to dispose of undeliverable package
+	//
+	// Note:
+	//   * `REDIRECT` and `ABANDON` will not impact the domestic package endpoint. Please use ancillary service endorsements instead.
+	//   * An address must be provided in `redirectAddress` when a value of `REDIRECT` is provided.
+	NonDeliveryOption *DomesticPackageReturnOptionsNonDeliveryOption `json:"nonDeliveryOption,omitempty"`
+
+	// Omas Fields specific to Official Mail Accounting System (OMAS).  Used for Federal Agencies.
+	Omas *struct {
+		// ChargebackCode Code used with OMAS transactions.
+		ChargebackCode *string `json:"chargebackCode,omitempty"`
+	} `json:"omas,omitempty"`
+
+	// PackageValue The merchandise value of the package, in US dollars. Used as the declared value for Insurance and for fee calculation when provided.
+	//
+	//  Note:
+	//   * `packageValue` is required when `extraServices` includes `930` or `931`.
+	PackageValue *float32 `json:"packageValue,omitempty"`
+
+	// RedirectAddress **Deprecated**: Use the `ancillaryServiceEndorsements` field instead.
+	//
+	// Address to send the package to if it is not deliverable.
+	//
+	// Note:
+	//   - Required when `nonDeliveryOption` is a value of `REDIRECT`.
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+	RedirectAddress      *DomesticLabelAddress  `json:"redirectAddress,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// DomesticPackageReturnOptionsAncillaryServiceEndorsements Endorsements allow the sender to obtain the addressee's new (forwarding) address (provided the appropriate endorsement is used
+// and if the addressee filed a Change-of-Address Order with the Postal Service) or the reason for non-delivery.
+// For more information see [PostalPro](https://postalpro.usps.com/address-quality/ancillary-service-endorsements)
+type DomesticPackageReturnOptionsAncillaryServiceEndorsements string
+
+// DomesticPackageReturnOptionsContentType The type of contents in the package.
+// * HAZMAT
+// * CREMATED_REMAINS
+// * BEES
+// * DAY_OLD_POULTRY
+// * ADULT_BIRDS
+// * OTHER_LIVES
+// * PERISHABLE
+// * PHARMACEUTICALS
+// * MEDICAL_SUPPLIES
+// * FRUITS
+// * VEGETABLES
+// * LIVE_PLANTS
+//
+// Note:
+// * `CREMATED_REMAINS` is currently only eligible for the `PRIORITY_MAIL_EXPRESS_RETURN_SERVICE` mail class.  Please refer to [Publication 139](https://about.usps.com/publications/pub139/welcome.htm) for guidelines on how to package and ship `CREMATED_REMAINS`.
+// * `HAZMAT` domestic labels with destination addresses to APO/FPO/DPO and PTFAS (except Puerto Rico) will not contain any Hazmat markings/indicators, including service type codes in the IMpb. When users indicate a shipment contains hazmat materials in the API request (via content type and/or extra services), that information will still be captured and sent in the shipping services file. For more information, please review the [USPS APIs release notes](https://postalpro.usps.gov/usps-apis-releases)
+// * For guidelines on shipping Hazardous Material, please refer to [Publication 52](https://pe.usps.com/text/pub52/welcome.htm).
+type DomesticPackageReturnOptionsContentType string
+
+// DomesticPackageReturnOptionsNonDeliveryOption Requested action in the case a package is undeliverable:
+//   - `RETURN` for package to be returned to `fromAddress`.
+//   - `REDIRECT` to return package to address specified in the `redirectAddress`.
+//   - `ABANDON` to dispose of undeliverable package
+//
+// Note:
+//   - `REDIRECT` and `ABANDON` will not impact the domestic package endpoint. Please use ancillary service endorsements instead.
+//   - An address must be provided in `redirectAddress` when a value of `REDIRECT` is provided.
+type DomesticPackageReturnOptionsNonDeliveryOption string
+
+// DomesticReturnsCustomsForm defines model for DomesticReturnsCustomsForm.
+type DomesticReturnsCustomsForm struct {
+	// AESITN AES/ITN Exemption should be populated with the electronic export internal transaction number (if required), or the appropriate Exemption/Exclusion Legend.
+	//
+	// * **AES - Automated Export System /   ITN - Internal Transaction Number**\
+	//   The [internal transaction number (ITN)](https://pe.usps.com/text/imm/immc5_010.htm) is a 14-digit number that corresponds to an export transaction in the Automated Export System. It serves as proof that an exporter met his or her legal obligation to inform the U.S. government about the details of an export shipment.
+	// * **EEL- Exemptions, Exclusions, Legend**\
+	//   An [AES exemption](https://pe.usps.com/text/imm/immc5_012.htm) is an instance in which you would not have to file in AES to get the 14-digit ITN. Instead of the ITN, you would enter the exemption’s section in the U.S. Foreign Trade Regulations on the export documentation where you would otherwise put the ITN.
+	//
+	// Sample - `NO EEI 30.37(a)`: Shipments valued at $2,500 or less.
+	AESITN *string `json:"AESITN,omitempty"`
+
+	// CertificateNumber Certificate Number
+	CertificateNumber *string `json:"certificateNumber,omitempty"`
+
+	// ContentComments Required when customContentType is OTHER.
+	ContentComments *string `json:"contentComments,omitempty"`
+
+	// Contents Details of the contents of the package. The first five items will print on the label of the customs form, and the rest will print on a separate continuation page.
+	Contents *[]ShippingContents `json:"contents,omitempty"`
+
+	// CustomsContentType Specifies the content of the package or envelope.
+	//  * MERCHANDISE
+	//  * GIFT
+	//  * DOCUMENT
+	//  * COMMERCIAL_SAMPLE
+	//  * RETURNED_GOODS
+	//  * OTHER
+	//  * HUMANITARIAN_DONATIONS
+	//  * DANGEROUS_GOODS
+	CustomsContentType *DomesticReturnsCustomsFormCustomsContentType `json:"customsContentType,omitempty"`
+
+	// ExportersContact Exporters Contact. Enter, if known, the Exporter’s telephone number, fax number, or email address, as such information might facilitate customs clearance or delivery.
+	ExportersContact *string `json:"exportersContact,omitempty"`
+
+	// ExportersReference Exporters Reference. The Exporter’s Reference might be a tax code, importer code, or VAT number used for sales tax.
+	ExportersReference *string `json:"exportersReference,omitempty"`
+
+	// ImportersContact Importers Contact. Enter, if known, the Importer’s telephone number, fax number, or email address, as such information might facilitate customs clearance or delivery.
+	ImportersContact *string `json:"importersContact,omitempty"`
+
+	// ImportersReference Importers Reference. The Importer’s Reference might be a tax code, importer code, or VAT number used for sales tax.
+	ImportersReference *string `json:"importersReference,omitempty"`
+
+	// InvoiceNumber Invoice Number
+	InvoiceNumber *string `json:"invoiceNumber,omitempty"`
+
+	// LicenseNumber License Number
+	LicenseNumber *string `json:"licenseNumber,omitempty"`
+
+	// RestrictionComments Restriction Comments.  Required when `restrictionType`=`OTHER`.
+	RestrictionComments *string `json:"restrictionComments,omitempty"`
+
+	// RestrictionType Restriction Types
+	//   * QUARANTINE
+	//   * SANITARY_INSPECTION
+	//   * PHYTOSANITARY_INSPECTION
+	//   * OTHER
+	RestrictionType      *DomesticReturnsCustomsFormRestrictionType `json:"restrictionType,omitempty"`
+	AdditionalProperties map[string]interface{}                     `json:"-"`
+}
+
+// DomesticReturnsCustomsFormCustomsContentType Specifies the content of the package or envelope.
+//   - MERCHANDISE
+//   - GIFT
+//   - DOCUMENT
+//   - COMMERCIAL_SAMPLE
+//   - RETURNED_GOODS
+//   - OTHER
+//   - HUMANITARIAN_DONATIONS
+//   - DANGEROUS_GOODS
+type DomesticReturnsCustomsFormCustomsContentType string
+
+// DomesticReturnsCustomsFormRestrictionType Restriction Types
+//   - QUARANTINE
+//   - SANITARY_INSPECTION
+//   - PHYTOSANITARY_INSPECTION
+//   - OTHER
+type DomesticReturnsCustomsFormRestrictionType string
+
+// Email Email address used for redirect notification via email.
+type Email = openapi_types.Email
+
+// ErrorMessage Standard error message response.
+type ErrorMessage struct {
+	// ApiVersion The version of the API that was used and that raised the error.
+	ApiVersion *string `json:"apiVersion,omitempty"`
+
+	// Error The high-level error that has occurred as indicated by the status code.
+	Error                *ErrorMessage_Error    `json:"error,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// ErrorMessage_Error_Errors_Source The element that is suspected of originating the error.  Helps to pinpoint the problem.
+type ErrorMessage_Error_Errors_Source struct {
+	// Example An example of a valid value for the input parameter.
+	Example *string `json:"example,omitempty"`
+
+	// Parameter The input in the request which caused an error.
+	Parameter            *string                `json:"parameter,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// ErrorMessage_Error_Errors_Item defines model for ErrorMessage.Error.Errors.Item.
+type ErrorMessage_Error_Errors_Item struct {
+	// Code An internal subordinate code used for error diagnosis.
+	Code *string `json:"code,omitempty"`
+
+	// Detail A human-readable description of the error that occurred.
+	Detail *string `json:"detail,omitempty"`
+
+	// Source The element that is suspected of originating the error.  Helps to pinpoint the problem.
+	Source *ErrorMessage_Error_Errors_Source `json:"source,omitempty"`
+
+	// Status The status code response returned to the client.
+	Status *string `json:"status,omitempty"`
+
+	// Title A human-readable title that identifies the error.
+	Title                *string                `json:"title,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// ErrorMessage_Error The high-level error that has occurred as indicated by the status code.
+type ErrorMessage_Error struct {
+	// Code The error status code that has been returned in response to the request.
+	Code *string `json:"code,omitempty"`
+
+	// Errors List of Errors
+	Errors *[]ErrorMessage_Error_Errors_Item `json:"errors,omitempty"`
+
+	// Message A human-readable message describing the error.
+	Message              *string                `json:"message,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// ExtraService Extra Service Code (ESC) requested.
+//
+// Extra Service Code list:
+//
+//   - 365 - Global Direct Entry
+//
+//   - 415 - USPS Label Delivery
+//
+//   - 480 - Tracking Plus 6 Months
+//
+//   - 481 - Tracking Plus 1 Year
+//
+//   - 482 - Tracking Plus 3 Years
+//
+//   - 483 - Tracking Plus 5 Years
+//
+//   - 484 - Tracking Plus 7 Years
+//
+//   - 485 - Tracking Plus 10 Years
+//
+//   - 486 - Tracking Plus Signature 3 Years
+//
+//   - 487 - Tracking Plus Signature 5 Years
+//
+//   - 488 - Tracking Plus Signature 7 Years
+//
+//   - 489 - Tracking Plus Signature 10 Years
+//
+//   - 810 - HAZMAT Air Eligible Ethanol Package
+//
+//   - 811 - HAZMAT Class 1 - Toy Propellant/Safety Fuse Package
+//
+//   - 812 - HAZMAT Class 3 – Flammable Liquid Package
+//
+//   - 813 - HAZMAT Class 7 - Radioactive Materials Package
+//
+//   - 814 - HAZMAT Class 8 - Corrosive Materials Package
+//
+//   - 815 - HAZMAT Class 8 - Nonspillable Wet Battery Package
+//
+//   - 816 - HAZMAT Class 9 - Lithium Battery Marked - Ground Only Package
+//
+//   - 817 - HAZMAT Class 9 - Lithium Battery - Returns Package
+//
+//   - 818 - HAZMAT Class 9 - Lithium batteries, marked package
+//
+//   - 819 - HAZMAT Class 9 - Dry Ice Package
+//
+//   - 820 - HAZMAT Class 9 - Lithium batteries, unmarked package
+//
+//   - 821 - HAZMAT Class 9 - Magnetized Materials Package
+//
+//   - 822 - HAZMAT Division 4.1 – Flammable Solids or Safety Matches Package
+//
+//   - 823 - HAZMAT Division 5.1 - Oxidizers Package
+//
+//   - 824 - HAZMAT Division 5.2 - Organic Peroxides Package
+//
+//   - 825 - HAZMAT Division 6.1 – Toxic Materials Package
+//
+//   - 826 - HAZMAT Division 6.2 – Infectious Substances Package
+//
+//   - 827 - HAZMAT Excepted Quantity Provision Package
+//
+//   - 828 - HAZMAT Ground Only
+//
+//   - 829 - HAZMAT ID8000 Consumer Commodity Package
+//
+//   - 830 - HAZMAT Lighters Package
+//
+//   - 831 - HAZMAT LTD QTY Ground Package
+//
+//   - 832 - HAZMAT Small Quantity Provision Package
+//
+//   - 857 - Hazardous Material
+//
+//   - 910 - Certified Mail
+//
+//   - 911 - Certified Mail Restricted Delivery
+//
+//   - 912 - Certified Mail Adult Signature Required
+//
+//   - 913 - Certified Mail Adult Signature Restricted Delivery
+//
+//   - 920 - USPS Tracking
+//
+//   - 921 - Signature Confirmation
+//
+//   - 922 - Adult Signature Required 21 or Over
+//
+//   - 923 - Adult Signature Restricted Delivery 21 or Over
+//
+//   - 924 - Signature Confirmation Restricted Delivery
+//
+//   - 925 - Priority Mail Express Merchandise Insurance
+//
+//   - 930 - Insurance <= $500
+//
+//   - 931 - Insurance > $500
+//
+//   - 934 - Insurance Restricted Delivery
+//
+//   - 955 - Return Receipt
+//
+//   - 957 - Return Receipt Electronic
+//
+//   - 981 - Signature Requested (PRIORITY_MAIL_EXPRESS only)
+//
+//   - 986 - PO to Addressee (PRIORITY_MAIL_EXPRESS only)
+//
+//   - 991 - Sunday Delivery
+//
+//     Note:
+//
+//   - Extra Service Code "415 - USPS Label Delivery": When requesting this service, no images will be returned in the API response. The label and receipt will be printed and mailed to the `fromAddress` provided. The mailed label will always include a receipt on the page.
+type ExtraService int
+
+// ExtraServiceResponse Extra services requested on the mailpiece.
+type ExtraServiceResponse = []struct {
+	// SKU SKU of the extra service.
+	SKU *string `json:"SKU,omitempty"`
+
+	// Name Name of the extra service.
+	Name *string `json:"name,omitempty"`
+
+	// Price The price for the extra service.
+	Price *float32 `json:"price,omitempty"`
+
+	// Warnings Warnings and additional details around the Extra Services.
+	Warnings *[]struct {
+		// WarningCode Code corresponding to the warning
+		WarningCode *string `json:"warningCode,omitempty"`
+
+		// WarningDescription Warning or additional information regarding the Extra Service.
+		WarningDescription *string `json:"warningDescription,omitempty"`
+	} `json:"warnings,omitempty"`
+}
+
+// IMBCancelResponse Cancel Intelligent Mail Barcode (IMB) Response
+type IMBCancelResponse struct {
+	// DisputeID The ID of the submitted refund request.
+	//
+	// Note:
+	// - The disputeID field may not be returned for IMBs created prior to 8/27/2025.
+	// - If a refund request is successfully submitted, a disputeID will be returned that can be used to then track the status of the refund request. The system will only give one unique disputeID per customer reference ID (CRID) per day. Duplicate submissions of the same label, for the same CRID, on the same day, will be rejected.
+	// - In some cases, a disputeID may be generated before the IMB is processed for payment. If this occurs, please resubmit the IMB for cancellation the following day for a new disputeID.
+	DisputeID *string `json:"disputeID,omitempty"`
+
+	// Imb The Human-readable form of the Intelligent Mail Barcode (IMB) that has been canceled or for which a refund request has been submitted.
+	Imb *string `json:"imb,omitempty"`
+
+	// Status * `CANCELED` indicates that the IMB has been successfully canceled.
+	// * `DISPUTED` indicates that a refund request has been submitted.
+	//
+	// Note:
+	// - The `CANCELED` status has been deprecated.  All Cancel requests will have the `DISPUTED` status returned back for the refund request submission.
+	Status *IMBCancelResponseStatus `json:"status,omitempty"`
+}
+
+// IMBCancelResponseStatus * `CANCELED` indicates that the IMB has been successfully canceled.
+// * `DISPUTED` indicates that a refund request has been submitted.
+//
+// Note:
+// - The `CANCELED` status has been deprecated.  All Cancel requests will have the `DISPUTED` status returned back for the refund request submission.
+type IMBCancelResponseStatus string
+
+// IMIType The type of Intelligent Mail Indicia (IMI) to be generated.  The default option is `IMI_STD`.  The `imiType` can be changed only when `imageInfo.labelType` is set to `IMI_DATA_ONLY`.
+type IMIType string
+
+// ImageInfo Additional details used to determine how to generate the label image.
+type ImageInfo struct {
+	// AddImageComments Applicable only when `imageType` is `ZPL203DPI`, `ZPL300DPI`, or `EPL300DPI`.  When `addImageComments` is `true`, comments will be visible within the ZPL or EPL text response to the user to denote different sections of their label.  When `addImageComments` is `false`, no comments will be included in the ZPL or EPL text response.  This will be ignored for any other `imageType`.
+	// Example of a ZPL comment:
+	// `^FX Start of label. 123e4567-e89b-12d3-a456-426614174000 ^FS`
+	AddImageComments *bool `json:"addImageComments,omitempty"`
+
+	// AddZPLComments Note: This field has been deprecated in favor of `addImageComments`.
+	//
+	// Applicable only when `imageType` is `ZPL203DPI` or `ZPL300DPI`.  When `addZPLComments` is `true`, comments will be visible within the ZPL text response to the user to denote different sections of their label.  When `addZPLComments` is `false`, no comments will be included in the ZPL text response.  This will be ignored for any other `imageType`.
+	//
+	// Example of a ZPL comment:
+	// `^FX Start of label. 123e4567-e89b-12d3-a456-426614174000 ^FS`
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+	AddZPLComments *bool `json:"addZPLComments,omitempty"`
+
+	// BrandingImageFormat The format of label branding images to be shown on the generated label image.
+	//
+	// Note:
+	// * Label branding images will not be shown on labels with customs forms.
+	// * Label branding images are not currently supported with an `imageType` of `ZPL203DPI`, `ZPL300DPI`, or `EPL300DPI`.
+	// * Label branding images are not currently supported with a `labelType` of `4X4LABEL`.
+	// * When a `brandingImageFormat` is provided with a Destination Entry Facility, the Drop-Off Location will not be displayed on the label.
+	// * When a `brandingImageFormat` of `RECTANGLE` is provided, Customer Reference #3-#4 cannot be provided since they will not be shown.
+	// * When a `brandingImageFormat` of `ONE_SQUARE` or `TWO_SQUARES` is provided, Customer Reference numbers will be shifted to the right to accommodate the image.
+	// * When a `brandingImageFormat` of `RECTANGLE` is provided, Customer Reference numbers, package number, and total packages will not be displayed on the label.
+	// * A `brandingImageFormat` of `ONE_SQUARE` is currently only supported with `labelType` of `4X6LABEL`, `4X5LABEL`, `6X4LABEL`, and `2X7LABEL` for both outbound and return labels.
+	// * A `brandingImageFormat` of `TWO_SQUARES` is currently only supported with `labelType` of `4X6LABEL`, `4X5LABEL`, and `6X4LABEL` for both outbound and return labels.
+	// * A `brandingImageFormat` of `RECTANGLE` is currently only supported with `labelType` of `4X6LABEL`, `4X5LABEL`, and `6X4LABEL` for outbound labels and `4X5LABEL` and `6X4LABEL` for return labels.
+	BrandingImageFormat *ImageInfoBrandingImageFormat `json:"brandingImageFormat,omitempty"`
+
+	// BrandingImageUUIDs The UUIDs associated with custom images uploaded in the Logo Branding endpoint: /branding
+	//
+	// Note:
+	// * These UUIDs must have been created with the same Payment Authorization Label Owner CRID in use when creating the label
+	// * When using `ONE_SQUARE` or `RECTANGLE` the brandingImageUUIDs list should include only one imageUUID string.
+	// * When using `TWO_SQUARES` the brandingImageUUIDs list should include only two imageUUID strings.
+	BrandingImageUUIDs *[]string `json:"brandingImageUUIDs,omitempty"`
+
+	// ImageType The type of label image requested.  If omitted then the default image type is PDF.
+	// * `PDF`
+	// * `TIFF`
+	// * `JPG`
+	// * `PNG`
+	// * `GIF`
+	// * `SVG`
+	// * `ZPL203DPI`
+	// * `ZPL300DPI`
+	// * `EPL300DPI`
+	// * `LABEL_BROKER` - Request a USPS QR code to allow your customers with no access to a printer to print at participating Post Office Locations. All USPS API users and third-party integrators utilizing QR codes are subject to the [Label Broker terms and conditions](https://www.usps.com/terms-conditions/label-broker.htm). For more information please see the Label Broker guide available on [GitHub](https://github.com/USPS/api-examples/blob/main/USPS%20APIs%20Domestic%20Labels%20API%20Documentation_2023_0901%20Published.pdf) (Note: Only supports labelType of `4X6LABEL` or `6X4LABEL` and receiptOption of `NONE`).  A USPS Label Broker QR code image will be returned in the API response instead of a label image.
+	// * `NONE`
+	//
+	// Note:
+	// - Labels with customs forms only support formats of `PDF`, `TIFF`, `ZPL203DPI`, `ZPL300DPI`, `LABEL_BROKER`, and `NONE`.
+	// - Including Extra Service Code `415 - USPS Label Delivery` returns no images and is equivalent to requesting `NONE`.
+	// - `EPL300DPI` is not supported for Return Labels.
+	// - When the `imageType` is set to `LABEL_BROKER`, the QR code's embedded URL will be returned in the `links` array of the response.
+	ImageType *ImageInfoImageType `json:"imageType,omitempty"`
+
+	// IncludeLabelBrokerPDF Applicable only when `imageType` is `LABEL_BROKER`. When `includeLabelBrokerPDF` is `true`, two label images will be returned in the multi-part and vendor response as `labelBrokerQR` and `labelImage`. `labelBrokerQR` will contain the base64 PNG of the Label Broker QR Code and `labelImage` will contain the base64 PDF of the Label stored in Label Broker. When `includeLabelBrokerPDF` is `false`, one image will be returned in the multi-part and vendor response as `labelImage` as the base64 PNG of the Label Broker QR Code.
+	IncludeLabelBrokerPDF *bool `json:"includeLabelBrokerPDF,omitempty"`
+
+	// LabelType Ability to select the label image size.  If omitted then the default label size is `4X6LABEL`.
+	//
+	// Note:
+	//   * Currently, customs forms only support `4X6LABEL`.
+	//   * The `labelType` of `2X7LABEL` is not supported with the `imageType` of `ZPL203DPI` or `ZPL300DPI`.
+	//   * The `labelType` of `4X6LABEL` is the only supported format with the `imageType` of `EPL300DPI`.
+	LabelType *ImageInfoLabelType `json:"labelType,omitempty"`
+
+	// ReceiptOption Label & Receipt print out options: Enter `SAME_PAGE` to print the Label and the Receipt on a single page. Enter `SEPARATE_PAGE` to print the Label and the Receipt on separate pages. Enter `NONE` to print the Label only and no Receipt.
+	//
+	// Note:
+	//   * The `labelType` of `4X4LABEL` or `6X4LABEL` with the image `imageType` of `ZPL203DPI` or `ZPL300DPI` does not support a `receiptOption` of `SEPARATE_PAGE`.
+	//   * When `imageType` is `ZPL203DPI`, `ZPL300DPI`, or `EPL300DPI`, a `receiptOption` of `SAME_PAGE` is not supported.
+	//   * When `imageType` is `ZPL203DPI`, `ZPL300DPI`, or `EPL300DPI` and `receiptOption` is `SEPARATE_PAGE`, the receipt will be returned as an additional label segment within the single ZPL or EPL payload in `labelImage`. In this case, `receiptImage` will not be populated.
+	ReceiptOption *ImageInfoReceiptOption `json:"receiptOption,omitempty"`
+
+	// ShipInfo indicates if revenue protection information is printed on the label. (true or false)
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+	ShipInfo             *bool                  `json:"shipInfo,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// ImageInfoBrandingImageFormat The format of label branding images to be shown on the generated label image.
+//
+// Note:
+// * Label branding images will not be shown on labels with customs forms.
+// * Label branding images are not currently supported with an `imageType` of `ZPL203DPI`, `ZPL300DPI`, or `EPL300DPI`.
+// * Label branding images are not currently supported with a `labelType` of `4X4LABEL`.
+// * When a `brandingImageFormat` is provided with a Destination Entry Facility, the Drop-Off Location will not be displayed on the label.
+// * When a `brandingImageFormat` of `RECTANGLE` is provided, Customer Reference #3-#4 cannot be provided since they will not be shown.
+// * When a `brandingImageFormat` of `ONE_SQUARE` or `TWO_SQUARES` is provided, Customer Reference numbers will be shifted to the right to accommodate the image.
+// * When a `brandingImageFormat` of `RECTANGLE` is provided, Customer Reference numbers, package number, and total packages will not be displayed on the label.
+// * A `brandingImageFormat` of `ONE_SQUARE` is currently only supported with `labelType` of `4X6LABEL`, `4X5LABEL`, `6X4LABEL`, and `2X7LABEL` for both outbound and return labels.
+// * A `brandingImageFormat` of `TWO_SQUARES` is currently only supported with `labelType` of `4X6LABEL`, `4X5LABEL`, and `6X4LABEL` for both outbound and return labels.
+// * A `brandingImageFormat` of `RECTANGLE` is currently only supported with `labelType` of `4X6LABEL`, `4X5LABEL`, and `6X4LABEL` for outbound labels and `4X5LABEL` and `6X4LABEL` for return labels.
+type ImageInfoBrandingImageFormat string
+
+// ImageInfoImageType The type of label image requested.  If omitted then the default image type is PDF.
+// * `PDF`
+// * `TIFF`
+// * `JPG`
+// * `PNG`
+// * `GIF`
+// * `SVG`
+// * `ZPL203DPI`
+// * `ZPL300DPI`
+// * `EPL300DPI`
+// * `LABEL_BROKER` - Request a USPS QR code to allow your customers with no access to a printer to print at participating Post Office Locations. All USPS API users and third-party integrators utilizing QR codes are subject to the [Label Broker terms and conditions](https://www.usps.com/terms-conditions/label-broker.htm). For more information please see the Label Broker guide available on [GitHub](https://github.com/USPS/api-examples/blob/main/USPS%20APIs%20Domestic%20Labels%20API%20Documentation_2023_0901%20Published.pdf) (Note: Only supports labelType of `4X6LABEL` or `6X4LABEL` and receiptOption of `NONE`).  A USPS Label Broker QR code image will be returned in the API response instead of a label image.
+// * `NONE`
+//
+// Note:
+// - Labels with customs forms only support formats of `PDF`, `TIFF`, `ZPL203DPI`, `ZPL300DPI`, `LABEL_BROKER`, and `NONE`.
+// - Including Extra Service Code `415 - USPS Label Delivery` returns no images and is equivalent to requesting `NONE`.
+// - `EPL300DPI` is not supported for Return Labels.
+// - When the `imageType` is set to `LABEL_BROKER`, the QR code's embedded URL will be returned in the `links` array of the response.
+type ImageInfoImageType string
+
+// ImageInfoLabelType Ability to select the label image size.  If omitted then the default label size is `4X6LABEL`.
+//
+// Note:
+//   - Currently, customs forms only support `4X6LABEL`.
+//   - The `labelType` of `2X7LABEL` is not supported with the `imageType` of `ZPL203DPI` or `ZPL300DPI`.
+//   - The `labelType` of `4X6LABEL` is the only supported format with the `imageType` of `EPL300DPI`.
+type ImageInfoLabelType string
+
+// ImageInfoReceiptOption Label & Receipt print out options: Enter `SAME_PAGE` to print the Label and the Receipt on a single page. Enter `SEPARATE_PAGE` to print the Label and the Receipt on separate pages. Enter `NONE` to print the Label only and no Receipt.
+//
+// Note:
+//   - The `labelType` of `4X4LABEL` or `6X4LABEL` with the image `imageType` of `ZPL203DPI` or `ZPL300DPI` does not support a `receiptOption` of `SEPARATE_PAGE`.
+//   - When `imageType` is `ZPL203DPI`, `ZPL300DPI`, or `EPL300DPI`, a `receiptOption` of `SAME_PAGE` is not supported.
+//   - When `imageType` is `ZPL203DPI`, `ZPL300DPI`, or `EPL300DPI` and `receiptOption` is `SEPARATE_PAGE`, the receipt will be returned as an additional label segment within the single ZPL or EPL payload in `labelImage`. In this case, `receiptImage` will not be populated.
+type ImageInfoReceiptOption string
+
+// IndiciaIMI Base64 encoded string of the binary data used to create the Intelligent Mail Indicia (IMI) Data Matrix.
+type IndiciaIMI = []byte
+
+// IndiciaImbAddress defines model for IndiciaImbAddress.
+type IndiciaImbAddress struct {
+	// ZIPCode This is the 5-digit ZIP code.
+	ZIPCode *string `json:"ZIPCode,omitempty"`
+
+	// ZIPPlus4 This is the 4-digit component of the ZIP+4 code. Using the correct Zip+4 reduces the number of times your mail is handled and can decrease the chance of a misdelivery or error.
+	ZIPPlus4 *string `json:"ZIPPlus4"`
+
+	// City This is the city name of the address.
+	City *string `json:"city,omitempty"`
+
+	// CityAbbreviation This is the abbreviation of city name for the address.
+	CityAbbreviation *string `json:"cityAbbreviation,omitempty"`
+
+	// Firm Firm/business name corresponding to the address.
+	Firm *string `json:"firm,omitempty"`
+
+	// FirstName First Name corresponding to the address.
+	FirstName *string `json:"firstName,omitempty"`
+
+	// IgnoreBadAddress Allows Non-Validated Street Address. Enter `true` to bypass street address validation failures/errors or `false` if only validated addresses should be allowed.
+	//
+	// Note: Integrators are recommended to always use `false` to ensure no delivery issues.
+	//
+	// In the event USPS cannot validate the street address, this tag will "bypass" address validation error when `true` is indicated to allow IMB indicia creation which could impact delivery.
+	IgnoreBadAddress *bool `json:"ignoreBadAddress,omitempty"`
+
+	// LastName Last Name corresponding to the address.
+	LastName *string `json:"lastName,omitempty"`
+
+	// SecondaryAddress The secondary unit designator, such as apartment(APT) or suite(STE) number, defining the exact location of the address within a building.  For more information please see [Postal Explorer](https://pe.usps.com/text/pub28/28c2_003.htm).
+	SecondaryAddress *string `json:"secondaryAddress,omitempty"`
+
+	// State This is the two-character state code of the address.
+	State *State `json:"state,omitempty"`
+
+	// StreetAddress The number of a building along with the name of the road or street on which it is located.
+	StreetAddress *string `json:"streetAddress,omitempty"`
+
+	// StreetAddressAbbreviation This is the abbreviation of street address line for the address.
+	StreetAddressAbbreviation *string `json:"streetAddressAbbreviation,omitempty"`
+
+	// Urbanization An area, sector, or residential development within a geographic area (typically used for addresses in Puerto Rico).
+	Urbanization         *string                `json:"urbanization,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// IndiciaImbExtraService Extra Service Code requested for IMB letters, flats, and cards.
+//
+//   - 910 - Certified Mail
+//   - 911 - Certified Mail Restricted Delivery
+//   - 930 - Insurance
+//   - 934 - Insurance Restricted Delivery
+//   - 940 - Registered Mail
+//   - 941 - Registered Mail Restricted Delivery
+//   - 955 - Return Receipt
+//   - 957 - Return Receipt Electronic
+//
+// Note:
+//   - When the extra service code "930" is provided in the request, if the item value is over $500, "930" will automatically be replaced with "931" - Insurance (Greater than $500).
+type IndiciaImbExtraService int
+
+// IndiciaImbImageInfo Additional details used to determine how to generate the indicia image.
+type IndiciaImbImageInfo struct {
+	// ImageType The image type to be created.  If omitted then the default image type is PDF.
+	ImageType *IndiciaImbImageInfoImageType `json:"imageType,omitempty"`
+
+	// LabelType The requested image size.
+	// - Using `6X4LABEL` will return the image in the `indiciaImage` response field.
+	// - Using `IMI_DATA_ONLY` will return the IMI data in the `indiciaIMI` response field and not populate the `indiciaImage` or `receiptImage` field.
+	LabelType *IndiciaImbImageInfoLabelType `json:"labelType,omitempty"`
+
+	// ReceiptOption Indicia & Receipt print out options: Enter `SEPARATE_PAGE` to print the Indicia and the Receipt on separate pages. Enter `NONE` to print the Indicia only and no Receipt.
+	//
+	// Note:
+	// - `NONE` is the only option supported when `labelType` is set to `IMI_DATA_ONLY`.
+	// - `NONE` is the only option supported when `imageType` is set to `ZPL203DPI` or `ZPL300DPI`.
+	ReceiptOption        *IndiciaImbImageInfoReceiptOption `json:"receiptOption,omitempty"`
+	AdditionalProperties map[string]interface{}            `json:"-"`
+}
+
+// IndiciaImbImageInfoImageType The image type to be created.  If omitted then the default image type is PDF.
+type IndiciaImbImageInfoImageType string
+
+// IndiciaImbImageInfoLabelType The requested image size.
+// - Using `6X4LABEL` will return the image in the `indiciaImage` response field.
+// - Using `IMI_DATA_ONLY` will return the IMI data in the `indiciaIMI` response field and not populate the `indiciaImage` or `receiptImage` field.
+type IndiciaImbImageInfoLabelType string
+
+// IndiciaImbImageInfoReceiptOption Indicia & Receipt print out options: Enter `SEPARATE_PAGE` to print the Indicia and the Receipt on separate pages. Enter `NONE` to print the Indicia only and no Receipt.
+//
+// Note:
+// - `NONE` is the only option supported when `labelType` is set to `IMI_DATA_ONLY`.
+// - `NONE` is the only option supported when `imageType` is set to `ZPL203DPI` or `ZPL300DPI`.
+type IndiciaImbImageInfoReceiptOption string
+
+// IndiciaImbRequest Indicia IMB request for letters, flats, and cards First-Class mailings.
+type IndiciaImbRequest struct {
+	// ImageInfo Additional details used to determine how to generate the indicia image.
+	ImageInfo *IndiciaImbImageInfo `json:"imageInfo,omitempty"`
+
+	// IndiciaDescription Indicia intelligent mail barcode request description
+	IndiciaDescription IndiciaImbRequestDescription `json:"indiciaDescription"`
+
+	// ReturnAddress The address where the letter, flat, or card is being mailed from.  Address elements streetAddress, city, state, ZIPCode are required.  First and Last Name or Firm are also required.
+	ReturnAddress IndiciaImbAddress `json:"returnAddress"`
+
+	// ToAddress The address where the letter, flat, or card is being mailed to. Address elements streetAddress, city, state, ZIPCode are required.  First and Last Name or Firm are also required.
+	ToAddress IndiciaImbAddress `json:"toAddress"`
+}
+
+// IndiciaImbRequestDescription Indicia intelligent mail barcode request description
+type IndiciaImbRequestDescription struct {
+	// ExtraServices Extra Service Code requested for IMB letters, flats, and cards.
+	//
+	//   * 910 - Certified Mail
+	//   * 911 - Certified Mail Restricted Delivery
+	//   * 930 - Insurance
+	//   * 934 - Insurance Restricted Delivery
+	//   * 940 - Registered Mail
+	//   * 941 - Registered Mail Restricted Delivery
+	//   * 955 - Return Receipt
+	//   * 957 - Return Receipt Electronic
+	//
+	// Note:
+	//   * When the extra service code "930" is provided in the request, if the item value is over $500, "930" will automatically be replaced with "931" - Insurance (Greater than $500).
+	//   * Some service codes require a combination with extra services such as "955" and "957". For all valid combinations, visit [https://postalpro.usps.com/IMPB_Service_Type_Codes](https://postalpro.usps.com/IMPB_Service_Type_Codes).
+	ExtraServices *[]IndiciaImbExtraService `json:"extraServices,omitempty"`
+
+	// Height The letter/flat/card height in inches.  The height is the dimension perpendicular to the length.
+	Height float64 `json:"height"`
+
+	// ImiType The type of Intelligent Mail Indicia (IMI) to be generated.  The default option is `IMI_STD`.  The `imiType` can be changed only when `imageInfo.labelType` is set to `IMI_DATA_ONLY`.
+	ImiType *IMIType `json:"imiType,omitempty"`
+
+	// ItemValue Value of the letter, flat, or card in USD.
+	//
+	// Note:
+	//   * This value must be set if extra service codes 930 (Insurance) or 934 (Insurance (Restricted Delivery)) are in the extraServices field.
+	ItemValue *float32 `json:"itemValue,omitempty"`
+
+	// Length The letter/flat/card length in inches.  For  `LETTERS` and `CARDS` the length is the dimension parallel to the delivery address as read. For  `FLATS` the length is the longest dimension.
+	Length float64 `json:"length"`
+
+	// MailingDate Mailing Date Indicia Options
+	MailingDate MailingDateIndiciaOptions `json:"mailingDate"`
+
+	// NonMachinableIndicators Set of boolean indicators used to determine whether a letter qualifies as nonmachinable.
+	NonMachinableIndicators *struct {
+		// HasClosureDevices Does the letter/flat/card have clasps, strings, buttons, or similar closure devices.
+		HasClosureDevices *bool `json:"hasClosureDevices,omitempty"`
+
+		// HasLooseItems Does the letter/flat/card contain items such as pens, pencils, keys, or coins that cause the thickness of the mailpiece to be uneven; or loose keys or coins or similar objects not affixed to the contents within the mailpiece. Loose items may cause a letter to be nonmailable when mailed in paper envelopes; (see [DMM 601.3.3](https://pe.usps.com/text/dmm300/601.htm#ep1196660)).
+		HasLooseItems *bool `json:"hasLooseItems,omitempty"`
+
+		// IsBooklet Is the letter/flat/card a booklet that is not prepared according to [DMM 201.3.16](https://pe.usps.com/text/dmm300/201.htm#ep1092751).
+		IsBooklet *bool `json:"isBooklet,omitempty"`
+
+		// IsPolybagged Is the letter/flat/card polybagged, polywrapped, enclosed in any plastic material, or has an exterior surface made of a material that is not paper. Windows in envelopes made of paper do not make mailpieces nonmachinable. Attachments allowable under applicable eligibility standards do not make mailpieces nonmachinable.
+		IsPolybagged *bool `json:"isPolybagged,omitempty"`
+
+		// IsRigid Is the letter/flat/card too rigid (does not bend easily when subjected to a transport belt tension of 40 pounds around an 11-inch diameter turn).
+		IsRigid *bool `json:"isRigid,omitempty"`
+
+		// IsSelfMailer Is the letter/flat/card a self-mailer that is not prepared according to [DMM 201.3.14](https://pe.usps.com/text/dmm300/201.htm#ep1079302).
+		IsSelfMailer *bool `json:"isSelfMailer,omitempty"`
+	} `json:"nonMachinableIndicators,omitempty"`
+
+	// ProcessingCategory * LETTERS
+	//
+	//   To be eligible for mailing at the price for letters, a piece must be:
+	//     * Rectangular
+	//     * At least 3-1/2 inches high x 5 inches long x 0.007 inch thick.
+	//     * No more than 6-1/8 inches high x 11-1/2 inches long x 1/4 inch thick.
+	//
+	//   For additional information on letters, please refer to the [Postal Explorer](https://pe.usps.com/businessmail101?ViewName=Letters).
+	//
+	// * FLATS
+	//
+	//   The Postal Service uses the word "flats" to refer to large envelopes, newsletters, and magazines. The words large envelopes and flats are used interchangeably. Whatever you call them, flats must:
+	//
+	//     * Have one dimension that is greater than 6-1/8 inches high OR 11-½ inches long OR ¼ inch thick.
+	//     * Be no more than 12 inches high x 15 inches long x ¾ inch thick.
+	//
+	//   For additional information on flats, please refer to the [Postal Explorer](https://pe.usps.com/businessmail101?ViewName=Flats).
+	//
+	// * CARDS
+	//
+	//   To be eligible for mailing at the price for postcards, a piece must be:
+	//     * Rectangular
+	//     * At least 3-1/2 inches high x 5 inches long x 0.007 inch thick.
+	//     * No more than 4-1/4 inches high x 6 inches long x 0.016 inch thick.
+	//
+	//   For additional information on postcards, please refer to the [Postal Explorer](https://pe.usps.com/businessmail101?ViewName=Cards).
+	ProcessingCategory IndiciaImbRequestDescriptionProcessingCategory `json:"processingCategory"`
+
+	// Thickness The letter/flat/card thickness in inches. The minimum dimension is always the thickness.
+	Thickness float64 `json:"thickness"`
+
+	// Weight The letter/flat/card weight, in ounces. The maximum weight of a letter and cards is 3.5 oz and the maximum weight of a flat is 13 oz.
+	Weight float32 `json:"weight"`
+}
+
+// IndiciaImbRequestDescriptionProcessingCategory * LETTERS
+//
+//	To be eligible for mailing at the price for letters, a piece must be:
+//	  * Rectangular
+//	  * At least 3-1/2 inches high x 5 inches long x 0.007 inch thick.
+//	  * No more than 6-1/8 inches high x 11-1/2 inches long x 1/4 inch thick.
+//
+//	For additional information on letters, please refer to the [Postal Explorer](https://pe.usps.com/businessmail101?ViewName=Letters).
+//
+// * FLATS
+//
+//	The Postal Service uses the word "flats" to refer to large envelopes, newsletters, and magazines. The words large envelopes and flats are used interchangeably. Whatever you call them, flats must:
+//
+//	  * Have one dimension that is greater than 6-1/8 inches high OR 11-½ inches long OR ¼ inch thick.
+//	  * Be no more than 12 inches high x 15 inches long x ¾ inch thick.
+//
+//	For additional information on flats, please refer to the [Postal Explorer](https://pe.usps.com/businessmail101?ViewName=Flats).
+//
+// * CARDS
+//
+//	To be eligible for mailing at the price for postcards, a piece must be:
+//	  * Rectangular
+//	  * At least 3-1/2 inches high x 5 inches long x 0.007 inch thick.
+//	  * No more than 4-1/4 inches high x 6 inches long x 0.016 inch thick.
+//
+//	For additional information on postcards, please refer to the [Postal Explorer](https://pe.usps.com/businessmail101?ViewName=Cards).
+type IndiciaImbRequestDescriptionProcessingCategory string
+
+// IndiciaImbResponse defines model for IndiciaImbResponse.
+type IndiciaImbResponse struct {
+	// IndiciaImage Contains the Base64-encoded file contents of the indicia image. Provided only when `imageInfo.labelType` is not `IMI_DATA_ONLY`.
+	IndiciaImage *[]byte `json:"indiciaImage,omitempty"`
+
+	// IndiciaMetadata Metadata for indicia
+	IndiciaMetadata *struct {
+		// SKU Pricing SKU
+		SKU *string `json:"SKU,omitempty"`
+
+		// BannerText Banner text printed on the label.
+		BannerText *string `json:"bannerText,omitempty"`
+
+		// ConstructCode The barcode construct code associated with the tracking number.
+		//
+		// Notes:
+		//   - This field will be absent from the response if the request does not include extra services.
+		ConstructCode *string `json:"constructCode,omitempty"`
+
+		// ExtraServices Extra services requested on the mailpiece.
+		ExtraServices *ExtraServiceResponse `json:"extraServices,omitempty"`
+
+		// Fees Fees associated to the mailpiece.
+		Fees *[]struct {
+			// SKU Pricing SKU for the fee.
+			SKU *string `json:"SKU,omitempty"`
+
+			// Name Name of the fee.
+			Name *string `json:"name,omitempty"`
+
+			// Price The price for the fee.
+			Price *float32 `json:"price,omitempty"`
+		} `json:"fees,omitempty"`
+
+		// Imb Human-readable form of the intelligent mail barcode (IMB) value.
+		Imb *string `json:"imb,omitempty"`
+
+		// IndiciaIMI Base64 encoded string of the binary data used to create the Intelligent Mail Indicia (IMI) Data Matrix.
+		IndiciaIMI *IndiciaIMI `json:"indiciaIMI,omitempty"`
+
+		// MailClass The mail class of the indicia.
+		MailClass interface{} `json:"mailClass,omitempty"`
+
+		// Postage Amount of postage required, does not include insurance or other extra service fees.
+		Postage *float32 `json:"postage,omitempty"`
+
+		// ReturnAddress The `returnAddress` from the request that will be printed on the letter, flat, or card.
+		ReturnAddress *IndiciaImbAddress `json:"returnAddress,omitempty"`
+
+		// ServiceTypeCode The Service Type Code associated with the mailpiece. A list of Service Type Codes can be found at: [https://postalpro.usps.com/IMPB_Service_Type_Codes](https://postalpro.usps.com/IMPB_Service_Type_Codes)
+		ServiceTypeCode *string `json:"serviceTypeCode,omitempty"`
+
+		// ToAddress The `toAddress` from the request that will be printed on the letter, flat, or card.
+		ToAddress *IndiciaImbAddress `json:"toAddress,omitempty"`
+
+		// TotalPrice Total price of the indicia, including postage and any fees.
+		TotalPrice *float32 `json:"totalPrice,omitempty"`
+
+		// TrackingNumber Human-readable form of the intelligent mail package barcode (IMPB) value.
+		//
+		// Notes:
+		//   - This field will be absent from the response if the request does not include extra services.
+		TrackingNumber *string `json:"trackingNumber,omitempty"`
+
+		// Warnings Warnings and additional details around the Label.
+		Warnings *Warnings `json:"warnings,omitempty"`
+
+		// Weight The mailpiece weight, in ounces.
+		Weight *float32 `json:"weight,omitempty"`
+	} `json:"indiciaMetadata,omitempty"`
+
+	// ReceiptImage Contains the Base64-encoded file contents of the indicia receipt image. Provided only when `imageInfo.receiptOption` is `SEPARATE_PAGE`.
+	ReceiptImage *[]byte `json:"receiptImage,omitempty"`
+}
+
+// IndiciaRequest Indicia request for letters, flats, and cards First-Class mailings.
+type IndiciaRequest struct {
+	// ImageInfo Additional details used to determine how to generate the indicia image.
+	ImageInfo *struct {
+		// ImageType The type of indicia image requested. If omitted then the default image type is PDF.
+		ImageType *IndiciaRequestImageInfoImageType `json:"imageType,omitempty"`
+
+		// LabelType Ability to select the indicia image size.  If omitted then the default indicia size is 2X1.5LABEL.
+		// - Using `2X1.5LABEL` will return the image in the `indiciaImage` response field.
+		// - Using `IMI_DATA_ONLY` will return the IMI data in the `indiciaIMI` response field and not populate the `indiciaImage` field.
+		LabelType *IndiciaRequestImageInfoLabelType `json:"labelType,omitempty"`
+
+		// ReceiptOption Indicia & Receipt print out options.
+		//
+		// Enter `SEPARATE_PAGE` to print the Indicia and the Receipt on separate pages. Enter `NONE` to print the Indicia only and no Receipt.
+		//
+		// Note:
+		// - `NONE` is the only option supported when `imageType` is set to `ZPL203DPI` or `ZPL300DPI`.
+		ReceiptOption *IndiciaRequestImageInfoReceiptOption `json:"receiptOption,omitempty"`
+	} `json:"imageInfo,omitempty"`
+
+	// IndiciaDescription The `IndiciaRequestDescription` object defines the physical dimensions, mailing date, processing category, and weight required for processing a First-Class letter, flat, or card.
+	IndiciaDescription   IndiciaRequestDescription `json:"indiciaDescription"`
+	AdditionalProperties map[string]interface{}    `json:"-"`
+}
+
+// IndiciaRequestImageInfoImageType The type of indicia image requested. If omitted then the default image type is PDF.
+type IndiciaRequestImageInfoImageType string
+
+// IndiciaRequestImageInfoLabelType Ability to select the indicia image size.  If omitted then the default indicia size is 2X1.5LABEL.
+// - Using `2X1.5LABEL` will return the image in the `indiciaImage` response field.
+// - Using `IMI_DATA_ONLY` will return the IMI data in the `indiciaIMI` response field and not populate the `indiciaImage` field.
+type IndiciaRequestImageInfoLabelType string
+
+// IndiciaRequestImageInfoReceiptOption Indicia & Receipt print out options.
+//
+// Enter `SEPARATE_PAGE` to print the Indicia and the Receipt on separate pages. Enter `NONE` to print the Indicia only and no Receipt.
+//
+// Note:
+// - `NONE` is the only option supported when `imageType` is set to `ZPL203DPI` or `ZPL300DPI`.
+type IndiciaRequestImageInfoReceiptOption string
+
+// IndiciaRequestDescription The `IndiciaRequestDescription` object defines the physical dimensions, mailing date, processing category, and weight required for processing a First-Class letter, flat, or card.
+type IndiciaRequestDescription struct {
+	// Height The letter/flat/card height in inches.  The height is the dimension perpendicular to the length.
+	Height float64 `json:"height"`
+
+	// ImiType The type of Intelligent Mail Indicia (IMI) to be generated.  The default option is `IMI_STD`.  The `imiType` can be changed only when `imageInfo.labelType` is set to `IMI_DATA_ONLY`.
+	ImiType *IMIType `json:"imiType,omitempty"`
+
+	// Length The letter/flat/card length in inches.  For  `LETTERS` and `CARDS` the length is the dimension parallel to the delivery address as read. For  `FLATS` the length is the longest dimension.
+	Length float64 `json:"length"`
+
+	// MailingDate Mailing Date Indicia Options
+	MailingDate MailingDateIndiciaOptions `json:"mailingDate"`
+
+	// NonMachinableIndicators Set of boolean indicators used to determine whether a letter qualifies as nonmachinable.
+	NonMachinableIndicators *struct {
+		// HasClosureDevices Does the letter/flat/card have clasps, strings, buttons, or similar closure devices.
+		HasClosureDevices *bool `json:"hasClosureDevices,omitempty"`
+
+		// HasLooseItems Does the letter/flat/card contain items such as pens, pencils, keys, or coins that cause the thickness of the mailpiece to be uneven; or loose keys or coins or similar objects not affixed to the contents within the mailpiece. Loose items may cause a letter to be nonmailable when mailed in paper envelopes; (see [DMM 601.3.3](https://pe.usps.com/text/dmm300/601.htm#ep1196660)).
+		HasLooseItems *bool `json:"hasLooseItems,omitempty"`
+
+		// IsBooklet Is the letter/flat/card a booklet that is not prepared according to [DMM 201.3.16](https://pe.usps.com/text/dmm300/201.htm#ep1092751).
+		IsBooklet *bool `json:"isBooklet,omitempty"`
+
+		// IsPolybagged Is the letter/flat/card polybagged, polywrapped, enclosed in any plastic material, or has an exterior surface made of a material that is not paper. Windows in envelopes made of paper do not make mailpieces nonmachinable. Attachments allowable under applicable eligibility standards do not make mailpieces nonmachinable.
+		IsPolybagged *bool `json:"isPolybagged,omitempty"`
+
+		// IsRigid Is the letter/flat/card too rigid (does not bend easily when subjected to a transport belt tension of 40 pounds around an 11-inch diameter turn).
+		IsRigid *bool `json:"isRigid,omitempty"`
+
+		// IsSelfMailer Is the letter/flat/card a self-mailer that is not prepared according to [DMM 201.3.14](https://pe.usps.com/text/dmm300/201.htm#ep1079302).
+		IsSelfMailer *bool `json:"isSelfMailer,omitempty"`
+	} `json:"nonMachinableIndicators,omitempty"`
+
+	// ProcessingCategory * LETTERS
+	//
+	//   To be eligible for mailing at the price for letters, a piece must be:
+	//     * Rectangular
+	//     * At least 3-1/2 inches high x 5 inches long x 0.007 inch thick.
+	//     * No more than 6-1/8 inches high x 11-1/2 inches long x 1/4 inch thick.
+	//
+	//   For additional information on letters, please refer to the [Postal Explorer](https://pe.usps.com/businessmail101?ViewName=Letters).
+	//
+	// * FLATS
+	//
+	//   The Postal Service uses the word "flats" to refer to large envelopes, newsletters, and magazines. The words large envelopes and flats are used interchangeably. Whatever you call them, flats must:
+	//
+	//     * Have one dimension that is greater than 6-1/8 inches high OR 11-½ inches long OR ¼ inch thick.
+	//     * Be no more than 12 inches high x 15 inches long x ¾ inch thick.
+	//
+	//   For additional information on flats, please refer to the [Postal Explorer](https://pe.usps.com/businessmail101?ViewName=Flats).
+	//
+	// * CARDS
+	//
+	//   To be eligible for mailing at the price for postcards, a piece must be:
+	//     * Rectangular
+	//     * At least 3-1/2 inches high x 5 inches long x 0.007 inch thick.
+	//     * No more than 4-1/4 inches high x 6 inches long x 0.016 inch thick.
+	//
+	//   For additional information on postcards, please refer to the [Postal Explorer](https://pe.usps.com/businessmail101?ViewName=Cards).
+	ProcessingCategory IndiciaRequestDescriptionProcessingCategory `json:"processingCategory"`
+
+	// Thickness The letter/flat/card thickness in inches. The minimum dimension is always the thickness.
+	Thickness float64 `json:"thickness"`
+
+	// Weight The letter/flat/card weight, in ounces. The maximum weight of a letter or card is 3.5 oz and the maximum weight of a flat is 13 oz.
+	Weight float32 `json:"weight"`
+}
+
+// IndiciaRequestDescriptionProcessingCategory * LETTERS
+//
+//	To be eligible for mailing at the price for letters, a piece must be:
+//	  * Rectangular
+//	  * At least 3-1/2 inches high x 5 inches long x 0.007 inch thick.
+//	  * No more than 6-1/8 inches high x 11-1/2 inches long x 1/4 inch thick.
+//
+//	For additional information on letters, please refer to the [Postal Explorer](https://pe.usps.com/businessmail101?ViewName=Letters).
+//
+// * FLATS
+//
+//	The Postal Service uses the word "flats" to refer to large envelopes, newsletters, and magazines. The words large envelopes and flats are used interchangeably. Whatever you call them, flats must:
+//
+//	  * Have one dimension that is greater than 6-1/8 inches high OR 11-½ inches long OR ¼ inch thick.
+//	  * Be no more than 12 inches high x 15 inches long x ¾ inch thick.
+//
+//	For additional information on flats, please refer to the [Postal Explorer](https://pe.usps.com/businessmail101?ViewName=Flats).
+//
+// * CARDS
+//
+//	To be eligible for mailing at the price for postcards, a piece must be:
+//	  * Rectangular
+//	  * At least 3-1/2 inches high x 5 inches long x 0.007 inch thick.
+//	  * No more than 4-1/4 inches high x 6 inches long x 0.016 inch thick.
+//
+//	For additional information on postcards, please refer to the [Postal Explorer](https://pe.usps.com/businessmail101?ViewName=Cards).
+type IndiciaRequestDescriptionProcessingCategory string
+
+// IndiciaResponse The IndiciaResponse object contains metadata for the generated First-Class indicia.
+type IndiciaResponse struct {
+	// IndiciaImage Contains the Base64-encoded file contents of the indicia image.
+	IndiciaImage *[]byte `json:"indiciaImage,omitempty"`
+
+	// IndiciaMetadata Metadata for the generated indicia.
+	IndiciaMetadata *struct {
+		// SKU Pricing SKU
+		SKU *string `json:"SKU,omitempty"`
+
+		// Fees Fees associated to the mailpiece.
+		Fees *[]struct {
+			// SKU Pricing SKU for the fee.
+			SKU *string `json:"SKU,omitempty"`
+
+			// Name Name of the fee.
+			Name *string `json:"name,omitempty"`
+
+			// Price The price for the fee.
+			Price *float32 `json:"price,omitempty"`
+		} `json:"fees,omitempty"`
+
+		// IndiciaIMI Base64 encoded string of the binary data used to create the Intelligent Mail Indicia (IMI) Data Matrix.
+		IndiciaIMI *IndiciaIMI `json:"indiciaIMI,omitempty"`
+
+		// Postage Amount of postage required, does not include insurance or other extra service fees.
+		Postage *float32 `json:"postage,omitempty"`
+
+		// Weight The mailpiece weight, in ounces.
+		Weight *float32 `json:"weight,omitempty"`
+	} `json:"indiciaMetadata,omitempty"`
+
+	// ReceiptImage Contains the Base64-encoded file contents of the label receipt image. Provided only when `imageInfo.receiptOption` is `SEPARATE_PAGE`.
+	ReceiptImage *[]byte `json:"receiptImage,omitempty"`
+}
+
+// InductionZIPCode The 5-Digit ZIP Code representing the location where the package is being inducted (i.e. dropped off) into the mailstream.  When provided, this ZIP Code will be used for pricing instead of `fromAddress.ZIPCode`.
+type InductionZIPCode = string
+
+// LabelBrandingDeleteResponse Label Branding Image Delete Response
+type LabelBrandingDeleteResponse struct {
+	// ImageName The name of the image that was successfully deleted.
+	ImageName *string `json:"imageName,omitempty"`
+
+	// ImageUUID The UUID of the image that was successfully deleted.
+	ImageUUID *string `json:"imageUUID,omitempty"`
+}
+
+// LabelBrandingGetImageResponse Response schema for getting a single label branding image.
+type LabelBrandingGetImageResponse struct {
+	// CreatedDateTime The time that the image was created.
+	CreatedDateTime *time.Time `json:"createdDateTime,omitempty"`
+
+	// ImageData The base64 image data associated with your image.
+	ImageData *string `json:"imageData,omitempty"`
+
+	// ImageName The descriptor text that was optionally associated with the image when the image was created.
+	ImageName *string `json:"imageName,omitempty"`
+
+	// ImageUUID UUID of the image. Used in Domestic Labels and Return Labels requests to apply an image to a label.
+	ImageUUID *string `json:"imageUUID,omitempty"`
+}
+
+// LabelBrandingGetListResponse Paginated response schema for getting a list of label branding images.
+type LabelBrandingGetListResponse struct {
+	// Images List of all label branding image names associated with the USPS Customer Registration ID (CRID).
+	Images *[]struct {
+		// CreatedDateTime The datetime that the image was created.
+		CreatedDateTime *time.Time `json:"createdDateTime,omitempty"`
+
+		// ImageData The base64 image data associated with your image.
+		ImageData *string `json:"imageData,omitempty"`
+
+		// ImageName The descriptor text that was optionally associated with the image when the image was created.
+		ImageName *string `json:"imageName,omitempty"`
+
+		// ImageUUID UUID of the image. Used in Domestic Labels and Return Labels requests to apply an image to a label.
+		ImageUUID *string `json:"imageUUID,omitempty"`
+	} `json:"images,omitempty"`
+
+	// Limit Current limit on number of included results.
+	Limit *int `json:"limit,omitempty"`
+
+	// Offset Number of items skipped.
+	Offset *int `json:"offset,omitempty"`
+
+	// TotalCount Total number of items.
+	TotalCount *int `json:"totalCount,omitempty"`
+}
+
+// LabelBrandingPatchResponse Label Branding Image Patch Response
+type LabelBrandingPatchResponse struct {
+	// CreatedDateTime The time that the image was created.
+	CreatedDateTime *time.Time `json:"createdDateTime,omitempty"`
+
+	// ImageData The base64 image data associated with your image.
+	ImageData *string `json:"imageData,omitempty"`
+
+	// ImageName The name of the image that was successfully renamed.
+	ImageName *string `json:"imageName,omitempty"`
+
+	// ImageUUID The UUID of the image that was successfully renamed.
+	ImageUUID *string `json:"imageUUID,omitempty"`
+}
+
+// LabelBrandingUploadRequest Label Branding Image Upload Request
+type LabelBrandingUploadRequest struct {
+	// ImageData The plaintext contents of an .svg file base64 encoded. The image must be less than 10kb in size.
+	ImageData string `json:"imageData"`
+
+	// ImageName An optional descriptor for the image.
+	//
+	// Additional requirements:
+	// * No special characters or spaces
+	// * No more than 50 characters in length
+	ImageName *string `json:"imageName,omitempty"`
+}
+
+// LabelBrandingUploadResponse Label Branding Image Upload Response
+type LabelBrandingUploadResponse struct {
+	// ImageName The name of the image that was successfully uploaded.
+	ImageName *string `json:"imageName,omitempty"`
+
+	// ImageUUID The auto generated UUID of the image that was successfully uploaded.
+	ImageUUID *string `json:"imageUUID,omitempty"`
+}
+
+// LabelMetadata Label Metadata returned from label creation and label edit.
+type LabelMetadata struct {
+	// SKU Pricing SKU.
+	SKU *string `json:"SKU,omitempty"`
+
+	// BannerText Banner text printed on the label.
+	BannerText *string `json:"bannerText,omitempty"`
+
+	// Commitment The commitment and scheduled delivery date of the package.
+	Commitment *Commitment `json:"commitment,omitempty"`
+
+	// ConstructCode The barcode construct code associated with the tracking number.
+	ConstructCode *string `json:"constructCode,omitempty"`
+
+	// DimensionalWeight The dimensional weight of the package, if greater than specified in weight, in ounces.
+	DimensionalWeight *float32 `json:"dimensionalWeight,omitempty"`
+
+	// ExtraServices Extra services requested on the mailpiece.
+	ExtraServices *ExtraServiceResponse `json:"extraServices,omitempty"`
+
+	// Fees Fees associated with the package.
+	Fees *[]struct {
+		// SKU Pricing SKU.
+		SKU *string `json:"SKU,omitempty"`
+
+		// Name Name of the fee.
+		Name *string `json:"name,omitempty"`
+
+		// Price The price for the fee.
+		Price *float32 `json:"price,omitempty"`
+	} `json:"fees,omitempty"`
+
+	// InductionType The permit holder induction type.
+	InductionType *map[string]interface{} `json:"inductionType,omitempty"`
+
+	// LabelAddress The address where the package is being shipped from. The ZIP Code™ in the `fromAddress` object is used to calculate pricing.
+	//
+	// Notes:
+	// * The First and Last Name or Firm Name are always required.
+	// * If the `returnAddress` is not provided, the `fromAddress` will be used as the `returnAddress`.
+	// * If the `returnLabel` field is set to “true”, then the `fromAddress` ZIP Plus 4 is looked up by the API, unless the `ignoreBadAddress` field is set to true or the address cannot be found. If `ignoreBadAddress` field is true then ZIP Plus 4 is required.
+	LabelAddress *DomesticLabelAddress `json:"labelAddress,omitempty"`
+
+	// LabelBrokerID Unique Label Broker ID that can be used as an alternative to the Label Broker QR Code to retrieve the label at a Post Office. Will only be provided when an imageType of LABEL_BROKER is requested.
+	LabelBrokerID *string `json:"labelBrokerID,omitempty"`
+
+	// Links Hypermedia links to related resources.
+	Links *Links `json:"links,omitempty"`
+
+	// MailingDate The date on which the package will be mailed as provided in the request. If the time was not provided, it will be defaulted to 10:00 p.m. local time.
+	MailingDate *time.Time `json:"mailingDate,omitempty"`
+
+	// PermitHolderName The permit holder name.
+	PermitHolderName *string `json:"permitHolderName,omitempty"`
+
+	// Postage Amount of Postage Required, does not include insurance or other extra service fees.
+	Postage *float32 `json:"postage,omitempty"`
+
+	// RetailDistributionCode Retail Description Code associated with label.
+	RetailDistributionCode *string `json:"retailDistributionCode,omitempty"`
+
+	// ReturnReceiptTrackingNumber The human-readable version of the return Receipt tracking number.
+	//
+	// * Note: This will be included in the response when `packageOptions.returnReceiptTracking` is set to true in the request.
+	ReturnReceiptTrackingNumber *string `json:"returnReceiptTrackingNumber,omitempty"`
+
+	// RoutingInformation The "420" 3-digit GS1 Application Identifier and the 5 or 9 digit Destination ZIP Code&#8482;.
+	RoutingInformation *string `json:"routingInformation,omitempty"`
+
+	// ServiceTypeCode The Service Type Code associated with the package. A list of Service Type Codes can be found at: [https://postalpro.usps.com/IMPB_Service_Type_Codes](https://postalpro.usps.com/IMPB_Service_Type_Codes).
+	ServiceTypeCode *string `json:"serviceTypeCode,omitempty"`
+
+	// TrackingNumber The human-readable version of the package tracking number.
+	TrackingNumber *string `json:"trackingNumber,omitempty"`
+
+	// Warnings Warnings and additional details around the Label.
+	Warnings *Warnings `json:"warnings,omitempty"`
+
+	// Weight The package weight, in weightUOM. Items must weigh 70 pounds (1120 ounces) or less.
+	Weight *float32 `json:"weight,omitempty"`
+
+	// WeightUOM Weight Unit of Measurement
+	//    * lb - Pounds
+	WeightUOM *string `json:"weightUOM,omitempty"`
+
+	// Zone Indicates the calculated zone used for pricing between the provided `originZIPCode` and `destinationZIPCode` for a given `mailClass`, `mailingDate`, `rateIndicator`, and `weight`.
+	Zone                 *string                `json:"zone,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// LabelMultiPartResponse defines model for LabelMultiPartResponse.
+type LabelMultiPartResponse struct {
+	// LabelBrokerQR The Label Broker QR Code image, Base64 encoded file contents. Only provided if `imageType` in the `imageInfo` is set to `LABEL_BROKER`.
+	LabelBrokerQR *[]byte `json:"labelBrokerQR,omitempty"`
+
+	// LabelImage Contains the Base64-encoded file contents of the label image. Provided only when `imageInfo.imageType` is not `NONE`.
+	//
+	// Note:
+	// - Not provided when Extra Service Code `415 - USPS Label Delivery` is requested, as no images are returned for this service.
+	LabelImage *[]byte `json:"labelImage,omitempty"`
+
+	// LabelMetadata Label Metadata returned from label creation and label edit.
+	LabelMetadata *LabelMetadata `json:"labelMetadata,omitempty"`
+
+	// ReceiptImage Contains the Base64-encoded file contents of the label receipt image. Provided only when `imageInfo.receiptOption` is `SEPARATE_PAGE`.
+	//
+	// Note:
+	// - When `imageInfo.imageType` is `ZPL203DPI`, `ZPL300DPI`, or `EPL300DPI` and `imageInfo.receiptOption` is `SEPARATE_PAGE`, the receipt will be returned as an additional label segment within the single ZPL or EPL payload in `labelImage`. In this case, `receiptImage` will not be populated.
+	// - Not provided when Extra Service Code `415 - USPS Label Delivery` is requested, as no images are returned for this service.
+	ReceiptImage *[]byte `json:"receiptImage,omitempty"`
+
+	// ReturnLabelImage Contains the Base64-encoded file contents of the return label image. Provided only when `imageInfo.returnLabel` is `true` and `imageInfo.imageType` is not `NONE`.
+	ReturnLabelImage *[]byte `json:"returnLabelImage,omitempty"`
+
+	// ReturnLabelMetadata Return Label Metadata
+	ReturnLabelMetadata *ReturnLabelMetadata `json:"returnLabelMetadata,omitempty"`
+
+	// ReturnReceiptImage Contains the Base64-encoded file contents of the return receipt image. Provided only when `imageInfo.returnLabel` is `true` and `imageInfo.receiptOption` is `SEPARATE_PAGE`.
+	//
+	// Note:
+	// - When `imageInfo.imageType` is `ZPL203DPI` or `ZPL300DPI` and `imageInfo.receiptOption` is `SEPARATE_PAGE`, the receipt will be returned as an additional label segment within the single ZPL payload in `labelImage`. In this case, `receiptImage` will not be populated.
+	ReturnReceiptImage *[]byte `json:"returnReceiptImage,omitempty"`
+}
+
+// LabelReprintDomesticOutboundResponse Response schema for outbound label reprint requests.
+type LabelReprintDomesticOutboundResponse struct {
+	// LabelImage Contains the Base64-encoded file contents of the label image.
+	LabelImage *[]byte `json:"labelImage,omitempty"`
+
+	// LabelMetadata Label Metadata returned from label creation and label edit.
+	LabelMetadata *LabelMetadata `json:"labelMetadata,omitempty"`
+
+	// ReprintInfo Schema containing reprint information for a label.
+	ReprintInfo *ReprintInfo `json:"reprintInfo,omitempty"`
+}
+
+// LabelReprintDomesticReturnResponse Response schema for return label reprint requests.
+type LabelReprintDomesticReturnResponse struct {
+	// ReprintInfo Schema containing reprint information for a label.
+	ReprintInfo *ReprintInfo `json:"reprintInfo,omitempty"`
+
+	// ReturnLabelImage Contains the Base64-encoded file contents of the return label image.
+	ReturnLabelImage *[]byte `json:"returnLabelImage,omitempty"`
+
+	// ReturnLabelMetadata Return Label Metadata
+	ReturnLabelMetadata *ReturnLabelMetadata `json:"returnLabelMetadata,omitempty"`
+}
+
+// LabelReprintImageInfo Label Reprint Image Info
+type LabelReprintImageInfo struct {
+	// BrandingImageFormat The format of label branding images to be shown on the generated label image.
+	//
+	// Note:
+	// * Label branding images will not be shown on labels with customs forms.
+	// * Label branding images are not currently supported with an `imageType` of `ZPL203DPI`, `ZPL300DPI`, or `EPL300DPI`.
+	// * Label branding images are not currently supported with a `labelType` of `4X4LABEL`.
+	// * When a `brandingImageFormat` is provided with a Destination Entry Facility, the Drop-Off Location will not be displayed on the label.
+	// * When a `brandingImageFormat` of `RECTANGLE` is provided, Customer Reference #3-#4 cannot be provided since they will not be shown.
+	// * When a `brandingImageFormat` of `ONE_SQUARE` or `TWO_SQUARES` is provided, Customer Reference numbers will be shifted to the right to accommodate the image.
+	// * When a `brandingImageFormat` of `RECTANGLE` is provided, Customer Reference numbers, package number, and total packages will not be displayed on the label.
+	// * A `brandingImageFormat` of `ONE_SQUARE` is currently only supported with `labelType` of `4X6LABEL`, `4X5LABEL`, `6X4LABEL`, and `2X7LABEL` for both outbound and return labels.
+	// * A `brandingImageFormat` of `TWO_SQUARES` is currently only supported with `labelType` of `4X6LABEL`, `4X5LABEL`, and `6X4LABEL` for both outbound and return labels.
+	// * A `brandingImageFormat` of `RECTANGLE` is currently only supported with `labelType` of `4X6LABEL`, `4X5LABEL`, and `6X4LABEL` for outbound labels and `4X5LABEL` and `6X4LABEL` for return labels.
+	BrandingImageFormat *LabelReprintImageInfoBrandingImageFormat `json:"brandingImageFormat,omitempty"`
+
+	// BrandingImageUUIDs The UUIDs associated with custom images uploaded in the Logo Branding endpoint: /branding
+	//
+	// Note:
+	// * These UUIDs must have been created with the same Payment Authorization Label Owner CRID in use when creating the label
+	// * When using `ONE_SQUARE` or `RECTANGLE` the brandingImageUUIDs list should include only one imageUUID string.
+	// * When using `TWO_SQUARES` the brandingImageUUIDs list should include only two imageUUID strings.
+	BrandingImageUUIDs *[]string `json:"brandingImageUUIDs,omitempty"`
+
+	// ImageType The type of label image requested. If omitted then the default image type is PDF.
+	//
+	// Note:
+	// - Labels with customs forms only support formats of `PDF`, `TIFF`, `ZPL203DPI`, and `ZPL300DPI`.
+	ImageType *LabelReprintImageInfoImageType `json:"imageType,omitempty"`
+
+	// LabelType Ability to select the label image size. If omitted then the default label size is `4X6LABEL`.
+	//
+	// Note:
+	//   * Currently, customs forms only support `4X6LABEL`.
+	//   * The `labelType` of `2X7LABEL` is not supported with the `imageType` of `ZPL203DPI` or `ZPL300DPI`.
+	//   * The `labelType` of `4X6LABEL` is the only supported format with the `imageType` of `EPL300DPI`.
+	LabelType *LabelReprintImageInfoLabelType `json:"labelType,omitempty"`
+
+	// PackageNumber The package number in a series such as 1 of 3, 2 of 3, etc.  If `totalPackages` is populated then `packageNumber` is required.  `packageNumber` must be less than or equal to `totalPackages`.  This feature is not supported on the 2x7 or 4x4 label format.
+	//
+	// Note:
+	// * When `packageNumber` is provided with a Destination Entry Facility, the Drop-Off Location will not be displayed on the label.
+	PackageNumber *int `json:"packageNumber,omitempty"`
+
+	// SuppressMailDate Indicates if the `mailingDate` is printed on the label.  If omitted then the value will default to true.
+	//
+	// Note:
+	//  * Mail Date cannot be suppressed on Domestic Customs Forms. The customs form will always display the Date of Mailing.
+	//  * The date the label was created cannot be suppressed and will always print on the label.
+	SuppressMailDate *bool `json:"suppressMailDate,omitempty"`
+
+	// SuppressPostage Indicates if postage is printed on the label. If omitted then the request will be defaulted to true.
+	SuppressPostage *bool `json:"suppressPostage,omitempty"`
+
+	// TotalPackages The total number of packages in a series such as 999.  If packageNumber is populated then totalPackages is required.  totalPackages must be greater than or equal to packageNumber.  This feature is not supported by the 2x7 or 4x4 label format.
+	TotalPackages *int `json:"totalPackages,omitempty"`
+}
+
+// LabelReprintImageInfoBrandingImageFormat The format of label branding images to be shown on the generated label image.
+//
+// Note:
+// * Label branding images will not be shown on labels with customs forms.
+// * Label branding images are not currently supported with an `imageType` of `ZPL203DPI`, `ZPL300DPI`, or `EPL300DPI`.
+// * Label branding images are not currently supported with a `labelType` of `4X4LABEL`.
+// * When a `brandingImageFormat` is provided with a Destination Entry Facility, the Drop-Off Location will not be displayed on the label.
+// * When a `brandingImageFormat` of `RECTANGLE` is provided, Customer Reference #3-#4 cannot be provided since they will not be shown.
+// * When a `brandingImageFormat` of `ONE_SQUARE` or `TWO_SQUARES` is provided, Customer Reference numbers will be shifted to the right to accommodate the image.
+// * When a `brandingImageFormat` of `RECTANGLE` is provided, Customer Reference numbers, package number, and total packages will not be displayed on the label.
+// * A `brandingImageFormat` of `ONE_SQUARE` is currently only supported with `labelType` of `4X6LABEL`, `4X5LABEL`, `6X4LABEL`, and `2X7LABEL` for both outbound and return labels.
+// * A `brandingImageFormat` of `TWO_SQUARES` is currently only supported with `labelType` of `4X6LABEL`, `4X5LABEL`, and `6X4LABEL` for both outbound and return labels.
+// * A `brandingImageFormat` of `RECTANGLE` is currently only supported with `labelType` of `4X6LABEL`, `4X5LABEL`, and `6X4LABEL` for outbound labels and `4X5LABEL` and `6X4LABEL` for return labels.
+type LabelReprintImageInfoBrandingImageFormat string
+
+// LabelReprintImageInfoImageType The type of label image requested. If omitted then the default image type is PDF.
+//
+// Note:
+// - Labels with customs forms only support formats of `PDF`, `TIFF`, `ZPL203DPI`, and `ZPL300DPI`.
+type LabelReprintImageInfoImageType string
+
+// LabelReprintImageInfoLabelType Ability to select the label image size. If omitted then the default label size is `4X6LABEL`.
+//
+// Note:
+//   - Currently, customs forms only support `4X6LABEL`.
+//   - The `labelType` of `2X7LABEL` is not supported with the `imageType` of `ZPL203DPI` or `ZPL300DPI`.
+//   - The `labelType` of `4X6LABEL` is the only supported format with the `imageType` of `EPL300DPI`.
+type LabelReprintImageInfoLabelType string
+
+// LabelReprintMultiPartResponse Label Reprint Multipart response. `labelMetadata` and `labelImage` are returned for outbound label reprint requests. `returnLabelMetadata` and `returnLabelImage` are returned for return label reprint requests.
+type LabelReprintMultiPartResponse struct {
+	// LabelImage Contains the Base64-encoded file contents of the label image.
+	LabelImage *[]byte `json:"labelImage,omitempty"`
+
+	// LabelMetadata Label Metadata returned from label creation and label edit.
+	LabelMetadata *LabelMetadata `json:"labelMetadata,omitempty"`
+
+	// ReprintInfo Schema containing reprint information for a label.
+	ReprintInfo *ReprintInfo `json:"reprintInfo,omitempty"`
+
+	// ReturnLabelImage Contains the Base64-encoded file contents of the return label image.
+	ReturnLabelImage *[]byte `json:"returnLabelImage,omitempty"`
+
+	// ReturnLabelMetadata Return Label Metadata
+	ReturnLabelMetadata *ReturnLabelMetadata `json:"returnLabelMetadata,omitempty"`
+}
+
+// LabelReprintRequest Request schema for reprinting a domestic label.
+type LabelReprintRequest struct {
+	// ImageInfo Label Reprint Image Info
+	ImageInfo *LabelReprintImageInfo `json:"imageInfo,omitempty"`
+}
+
+// LabelRequest Destination address of the recipient. Used in pricing as the destination ZIP Code&#8482;.
+type LabelRequest struct {
+	// CustomsForm Domestic Customs Form
+	CustomsForm *DomesticCustomsForm `json:"customsForm,omitempty"`
+
+	// FromAddress The address where the package is being shipped from. The ZIP Code™ in the `fromAddress` object is used to calculate pricing.
+	//
+	// Notes:
+	// * The First and Last Name or Firm Name are always required.
+	// * If the `returnAddress` is not provided, the `fromAddress` will be used as the `returnAddress`.
+	// * If the `returnLabel` field is set to “true”, then the `fromAddress` ZIP Plus 4 is looked up by the API, unless the `ignoreBadAddress` field is set to true or the address cannot be found. If `ignoreBadAddress` field is true then ZIP Plus 4 is required.
+	FromAddress DomesticLabelAddress `json:"fromAddress"`
+
+	// ImageInfo Image Information
+	ImageInfo *LabelRequest_ImageInfo `json:"imageInfo,omitempty"`
+
+	// PackageDescription Package description
+	PackageDescription LabelRequest_PackageDescription `json:"packageDescription"`
+
+	// ReturnAddress The address where the package should be returned to if it is deemed undeliverable or returned to sender. This address will be printed in the return address block of the label.
+	//
+	// Note:
+	// * The First and Last Name or Firm Name are always required.
+	ReturnAddress *DomesticLabelAddress `json:"returnAddress,omitempty"`
+
+	// SenderAddress The address of the business involved. The senderAddress can be different from the fromAddress when the business address is not where the package is being shipped from.
+	//
+	// Notes:
+	// - The First and Last Name or Firm Name are always required.
+	// - `senderAddress` is required when the `shipperVisibilityMethod` field is set to `SENDER_INFORMATION`.
+	SenderAddress *DomesticLabelSenderAddress `json:"senderAddress,omitempty"`
+
+	// ToAddress The address where the package is being shipped to. The ZIP Code™ in the `toAddress` object is used to calculate pricing.
+	//
+	// Notes:
+	// * The First and Last Name or Firm are always required.
+	// * Address elements `streetAddress`, `city`, `state`, `ZIPCode` are required unless a parcel locker is requested in which case the `facilityId`, Recipient Email, First and Last Name or Firm are required.
+	// * If the `holdForPickup` field is set to `true` then the `toAddress` object `facilityID`, `email`, and `phone` fields as well as the `fromAddress` object `firstName`, `lastName`, `email`, and `phone` fields are required.
+	ToAddress DomesticLabelToAddress `json:"toAddress"`
+}
+
+// LabelRequestImageInfoBrandingImageFormat The format of label branding images to be shown on the generated label image.
+//
+// Note:
+// * Label branding images will not be shown on labels with customs forms.
+// * Label branding images are not currently supported with an `imageType` of `ZPL203DPI`, `ZPL300DPI`, or `EPL300DPI`.
+// * Label branding images are not currently supported with a `labelType` of `4X4LABEL`.
+// * When a `brandingImageFormat` is provided with a Destination Entry Facility, the Drop-Off Location will not be displayed on the label.
+// * When a `brandingImageFormat` of `RECTANGLE` is provided, Customer Reference #3-#4 cannot be provided since they will not be shown.
+// * When a `brandingImageFormat` of `ONE_SQUARE` or `TWO_SQUARES` is provided, Customer Reference numbers will be shifted to the right to accommodate the image.
+// * When a `brandingImageFormat` of `RECTANGLE` is provided, Customer Reference numbers, package number, and total packages will not be displayed on the label.
+// * A `brandingImageFormat` of `ONE_SQUARE` is currently only supported with `labelType` of `4X6LABEL`, `4X5LABEL`, `6X4LABEL`, and `2X7LABEL` for both outbound and return labels.
+// * A `brandingImageFormat` of `TWO_SQUARES` is currently only supported with `labelType` of `4X6LABEL`, `4X5LABEL`, and `6X4LABEL` for both outbound and return labels.
+// * A `brandingImageFormat` of `RECTANGLE` is currently only supported with `labelType` of `4X6LABEL`, `4X5LABEL`, and `6X4LABEL` for outbound labels and `4X5LABEL` and `6X4LABEL` for return labels.
+type LabelRequestImageInfoBrandingImageFormat string
+
+// LabelRequestImageInfoImageType The type of label image requested.  If omitted then the default image type is PDF.
+// * `PDF`
+// * `TIFF`
+// * `JPG`
+// * `PNG`
+// * `GIF`
+// * `SVG`
+// * `ZPL203DPI`
+// * `ZPL300DPI`
+// * `EPL300DPI`
+// * `LABEL_BROKER` - Request a USPS QR code to allow your customers with no access to a printer to print at participating Post Office Locations. All USPS API users and third-party integrators utilizing QR codes are subject to the [Label Broker terms and conditions](https://www.usps.com/terms-conditions/label-broker.htm). For more information please see the Label Broker guide available on [GitHub](https://github.com/USPS/api-examples/blob/main/USPS%20APIs%20Domestic%20Labels%20API%20Documentation_2023_0901%20Published.pdf) (Note: Only supports labelType of `4X6LABEL` or `6X4LABEL` and receiptOption of `NONE`).  A USPS Label Broker QR code image will be returned in the API response instead of a label image.
+// * `NONE`
+//
+// Note:
+// - Labels with customs forms only support formats of `PDF`, `TIFF`, `ZPL203DPI`, `ZPL300DPI`, `LABEL_BROKER`, and `NONE`.
+// - Including Extra Service Code `415 - USPS Label Delivery` returns no images and is equivalent to requesting `NONE`.
+// - `EPL300DPI` is not supported for Return Labels.
+// - When the `imageType` is set to `LABEL_BROKER`, the QR code's embedded URL will be returned in the `links` array of the response.
+type LabelRequestImageInfoImageType string
+
+// LabelRequestImageInfoLabelType Ability to select the label image size.  If omitted then the default label size is `4X6LABEL`.
+//
+// Note:
+//   - Currently, customs forms only support `4X6LABEL`.
+//   - The `labelType` of `2X7LABEL` is not supported with the `imageType` of `ZPL203DPI` or `ZPL300DPI`.
+//   - The `labelType` of `4X6LABEL` is the only supported format with the `imageType` of `EPL300DPI`.
+type LabelRequestImageInfoLabelType string
+
+// LabelRequestImageInfoReceiptOption Label & Receipt print out options: Enter `SAME_PAGE` to print the Label and the Receipt on a single page. Enter `SEPARATE_PAGE` to print the Label and the Receipt on separate pages. Enter `NONE` to print the Label only and no Receipt.
+//
+// Note:
+//   - The `labelType` of `4X4LABEL` or `6X4LABEL` with the image `imageType` of `ZPL203DPI` or `ZPL300DPI` does not support a `receiptOption` of `SEPARATE_PAGE`.
+//   - When `imageType` is `ZPL203DPI`, `ZPL300DPI`, or `EPL300DPI`, a `receiptOption` of `SAME_PAGE` is not supported.
+//   - When `imageType` is `ZPL203DPI`, `ZPL300DPI`, or `EPL300DPI` and `receiptOption` is `SEPARATE_PAGE`, the receipt will be returned as an additional label segment within the single ZPL or EPL payload in `labelImage`. In this case, `receiptImage` will not be populated.
+type LabelRequestImageInfoReceiptOption string
+
+// LabelRequest_ImageInfo defines model for LabelRequest.ImageInfo.
+type LabelRequest_ImageInfo struct {
+	// AddImageComments Applicable only when `imageType` is `ZPL203DPI`, `ZPL300DPI`, or `EPL300DPI`.  When `addImageComments` is `true`, comments will be visible within the ZPL or EPL text response to the user to denote different sections of their label.  When `addImageComments` is `false`, no comments will be included in the ZPL or EPL text response.  This will be ignored for any other `imageType`.
+	// Example of a ZPL comment:
+	// `^FX Start of label. 123e4567-e89b-12d3-a456-426614174000 ^FS`
+	AddImageComments *bool `json:"addImageComments,omitempty"`
+
+	// AddZPLComments Note: This field has been deprecated in favor of `addImageComments`.
+	//
+	// Applicable only when `imageType` is `ZPL203DPI` or `ZPL300DPI`.  When `addZPLComments` is `true`, comments will be visible within the ZPL text response to the user to denote different sections of their label.  When `addZPLComments` is `false`, no comments will be included in the ZPL text response.  This will be ignored for any other `imageType`.
+	//
+	// Example of a ZPL comment:
+	// `^FX Start of label. 123e4567-e89b-12d3-a456-426614174000 ^FS`
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+	AddZPLComments *bool `json:"addZPLComments,omitempty"`
+
+	// BrandingImageFormat The format of label branding images to be shown on the generated label image.
+	//
+	// Note:
+	// * Label branding images will not be shown on labels with customs forms.
+	// * Label branding images are not currently supported with an `imageType` of `ZPL203DPI`, `ZPL300DPI`, or `EPL300DPI`.
+	// * Label branding images are not currently supported with a `labelType` of `4X4LABEL`.
+	// * When a `brandingImageFormat` is provided with a Destination Entry Facility, the Drop-Off Location will not be displayed on the label.
+	// * When a `brandingImageFormat` of `RECTANGLE` is provided, Customer Reference #3-#4 cannot be provided since they will not be shown.
+	// * When a `brandingImageFormat` of `ONE_SQUARE` or `TWO_SQUARES` is provided, Customer Reference numbers will be shifted to the right to accommodate the image.
+	// * When a `brandingImageFormat` of `RECTANGLE` is provided, Customer Reference numbers, package number, and total packages will not be displayed on the label.
+	// * A `brandingImageFormat` of `ONE_SQUARE` is currently only supported with `labelType` of `4X6LABEL`, `4X5LABEL`, `6X4LABEL`, and `2X7LABEL` for both outbound and return labels.
+	// * A `brandingImageFormat` of `TWO_SQUARES` is currently only supported with `labelType` of `4X6LABEL`, `4X5LABEL`, and `6X4LABEL` for both outbound and return labels.
+	// * A `brandingImageFormat` of `RECTANGLE` is currently only supported with `labelType` of `4X6LABEL`, `4X5LABEL`, and `6X4LABEL` for outbound labels and `4X5LABEL` and `6X4LABEL` for return labels.
+	BrandingImageFormat *LabelRequestImageInfoBrandingImageFormat `json:"brandingImageFormat,omitempty"`
+
+	// BrandingImageUUIDs The UUIDs associated with custom images uploaded in the Logo Branding endpoint: /branding
+	//
+	// Note:
+	// * These UUIDs must have been created with the same Payment Authorization Label Owner CRID in use when creating the label
+	// * When using `ONE_SQUARE` or `RECTANGLE` the brandingImageUUIDs list should include only one imageUUID string.
+	// * When using `TWO_SQUARES` the brandingImageUUIDs list should include only two imageUUID strings.
+	BrandingImageUUIDs *[]string `json:"brandingImageUUIDs,omitempty"`
+
+	// ImageType The type of label image requested.  If omitted then the default image type is PDF.
+	// * `PDF`
+	// * `TIFF`
+	// * `JPG`
+	// * `PNG`
+	// * `GIF`
+	// * `SVG`
+	// * `ZPL203DPI`
+	// * `ZPL300DPI`
+	// * `EPL300DPI`
+	// * `LABEL_BROKER` - Request a USPS QR code to allow your customers with no access to a printer to print at participating Post Office Locations. All USPS API users and third-party integrators utilizing QR codes are subject to the [Label Broker terms and conditions](https://www.usps.com/terms-conditions/label-broker.htm). For more information please see the Label Broker guide available on [GitHub](https://github.com/USPS/api-examples/blob/main/USPS%20APIs%20Domestic%20Labels%20API%20Documentation_2023_0901%20Published.pdf) (Note: Only supports labelType of `4X6LABEL` or `6X4LABEL` and receiptOption of `NONE`).  A USPS Label Broker QR code image will be returned in the API response instead of a label image.
+	// * `NONE`
+	//
+	// Note:
+	// - Labels with customs forms only support formats of `PDF`, `TIFF`, `ZPL203DPI`, `ZPL300DPI`, `LABEL_BROKER`, and `NONE`.
+	// - Including Extra Service Code `415 - USPS Label Delivery` returns no images and is equivalent to requesting `NONE`.
+	// - `EPL300DPI` is not supported for Return Labels.
+	// - When the `imageType` is set to `LABEL_BROKER`, the QR code's embedded URL will be returned in the `links` array of the response.
+	ImageType *LabelRequestImageInfoImageType `json:"imageType,omitempty"`
+
+	// IncludeLabelBrokerPDF Applicable only when `imageType` is `LABEL_BROKER`. When `includeLabelBrokerPDF` is `true`, two label images will be returned in the multi-part and vendor response as `labelBrokerQR` and `labelImage`. `labelBrokerQR` will contain the base64 PNG of the Label Broker QR Code and `labelImage` will contain the base64 PDF of the Label stored in Label Broker. When `includeLabelBrokerPDF` is `false`, one image will be returned in the multi-part and vendor response as `labelImage` as the base64 PNG of the Label Broker QR Code.
+	IncludeLabelBrokerPDF *bool `json:"includeLabelBrokerPDF,omitempty"`
+
+	// LabelType Ability to select the label image size.  If omitted then the default label size is `4X6LABEL`.
+	//
+	// Note:
+	//   * Currently, customs forms only support `4X6LABEL`.
+	//   * The `labelType` of `2X7LABEL` is not supported with the `imageType` of `ZPL203DPI` or `ZPL300DPI`.
+	//   * The `labelType` of `4X6LABEL` is the only supported format with the `imageType` of `EPL300DPI`.
+	LabelType *LabelRequestImageInfoLabelType `json:"labelType,omitempty"`
+
+	// PackageNumber The package number in a series such as 1 of 3, 2 of 3, etc.  If `totalPackages` is populated then `packageNumber` is required.  `packageNumber` must be less than or equal to `totalPackages`.  This feature is not supported on the 2x7 or 4x4 label format.
+	//
+	// Note:
+	// * When `packageNumber` is provided with a Destination Entry Facility, the Drop-Off Location will not be displayed on the label.
+	PackageNumber *int `json:"packageNumber,omitempty"`
+
+	// ReceiptOption Label & Receipt print out options: Enter `SAME_PAGE` to print the Label and the Receipt on a single page. Enter `SEPARATE_PAGE` to print the Label and the Receipt on separate pages. Enter `NONE` to print the Label only and no Receipt.
+	//
+	// Note:
+	//   * The `labelType` of `4X4LABEL` or `6X4LABEL` with the image `imageType` of `ZPL203DPI` or `ZPL300DPI` does not support a `receiptOption` of `SEPARATE_PAGE`.
+	//   * When `imageType` is `ZPL203DPI`, `ZPL300DPI`, or `EPL300DPI`, a `receiptOption` of `SAME_PAGE` is not supported.
+	//   * When `imageType` is `ZPL203DPI`, `ZPL300DPI`, or `EPL300DPI` and `receiptOption` is `SEPARATE_PAGE`, the receipt will be returned as an additional label segment within the single ZPL or EPL payload in `labelImage`. In this case, `receiptImage` will not be populated.
+	ReceiptOption *LabelRequestImageInfoReceiptOption `json:"receiptOption,omitempty"`
+
+	// ReturnLabel Indicates if a pay on use returns label is requested along with the outbound label.  If omitted then the request will be defaulted to false.
+	//
+	// The mail class of the generated return label will be based off of the mail class provided in `packageDescription.mailClass`.
+	// * Priority Mail Express Return Service label will be generated with `packageDescription.mailClass` of `PRIORITY_MAIL_EXPRESS`.
+	// * Priority Mail Return Service label will be generated with `packageDescription.mailClass` of `PRIORITY_MAIL`.
+	// * USPS Ground Advantage Return Service label will be generated with all other `packageDescription.mailClass` enumerations.
+	//
+	// Note:
+	//  * An `imageType` value of `LABEL_BROKER` is currently not supported when `returnLabel` is set to true.
+	//  * A `packageDescription.mailClass` value of `USPS_CONNECT_MAIL` is currently not supported when `returnLabel` is set to true.
+	//  * `returnLabel` cannot be set to `true` when generating customs forms.
+	//  * `returnLabel` is not available when Extra Service Code `415 - USPS Label Delivery` is used.
+	ReturnLabel *bool `json:"returnLabel,omitempty"`
+
+	// ShipInfo indicates if revenue protection information is printed on the label. (true or false)
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+	ShipInfo *bool `json:"shipInfo,omitempty"`
+
+	// SuppressMailDate Indicates if the `mailingDate` is printed on the label.  If omitted then the value will default to true.
+	//
+	// Note:
+	//  * Mail Date cannot be suppressed on Domestic Customs Forms. The customs form will always display the Date of Mailing.
+	//  * The date the label was created cannot be suppressed and will always print on the label.
+	SuppressMailDate *bool `json:"suppressMailDate,omitempty"`
+
+	// SuppressPostage Indicates if postage is printed on the label.  If omitted then the request will be defaulted to true.
+	SuppressPostage *bool `json:"suppressPostage,omitempty"`
+
+	// TotalPackages The total number of packages in a series such as 999.  If packageNumber is populated then totalPackages is required.  totalPackages must be greater than or equal to packageNumber.  This feature is not supported by the 2x7 or 4x4 label format.
+	TotalPackages        *int                   `json:"totalPackages,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// LabelRequest_PackageDescription Package description
+type LabelRequest_PackageDescription struct {
+	union json.RawMessage
+}
+
+// LabelVendorResponse defines model for LabelVendorResponse.
+type LabelVendorResponse struct {
+	// SKU Pricing SKU.
+	SKU *string `json:"SKU,omitempty"`
+
+	// BannerText Banner text printed on the label.
+	BannerText *string `json:"bannerText,omitempty"`
+
+	// Commitment The commitment and scheduled delivery date of the package.
+	Commitment *Commitment `json:"commitment,omitempty"`
+
+	// ConstructCode The barcode construct code associated with the tracking number.
+	ConstructCode *string `json:"constructCode,omitempty"`
+
+	// DimensionalWeight The dimensional weight of the package, if greater than specified in weight, in ounces.
+	DimensionalWeight *float32 `json:"dimensionalWeight,omitempty"`
+
+	// ExtraServices Extra services requested on the mailpiece.
+	ExtraServices *ExtraServiceResponse `json:"extraServices,omitempty"`
+
+	// Fees Fees associated with the package.
+	Fees *[]struct {
+		// SKU Pricing SKU.
+		SKU *string `json:"SKU,omitempty"`
+
+		// Name Name of the fee.
+		Name *string `json:"name,omitempty"`
+
+		// Price The price for the fee.
+		Price *float32 `json:"price,omitempty"`
+	} `json:"fees,omitempty"`
+
+	// InductionType The permit holder induction type.
+	InductionType *map[string]interface{} `json:"inductionType,omitempty"`
+
+	// LabelAddress The address where the package is being shipped from. The ZIP Code™ in the `fromAddress` object is used to calculate pricing.
+	//
+	// Notes:
+	// * The First and Last Name or Firm Name are always required.
+	// * If the `returnAddress` is not provided, the `fromAddress` will be used as the `returnAddress`.
+	// * If the `returnLabel` field is set to “true”, then the `fromAddress` ZIP Plus 4 is looked up by the API, unless the `ignoreBadAddress` field is set to true or the address cannot be found. If `ignoreBadAddress` field is true then ZIP Plus 4 is required.
+	LabelAddress *DomesticLabelAddress `json:"labelAddress,omitempty"`
+
+	// LabelBrokerID Unique Label Broker ID that can be used as an alternative to the Label Broker QR Code to retrieve the label at a Post Office. Will only be provided when an imageType of LABEL_BROKER is requested.
+	LabelBrokerID *string `json:"labelBrokerID,omitempty"`
+
+	// LabelBrokerQR The Label Broker QR Code image, Base64 encoded file contents. Only provided if `imageType` in the `imageInfo` is set to `LABEL_BROKER`.
+	LabelBrokerQR *[]byte `json:"labelBrokerQR,omitempty"`
+
+	// LabelImage Contains the Base64-encoded file contents of the label image. Provided only when `imageInfo.imageType` is not `NONE`.
+	//
+	// Note:
+	// - Not provided when Extra Service Code `415 - USPS Label Delivery` is requested, as no images are returned for this service.
+	LabelImage *[]byte `json:"labelImage,omitempty"`
+
+	// Links Hypermedia links to related resources.
+	Links *Links `json:"links,omitempty"`
+
+	// MailingDate The date on which the package will be mailed as provided in the request. If the time was not provided, it will be defaulted to 10:00 p.m. local time.
+	MailingDate *time.Time `json:"mailingDate,omitempty"`
+
+	// PermitHolderName The permit holder name.
+	PermitHolderName *string `json:"permitHolderName,omitempty"`
+
+	// Postage Amount of Postage Required, does not include insurance or other extra service fees.
+	Postage *float32 `json:"postage,omitempty"`
+
+	// ReceiptImage Contains the Base64-encoded file contents of the label receipt image. Provided only when `imageInfo.receiptOption` is `SEPARATE_PAGE`.
+	//
+	// Note:
+	// - When `imageInfo.imageType` is `ZPL203DPI`, `ZPL300DPI`, or `EPL300DPI` and `imageInfo.receiptOption` is `SEPARATE_PAGE`, the receipt will be returned as an additional label segment within the single ZPL or EPL payload in `labelImage`. In this case, `receiptImage` will not be populated.
+	// - Not provided when Extra Service Code `415 - USPS Label Delivery` is requested, as no images are returned for this service.
+	ReceiptImage *[]byte `json:"receiptImage,omitempty"`
+
+	// RetailDistributionCode Retail Description Code associated with label.
+	RetailDistributionCode *string `json:"retailDistributionCode,omitempty"`
+
+	// ReturnLabel Return label
+	ReturnLabel *struct {
+		// SKU Pricing SKU
+		SKU *string `json:"SKU,omitempty"`
+
+		// BannerText Banner text printed on the label
+		BannerText *string `json:"bannerText,omitempty"`
+
+		// DimensionalWeight The dimensional weight of package, if greater than specified in weight, in ounces.
+		DimensionalWeight *float32 `json:"dimensionalWeight,omitempty"`
+
+		// ExtraServices Extra services requested on the mailpiece.
+		ExtraServices *ExtraServiceResponse `json:"extraServices,omitempty"`
+
+		// Fees Fees associated to the package.
+		Fees *[]struct {
+			// SKU Pricing SKU
+			SKU *string `json:"SKU,omitempty"`
+
+			// Name Name of the fee.
+			Name *string `json:"name,omitempty"`
+
+			// Price The price for the fee.
+			Price *float32 `json:"price,omitempty"`
+		} `json:"fees,omitempty"`
+
+		// LabelAddress The address where the package is being shipped from. The ZIP Code™ in the `fromAddress` object is used to calculate pricing.
+		//
+		// Notes:
+		// * The First and Last Name or Firm Name are always required.
+		// * If the `returnAddress` is not provided, the `fromAddress` will be used as the `returnAddress`.
+		// * If the `returnLabel` field is set to “true”, then the `fromAddress` ZIP Plus 4 is looked up by the API, unless the `ignoreBadAddress` field is set to true or the address cannot be found. If `ignoreBadAddress` field is true then ZIP Plus 4 is required.
+		LabelAddress *DomesticLabelAddress `json:"labelAddress,omitempty"`
+
+		// LabelBrokerID Unique Label Broker ID that can be used as an alternative to the Label Broker QR Code to retrieve the label at a Post Office. Will only be provided when an imageType of LABEL_BROKER is requested.
+		LabelBrokerID *string `json:"labelBrokerID,omitempty"`
+
+		// LabelBrokerQR The Label Broker QR Code image, Base64 encoded file contents. Only provided if `imageType` in the `imageInfo` is set to `LABEL_BROKER`.
+		LabelBrokerQR *[]byte `json:"labelBrokerQR,omitempty"`
+
+		// Links Hypermedia links to related resources.
+		Links *Links `json:"links,omitempty"`
+
+		// MailingDate The date and time when the request was processed, with a two-hour offset applied.
+		MailingDate *time.Time `json:"mailingDate,omitempty"`
+
+		// Postage Amount of Postage Required, does not include insurance or other extra service fees.
+		Postage *float32 `json:"postage,omitempty"`
+
+		// RetailDistributionCode Retail Description Code associated with the label
+		RetailDistributionCode *string `json:"retailDistributionCode,omitempty"`
+
+		// ReturnLabelImage Contains the Base64-encoded file contents of the return label image. Provided only when `imageInfo.returnLabel` is `true` and `imageInfo.imageType` is not `NONE`.
+		ReturnLabelImage *[]byte `json:"returnLabelImage,omitempty"`
+
+		// ReturnReceiptImage Contains the Base64-encoded file contents of the return receipt image. Provided only when `imageInfo.returnLabel` is `true` and `imageInfo.receiptOption` is `SEPARATE_PAGE`.
+		//
+		// Note:
+		// - When `imageInfo.imageType` is `ZPL203DPI` or `ZPL300DPI` and `imageInfo.receiptOption` is `SEPARATE_PAGE`, the receipt will be returned as an additional label segment within the single ZPL payload in `labelImage`. In this case, `receiptImage` will not be populated.
+		ReturnReceiptImage *[]byte `json:"returnReceiptImage,omitempty"`
+
+		// RoutingInformation The "420" 3-digit GS1 Application Identifier and the 5 or 9 digit Destination ZIP Code&#8482;
+		RoutingInformation *string `json:"routingInformation,omitempty"`
+
+		// ServiceTypeCode The Service Type Code associated with the package. A list of Service Type Codes can be found at: [https://postalpro.usps.com/IMPB_Service_Type_Codes](https://postalpro.usps.com/IMPB_Service_Type_Codes)
+		ServiceTypeCode *string `json:"serviceTypeCode,omitempty"`
+
+		// Sku Pricing SKU
+		// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+		Sku *string `json:"sku,omitempty"`
+
+		// TrackingNumber The human readable version of the package tracking number
+		TrackingNumber *string `json:"trackingNumber,omitempty"`
+
+		// Warnings Warnings and additional details around the Label.
+		Warnings *Warnings `json:"warnings,omitempty"`
+
+		// Weight The package weight, in weightUOM. Items must weigh 70 pounds (1120 ounces) or less.
+		Weight *float32 `json:"weight,omitempty"`
+
+		// WeightUOM Weight Unit of Measurement
+		//    * lb - Pounds
+		WeightUOM *string `json:"weightUOM,omitempty"`
+
+		// Zone Indicates the calculated zone used for pricing between the provided `originZIPCode` and `destinationZIPCode` for a given `mailClass`, `mailingDate`, `rateIndicator`, and `weight`.
+		Zone *string `json:"zone,omitempty"`
+	} `json:"returnLabel,omitempty"`
+
+	// ReturnReceiptTrackingNumber The human-readable version of the return Receipt tracking number.
+	//
+	// * Note: This will be included in the response when `packageOptions.returnReceiptTracking` is set to true in the request.
+	ReturnReceiptTrackingNumber *string `json:"returnReceiptTrackingNumber,omitempty"`
+
+	// RoutingInformation The "420" 3-digit GS1 Application Identifier and the 5 or 9 digit Destination ZIP Code&#8482;.
+	RoutingInformation *string `json:"routingInformation,omitempty"`
+
+	// ServiceTypeCode The Service Type Code associated with the package. A list of Service Type Codes can be found at: [https://postalpro.usps.com/IMPB_Service_Type_Codes](https://postalpro.usps.com/IMPB_Service_Type_Codes).
+	ServiceTypeCode *string `json:"serviceTypeCode,omitempty"`
+
+	// TrackingNumber The human-readable version of the package tracking number.
+	TrackingNumber *string `json:"trackingNumber,omitempty"`
+
+	// Warnings Warnings and additional details around the Label.
+	Warnings *Warnings `json:"warnings,omitempty"`
+
+	// Weight The package weight, in weightUOM. Items must weigh 70 pounds (1120 ounces) or less.
+	Weight *float32 `json:"weight,omitempty"`
+
+	// WeightUOM Weight Unit of Measurement
+	//    * lb - Pounds
+	WeightUOM *string `json:"weightUOM,omitempty"`
+
+	// Zone Indicates the calculated zone used for pricing between the provided `originZIPCode` and `destinationZIPCode` for a given `mailClass`, `mailingDate`, `rateIndicator`, and `weight`.
+	Zone                 *string                `json:"zone,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// Links Hypermedia links to related resources.
+type Links = []struct {
+	// Href The URL to a related resource.
+	Href string `json:"href"`
+
+	// Method The HTTP method to use to access this link.
+	Method *LinksMethod `json:"method,omitempty"`
+
+	// Rel The short name(s) of the relationship corresponding to the link.
+	Rel []string `json:"rel"`
+
+	// SubmissionMediaType The media type of the resource request.
+	SubmissionMediaType *string `json:"submissionMediaType,omitempty"`
+
+	// TargetMediaType The media type of the resource response.
+	TargetMediaType *string `json:"targetMediaType,omitempty"`
+
+	// Title A human-readable description of the link relationship.
+	Title *string `json:"title,omitempty"`
+}
+
+// LinksMethod The HTTP method to use to access this link.
+type LinksMethod string
+
+// MailingDate The date the package will be mailed.
+//
+// The mailing date may be today plus 0 to 7 days in advance.
+//
+// The time will default to 10 p.m. local time (based on the induction location of the package) for calculating the commitment and scheduled delivery date of the package.
+//
+// Enter the date in the full-date notation as defined by [RFC 3339, section 5.6](https://datatracker.ietf.org/doc/html/rfc3339#section-5.6).
+type MailingDate = openapi_types.Date
+
+// MailingDateIndicia The date the letter, flat, or card will be mailed. The mailing date may be today plus 0 to 7 days in advance. Enter the date in the full-date notation as defined by [RFC 3339, section 5.6](https://datatracker.ietf.org/doc/html/rfc3339#section-5.6).
+type MailingDateIndicia = openapi_types.Date
+
+// MailingDateIndiciaOptions Mailing Date Indicia Options
+type MailingDateIndiciaOptions = string
+
+// MailingDateTime The date and time a package will be mailed.
+//
+// The mailing date may be today plus 0 to 7 days in advance.
+//
+// Enter the date in the date-time notation as defined by [RFC 3339, section 5.6](https://datatracker.ietf.org/doc/html/rfc3339#section-5.6).
+type MailingDateTime = time.Time
+
+// MailingDateTimeIndicia The date and time the letter, flat, or card will be mailed. The mailing date may be today plus 0 to 7 days in advance. Enter the date in the date-time notation as defined by [RFC 3339, section 5.6](https://datatracker.ietf.org/doc/html/rfc3339#section-5.6).
+type MailingDateTimeIndicia = time.Time
+
+// Nonprofit Used to specify if the shipment is a nonprofit mailing.  Shippers must be authorized for nonprofit mailings to qualify for nonprofit pricing.  All nonprofit mailings must not be used for product fulfillment.  For more details on Nonprofit Mailers, visit [Nonprofit Mailers](https://pe.usps.com/BusinessMail101?ViewName=NonprofitPrices).
+//
+// When `nonprofit` is `true` and `mailClass` is `MARKETING_MAIL_PARCELS`, nonprofit rates will be applied.  When using `rateIndicator` values, the `rateIndicator` must also be `NN` or `PN`.
+//
+// When `nonprofit` is `false` and `mailClass` is `MARKETING_MAIL_PARCELS`, standard rates will be applied.
+//
+// `nonprofit` is not supported for any other mail class.
+type Nonprofit = bool
+
+// PackageDescription Package Definitions
 type PackageDescription struct {
-	DestinationEntryFacilityType *string                 `json:"destinationEntryFacilityType,omitempty"`
-	DimensionsUOM                *string                 `json:"dimensionsUOM,omitempty"`
-	ExtraServices                *[]int                  `json:"extraServices,omitempty"`
-	Height                       *float64                `json:"height,omitempty"`
-	Length                       *float64                `json:"length,omitempty"`
-	MailClass                    *string                 `json:"mailClass,omitempty"`
-	MailingDate                  *openapi_types.Date     `json:"mailingDate,omitempty"`
-	PackageOptions               *map[string]interface{} `json:"packageOptions,omitempty"`
-	PackageValue                 *float64                `json:"packageValue,omitempty"`
-	ProcessingCategory           *string                 `json:"processingCategory,omitempty"`
-	RateIndicator                *string                 `json:"rateIndicator,omitempty"`
-	Weight                       *float64                `json:"weight,omitempty"`
-	WeightUOM                    *string                 `json:"weightUOM,omitempty"`
-	Width                        *float64                `json:"width,omitempty"`
+	// DimensionsUOM Dimensions unit of measure
+	// * in - Inches
+	DimensionsUOM *PackageDescriptionDimensionsUOM `json:"dimensionsUOM,omitempty"`
+
+	// Girth The girth of the container, in dimensionsUOM. If partial dimensions are provided, an error response will return. Length, Width, Height are required for accurate pricing of a rectangular package when any dimension of the item exceeds 12 inches. In addition, Girth is required only for a non- rectangular package in addition to Length, Width, Height when any dimension of the package exceeds 12 inches. For rectangular packages, the Girth dimension must be left blank as this dimension is to only be used for non- rectangular packages.
+	Girth *float32 `json:"girth,omitempty"`
+
+	// HasNonstandardCharacteristics Package is nonstandard. Nonstandard packages include cylindrical tubes and rolls, certain high-density items, cartons containing more than 24 ounces of liquids in one or more glass containers, cartons containing 1 gallon or more of liquid in metal or plastic containers, and items in [201.7.6.2](https://pe.usps.com/text/dmm300/201.htm#7.6.2).
+	HasNonstandardCharacteristics *bool `json:"hasNonstandardCharacteristics,omitempty"`
+
+	// Height The height of the container, in dimensionsUOM. If partial dimensions are provided, an error response will return. Length, Width, and Height are required for accurate pricing of a rectangular package when any dimension of the item exceeds 12 inches. Girth is required only for a non-rectangular package in addition to Length, Width, and Height when any dimension of the package exceeds 12 inches. For rectangular packages, the Girth dimension must be left blank as this dimension is to only be used for non-rectangular packages.
+	Height *float32 `json:"height,omitempty"`
+
+	// Length The length of the container, in dimensionsUOM. If partial dimensions are provided, an error response will return. Length, Width, and Height are required for accurate pricing of a rectangular package when any dimension of the item exceeds 12 inches. Girth is required only for a non-rectangular package in addition to Length, Width, and Height when any dimension of the package exceeds 12 inches. For rectangular packages, the Girth dimension must be left blank as this dimension is to only be used for non-rectangular packages.
+	Length *float32 `json:"length,omitempty"`
+
+	// Weight The package weight, in weightUOM (Unit Of Measure). Items must weigh 70 pounds (1120 ounces) or less.
+	Weight *float32 `json:"weight,omitempty"`
+
+	// WeightUOM Weight Unit of Measurement
+	//   * lb - Pounds
+	WeightUOM *PackageDescriptionWeightUOM `json:"weightUOM,omitempty"`
+
+	// Width The width of the container, in dimensionsUOM. If partial dimensions are provided, an error response will return. Length, Width, and Height are required for accurate pricing of a rectangular package when any dimension of the item exceeds 12 inches. Girth is required only for a non-rectangular package in addition to Length, Width, and Height when any dimension of the package exceeds 12 inches. For rectangular packages, the Girth dimension must be left blank as this dimension is to only be used for non- rectangular packages.
+	Width                *float32               `json:"width,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"-"`
 }
 
-// PaymentAuth defines model for PaymentAuth.
-type PaymentAuth = string
+// PackageDescriptionDimensionsUOM Dimensions unit of measure
+// * in - Inches
+type PackageDescriptionDimensionsUOM string
 
-// CreateLabelParams defines parameters for CreateLabel.
-type CreateLabelParams struct {
-	XPaymentAuthorizationToken PaymentAuth `json:"X-Payment-Authorization-Token"`
+// PackageDescriptionWeightUOM Weight Unit of Measurement
+//   - lb - Pounds
+type PackageDescriptionWeightUOM string
+
+// PackageOptions defines model for PackageOptions.
+type PackageOptions struct {
+	// NonDeliveryOption Requested action in the case a package is undeliverable:
+	//   - `RETURN` for package to be returned to `fromAddress`.
+	//   - `REDIRECT` to return package to address specified in the `redirectAddress`.
+	//   - `ABANDON` to dispose of undeliverable package
+	//
+	// Note:
+	//   * `REDIRECT` and `ABANDON` will not impact the domestic package endpoint. Please use ancillary service endorsements instead.
+	//   * An address must be provided in `redirectAddress` when a value of `REDIRECT` is provided.
+	NonDeliveryOption *PackageOptionsNonDeliveryOption `json:"nonDeliveryOption,omitempty"`
+
+	// Omas Fields specific to Official Mail Accounting System (OMAS).  Used for Federal Agencies.
+	Omas *struct {
+		// ChargebackCode Code used with OMAS transactions.
+		ChargebackCode *string `json:"chargebackCode,omitempty"`
+	} `json:"omas,omitempty"`
+
+	// PackageValue The merchandise value of the package, in US dollars. Used as the declared value for Insurance and for fee calculation when provided.
+	//
+	//  Note:
+	//   * `packageValue` is required when `extraServices` includes `930` or `931`.
+	PackageValue         *float32               `json:"packageValue,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"-"`
 }
 
-// CancelLabelParams defines parameters for CancelLabel.
-type CancelLabelParams struct {
-	XPaymentAuthorizationToken PaymentAuth `json:"X-Payment-Authorization-Token"`
+// PackageOptionsNonDeliveryOption Requested action in the case a package is undeliverable:
+//   - `RETURN` for package to be returned to `fromAddress`.
+//   - `REDIRECT` to return package to address specified in the `redirectAddress`.
+//   - `ABANDON` to dispose of undeliverable package
+//
+// Note:
+//   - `REDIRECT` and `ABANDON` will not impact the domestic package endpoint. Please use ancillary service endorsements instead.
+//   - An address must be provided in `redirectAddress` when a value of `REDIRECT` is provided.
+type PackageOptionsNonDeliveryOption string
+
+// PatchRequest IETF JSON PATCH, https://datatracker.ietf.org/doc/html/rfc6902
+type PatchRequest = []struct {
+	// Op The operation to perform on the resource.
+	Op PatchRequestOp `json:"op"`
+
+	// Path The object or array location to perform the update to the resource. Must be a JSON pointer value.
+	Path PatchRequestPath `json:"path"`
+
+	// Value Can be anything: string, number, array, object, etc. (except `null`)
+	Value *AnyValue `json:"value,omitempty"`
 }
 
-// GetLabelParams defines parameters for GetLabel.
-type GetLabelParams struct {
-	XPaymentAuthorizationToken PaymentAuth `json:"X-Payment-Authorization-Token"`
+// PatchRequestOp The operation to perform on the resource.
+type PatchRequestOp string
+
+// PatchRequestPath The object or array location to perform the update to the resource. Must be a JSON pointer value.
+type PatchRequestPath string
+
+// Phone The phone number, including the country extension and area code or the local national format, with no punctuation.
+type Phone = string
+
+// ReprintInfo Schema containing reprint information for a label.
+type ReprintInfo struct {
+	// ReprintLimit Maximum number of reprints permitted for the label.
+	ReprintLimit *int `json:"reprintLimit,omitempty"`
+
+	// ReprintNumber Count of reprints made for the label.
+	ReprintNumber *int `json:"reprintNumber,omitempty"`
 }
 
-// CreateLabelJSONRequestBody defines body for CreateLabel for application/json ContentType.
-type CreateLabelJSONRequestBody = CreateLabelRequest
+// ReturnLabelMetadata Return Label Metadata
+type ReturnLabelMetadata struct {
+	// SKU Pricing SKU
+	SKU *string `json:"SKU,omitempty"`
 
-// Getter for additional properties for LabelResponse. Returns the specified
+	// BannerText Banner text printed on the label
+	BannerText *string `json:"bannerText,omitempty"`
+
+	// DimensionalWeight The dimensional weight of package, if greater than specified in weight, in ounces.
+	DimensionalWeight *float32 `json:"dimensionalWeight,omitempty"`
+
+	// ExtraServices Extra services requested on the mailpiece.
+	ExtraServices *ExtraServiceResponse `json:"extraServices,omitempty"`
+
+	// Fees Fees associated to the package.
+	Fees *[]struct {
+		// SKU Pricing SKU
+		SKU *string `json:"SKU,omitempty"`
+
+		// Name Name of the fee.
+		Name *string `json:"name,omitempty"`
+
+		// Price The price for the fee.
+		Price *float32 `json:"price,omitempty"`
+	} `json:"fees,omitempty"`
+
+	// LabelAddress The address where the package is being shipped from. The ZIP Code™ in the `fromAddress` object is used to calculate pricing.
+	//
+	// Notes:
+	// * The First and Last Name or Firm Name are always required.
+	// * If the `returnAddress` is not provided, the `fromAddress` will be used as the `returnAddress`.
+	// * If the `returnLabel` field is set to “true”, then the `fromAddress` ZIP Plus 4 is looked up by the API, unless the `ignoreBadAddress` field is set to true or the address cannot be found. If `ignoreBadAddress` field is true then ZIP Plus 4 is required.
+	LabelAddress *DomesticLabelAddress `json:"labelAddress,omitempty"`
+
+	// LabelBrokerID Unique Label Broker ID that can be used as an alternative to the Label Broker QR Code to retrieve the label at a Post Office. Will only be provided when an imageType of LABEL_BROKER is requested.
+	LabelBrokerID *string `json:"labelBrokerID,omitempty"`
+
+	// Links Hypermedia links to related resources.
+	Links *Links `json:"links,omitempty"`
+
+	// MailingDate The date and time when the request was processed, with a two-hour offset applied.
+	MailingDate *time.Time `json:"mailingDate,omitempty"`
+
+	// Postage Amount of Postage Required, does not include insurance or other extra service fees.
+	Postage *float32 `json:"postage,omitempty"`
+
+	// RetailDistributionCode Retail Description Code associated with the label
+	RetailDistributionCode *string `json:"retailDistributionCode,omitempty"`
+
+	// RoutingInformation The "420" 3-digit GS1 Application Identifier and the 5 or 9 digit Destination ZIP Code&#8482;
+	RoutingInformation *string `json:"routingInformation,omitempty"`
+
+	// ServiceTypeCode The Service Type Code associated with the package. A list of Service Type Codes can be found at: [https://postalpro.usps.com/IMPB_Service_Type_Codes](https://postalpro.usps.com/IMPB_Service_Type_Codes)
+	ServiceTypeCode *string `json:"serviceTypeCode,omitempty"`
+
+	// Sku Pricing SKU
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+	Sku *string `json:"sku,omitempty"`
+
+	// TrackingNumber The human readable version of the package tracking number
+	TrackingNumber *string `json:"trackingNumber,omitempty"`
+
+	// Warnings Warnings and additional details around the Label.
+	Warnings *Warnings `json:"warnings,omitempty"`
+
+	// Weight The package weight, in weightUOM. Items must weigh 70 pounds (1120 ounces) or less.
+	Weight *float32 `json:"weight,omitempty"`
+
+	// WeightUOM Weight Unit of Measurement
+	//    * lb - Pounds
+	WeightUOM *string `json:"weightUOM,omitempty"`
+
+	// Zone Indicates the calculated zone used for pricing between the provided `originZIPCode` and `destinationZIPCode` for a given `mailClass`, `mailingDate`, `rateIndicator`, and `weight`.
+	Zone *string `json:"zone,omitempty"`
+}
+
+// ReturnLabelMultiPartResponse defines model for ReturnLabelMultiPartResponse.
+type ReturnLabelMultiPartResponse struct {
+	// LabelBrokerQR The Label Broker QR Code image, Base64 encoded file contents. Only provided if `imageType` in the `imageInfo` is set to `LABEL_BROKER`.
+	LabelBrokerQR *[]byte `json:"labelBrokerQR,omitempty"`
+
+	// ReturnLabelImage Contains the Base64-encoded file contents of the return label image. Provided only when `imageInfo.imageType` is not `NONE`.
+	//
+	// Note:
+	// - Not provided when Extra Service Code `415 - USPS Label Delivery` is requested, as no images are returned for this service.
+	ReturnLabelImage *[]byte `json:"returnLabelImage,omitempty"`
+
+	// ReturnLabelMetadata Return Label Metadata
+	ReturnLabelMetadata *ReturnLabelMetadata `json:"returnLabelMetadata,omitempty"`
+
+	// ReturnReceiptImage Contains the Base64-encoded file contents of the return receipt image. Provided only when `imageInfo.receiptOption` is `SEPARATE_PAGE`.
+	//
+	// Note:
+	// - When `imageInfo.imageType` is `ZPL203DPI` or `ZPL300DPI` and `imageInfo.receiptOption` is `SEPARATE_PAGE`, the receipt will be returned as an additional label segment within the single ZPL payload in `labelImage`. In this case, `receiptImage` will not be populated.
+	// - Not provided when Extra Service Code `415 - USPS Label Delivery` is requested, as no images are returned for this service.
+	ReturnReceiptImage *[]byte `json:"returnReceiptImage,omitempty"`
+}
+
+// ReturnLabelRequest Domestic Package Request
+type ReturnLabelRequest struct {
+	// CustomsForm Domestic Returns Custom Form
+	CustomsForm *DomesticReturnsCustomsForm `json:"customsForm,omitempty"`
+
+	// FromAddress The address where the return package is being shipped from. The ZIP Code™ in the `fromAddress` object is used to calculate pricing.
+	//
+	// Notes:
+	// * The First and Last Name or Firm Name are always required.
+	// * If the `returnAddress` is not provided, the `fromAddress` will be used as the `returnAddress`.
+	FromAddress DomesticLabelAddress `json:"fromAddress"`
+
+	// ImageInfo Image information
+	ImageInfo *ReturnLabelRequest_ImageInfo `json:"imageInfo,omitempty"`
+
+	// PackageDescription package description
+	PackageDescription ReturnLabelRequest_PackageDescription `json:"packageDescription"`
+
+	// ReturnAddress The address where the package should be returned to if it is deemed undeliverable or returned to sender. This address will be printed in the return address block of the label. This could be a secondary return address in case the toAddress is deemed undeliverable or returned to sender.
+	//
+	// Note:
+	// * The First and Last Name or Firm Name are always required.
+	ReturnAddress *DomesticLabelAddress `json:"returnAddress,omitempty"`
+
+	// SenderAddress The address of the business involved (typically the sender of the original package). The `senderAddress` can be different from the `toAddress` when the business address is not where the package is being shipped to.
+	//
+	// Notes:
+	// * The First and Last Name or Firm Name are always required.
+	// * `senderAddress` is required when the `shipperVisibilityMethod` field is set to `SENDER_INFORMATION`.
+	SenderAddress *DomesticLabelSenderAddress `json:"senderAddress,omitempty"`
+
+	// ToAddress The address where the return package is being shipped to. The ZIP Code™ in the `toAddress` object is used to calculate pricing.
+	//
+	// Notes:
+	// * The First and Last Name or Firm Name are always required.
+	// * For return labels, the `toAddress` ZIP Plus 4 is looked up by the API, unless the `ignoreBadAddress` field is set to true or the address cannot be found. If `ignoreBadAddress` field is true then ZIP Plus 4 is required.
+	ToAddress DomesticLabelAddress `json:"toAddress"`
+}
+
+// ReturnLabelRequestImageInfoBrandingImageFormat The format of label branding images to be shown on the generated label image.
+//
+// Note:
+// * Label branding images will not be shown on labels with customs forms.
+// * Label branding images are not currently supported with an `imageType` of `ZPL203DPI`, `ZPL300DPI`, or `EPL300DPI`.
+// * Label branding images are not currently supported with a `labelType` of `4X4LABEL`.
+// * When a `brandingImageFormat` is provided with a Destination Entry Facility, the Drop-Off Location will not be displayed on the label.
+// * When a `brandingImageFormat` of `RECTANGLE` is provided, Customer Reference #3-#4 cannot be provided since they will not be shown.
+// * When a `brandingImageFormat` of `ONE_SQUARE` or `TWO_SQUARES` is provided, Customer Reference numbers will be shifted to the right to accommodate the image.
+// * When a `brandingImageFormat` of `RECTANGLE` is provided, Customer Reference numbers, package number, and total packages will not be displayed on the label.
+// * A `brandingImageFormat` of `ONE_SQUARE` is currently only supported with `labelType` of `4X6LABEL`, `4X5LABEL`, `6X4LABEL`, and `2X7LABEL` for both outbound and return labels.
+// * A `brandingImageFormat` of `TWO_SQUARES` is currently only supported with `labelType` of `4X6LABEL`, `4X5LABEL`, and `6X4LABEL` for both outbound and return labels.
+// * A `brandingImageFormat` of `RECTANGLE` is currently only supported with `labelType` of `4X6LABEL`, `4X5LABEL`, and `6X4LABEL` for outbound labels and `4X5LABEL` and `6X4LABEL` for return labels.
+type ReturnLabelRequestImageInfoBrandingImageFormat string
+
+// ReturnLabelRequestImageInfoImageType The type of label image requested.  If omitted then the default image type is PDF.
+// * `PDF`
+// * `TIFF`
+// * `JPG`
+// * `PNG`
+// * `GIF`
+// * `SVG`
+// * `ZPL203DPI`
+// * `ZPL300DPI`
+// * `EPL300DPI`
+// * `LABEL_BROKER` - Request a USPS QR code to allow your customers with no access to a printer to print at participating Post Office Locations. All USPS API users and third-party integrators utilizing QR codes are subject to the [Label Broker terms and conditions](https://www.usps.com/terms-conditions/label-broker.htm). For more information please see the Label Broker guide available on [GitHub](https://github.com/USPS/api-examples/blob/main/USPS%20APIs%20Domestic%20Labels%20API%20Documentation_2023_0901%20Published.pdf) (Note: Only supports labelType of `4X6LABEL` or `6X4LABEL` and receiptOption of `NONE`).  A USPS Label Broker QR code image will be returned in the API response instead of a label image.
+// * `NONE`
+//
+// Note:
+// - Labels with customs forms only support formats of `PDF`, `TIFF`, `ZPL203DPI`, `ZPL300DPI`, `LABEL_BROKER`, and `NONE`.
+// - Including Extra Service Code `415 - USPS Label Delivery` returns no images and is equivalent to requesting `NONE`.
+// - `EPL300DPI` is not supported for Return Labels.
+// - When the `imageType` is set to `LABEL_BROKER`, the QR code's embedded URL will be returned in the `links` array of the response.
+type ReturnLabelRequestImageInfoImageType string
+
+// ReturnLabelRequestImageInfoLabelType Ability to select the label image size.  If omitted then the default label size is `4X6LABEL`.
+//
+// Note:
+//   - Currently, customs forms only support `4X6LABEL`.
+//   - The `labelType` of `2X7LABEL` is not supported with the `imageType` of `ZPL203DPI` or `ZPL300DPI`.
+//   - The `labelType` of `4X6LABEL` is the only supported format with the `imageType` of `EPL300DPI`.
+type ReturnLabelRequestImageInfoLabelType string
+
+// ReturnLabelRequest_ImageInfo defines model for ReturnLabelRequest.ImageInfo.
+type ReturnLabelRequest_ImageInfo struct {
+	// AddImageComments Applicable only when `imageType` is `ZPL203DPI`, `ZPL300DPI`, or `EPL300DPI`.  When `addImageComments` is `true`, comments will be visible within the ZPL or EPL text response to the user to denote different sections of their label.  When `addImageComments` is `false`, no comments will be included in the ZPL or EPL text response.  This will be ignored for any other `imageType`.
+	// Example of a ZPL comment:
+	// `^FX Start of label. 123e4567-e89b-12d3-a456-426614174000 ^FS`
+	AddImageComments *bool `json:"addImageComments,omitempty"`
+
+	// AddZPLComments Note: This field has been deprecated in favor of `addImageComments`.
+	//
+	// Applicable only when `imageType` is `ZPL203DPI` or `ZPL300DPI`.  When `addZPLComments` is `true`, comments will be visible within the ZPL text response to the user to denote different sections of their label.  When `addZPLComments` is `false`, no comments will be included in the ZPL text response.  This will be ignored for any other `imageType`.
+	//
+	// Example of a ZPL comment:
+	// `^FX Start of label. 123e4567-e89b-12d3-a456-426614174000 ^FS`
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+	AddZPLComments *bool `json:"addZPLComments,omitempty"`
+
+	// BrandingImageFormat The format of label branding images to be shown on the generated label image.
+	//
+	// Note:
+	// * Label branding images will not be shown on labels with customs forms.
+	// * Label branding images are not currently supported with an `imageType` of `ZPL203DPI`, `ZPL300DPI`, or `EPL300DPI`.
+	// * Label branding images are not currently supported with a `labelType` of `4X4LABEL`.
+	// * When a `brandingImageFormat` is provided with a Destination Entry Facility, the Drop-Off Location will not be displayed on the label.
+	// * When a `brandingImageFormat` of `RECTANGLE` is provided, Customer Reference #3-#4 cannot be provided since they will not be shown.
+	// * When a `brandingImageFormat` of `ONE_SQUARE` or `TWO_SQUARES` is provided, Customer Reference numbers will be shifted to the right to accommodate the image.
+	// * When a `brandingImageFormat` of `RECTANGLE` is provided, Customer Reference numbers, package number, and total packages will not be displayed on the label.
+	// * A `brandingImageFormat` of `ONE_SQUARE` is currently only supported with `labelType` of `4X6LABEL`, `4X5LABEL`, `6X4LABEL`, and `2X7LABEL` for both outbound and return labels.
+	// * A `brandingImageFormat` of `TWO_SQUARES` is currently only supported with `labelType` of `4X6LABEL`, `4X5LABEL`, and `6X4LABEL` for both outbound and return labels.
+	// * A `brandingImageFormat` of `RECTANGLE` is currently only supported with `labelType` of `4X6LABEL`, `4X5LABEL`, and `6X4LABEL` for outbound labels and `4X5LABEL` and `6X4LABEL` for return labels.
+	BrandingImageFormat *ReturnLabelRequestImageInfoBrandingImageFormat `json:"brandingImageFormat,omitempty"`
+
+	// BrandingImageUUIDs The UUIDs associated with custom images uploaded in the Logo Branding endpoint: /branding
+	//
+	// Note:
+	// * These UUIDs must have been created with the same Payment Authorization Label Owner CRID in use when creating the label
+	// * When using `ONE_SQUARE` or `RECTANGLE` the brandingImageUUIDs list should include only one imageUUID string.
+	// * When using `TWO_SQUARES` the brandingImageUUIDs list should include only two imageUUID strings.
+	BrandingImageUUIDs *[]string `json:"brandingImageUUIDs,omitempty"`
+
+	// ImageType The type of label image requested.  If omitted then the default image type is PDF.
+	// * `PDF`
+	// * `TIFF`
+	// * `JPG`
+	// * `PNG`
+	// * `GIF`
+	// * `SVG`
+	// * `ZPL203DPI`
+	// * `ZPL300DPI`
+	// * `EPL300DPI`
+	// * `LABEL_BROKER` - Request a USPS QR code to allow your customers with no access to a printer to print at participating Post Office Locations. All USPS API users and third-party integrators utilizing QR codes are subject to the [Label Broker terms and conditions](https://www.usps.com/terms-conditions/label-broker.htm). For more information please see the Label Broker guide available on [GitHub](https://github.com/USPS/api-examples/blob/main/USPS%20APIs%20Domestic%20Labels%20API%20Documentation_2023_0901%20Published.pdf) (Note: Only supports labelType of `4X6LABEL` or `6X4LABEL` and receiptOption of `NONE`).  A USPS Label Broker QR code image will be returned in the API response instead of a label image.
+	// * `NONE`
+	//
+	// Note:
+	// - Labels with customs forms only support formats of `PDF`, `TIFF`, `ZPL203DPI`, `ZPL300DPI`, `LABEL_BROKER`, and `NONE`.
+	// - Including Extra Service Code `415 - USPS Label Delivery` returns no images and is equivalent to requesting `NONE`.
+	// - `EPL300DPI` is not supported for Return Labels.
+	// - When the `imageType` is set to `LABEL_BROKER`, the QR code's embedded URL will be returned in the `links` array of the response.
+	ImageType *ReturnLabelRequestImageInfoImageType `json:"imageType,omitempty"`
+
+	// IncludeLabelBrokerPDF Applicable only when `imageType` is `LABEL_BROKER`. When `includeLabelBrokerPDF` is `true`, two label images will be returned in the multi-part and vendor response as `labelBrokerQR` and `labelImage`. `labelBrokerQR` will contain the base64 PNG of the Label Broker QR Code and `labelImage` will contain the base64 PDF of the Label stored in Label Broker. When `includeLabelBrokerPDF` is `false`, one image will be returned in the multi-part and vendor response as `labelImage` as the base64 PNG of the Label Broker QR Code.
+	IncludeLabelBrokerPDF *bool `json:"includeLabelBrokerPDF,omitempty"`
+
+	// LabelType Ability to select the label image size.  If omitted then the default label size is `4X6LABEL`.
+	//
+	// Note:
+	//   * Currently, customs forms only support `4X6LABEL`.
+	//   * The `labelType` of `2X7LABEL` is not supported with the `imageType` of `ZPL203DPI` or `ZPL300DPI`.
+	//   * The `labelType` of `4X6LABEL` is the only supported format with the `imageType` of `EPL300DPI`.
+	LabelType *ReturnLabelRequestImageInfoLabelType `json:"labelType,omitempty"`
+
+	// ReceiptOption Receipt Option
+	ReceiptOption *string `json:"receiptOption,omitempty"`
+
+	// ReturnLabel This field has been deprecated.  A return label cannot be generated with a return label.  This field will be ignored in the request.
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+	ReturnLabel *bool `json:"returnLabel,omitempty"`
+
+	// ShipInfo indicates if revenue protection information is printed on the label. (true or false)
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+	ShipInfo *bool `json:"shipInfo,omitempty"`
+
+	// SuppressMailDate This field has been deprecated.
+	//
+	// Note:
+	//  * Mail Date will not be printed on Return Labels without a customs form.
+	//  * Mail Date will be printed on Domestic Customs Forms. The customs form will always display the Date of Mailing.
+	//  * The date the label was created cannot be suppressed and will always print on the label.
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+	SuppressMailDate *bool `json:"suppressMailDate,omitempty"`
+
+	// SuppressPostage This field has been deprecated.  Postage value is not printed on Return Labels.
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+	SuppressPostage      *bool                  `json:"suppressPostage,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// ReturnLabelRequest_PackageDescription package description
+type ReturnLabelRequest_PackageDescription struct {
+	union json.RawMessage
+}
+
+// ReturnLabelVendorResponse defines model for ReturnLabelVendorResponse.
+type ReturnLabelVendorResponse struct {
+	// SKU Pricing SKU
+	SKU *string `json:"SKU,omitempty"`
+
+	// BannerText Banner text printed on the label
+	BannerText *string `json:"bannerText,omitempty"`
+
+	// DimensionalWeight The dimensional weight of package, if greater than specified in weight, in ounces.
+	DimensionalWeight *float32 `json:"dimensionalWeight,omitempty"`
+
+	// ExtraServices Extra services requested on the mailpiece.
+	ExtraServices *ExtraServiceResponse `json:"extraServices,omitempty"`
+
+	// Fees Fees associated to the package.
+	Fees *[]struct {
+		// SKU Pricing SKU
+		SKU *string `json:"SKU,omitempty"`
+
+		// Name Name of the fee.
+		Name *string `json:"name,omitempty"`
+
+		// Price The price for the fee.
+		Price *float32 `json:"price,omitempty"`
+	} `json:"fees,omitempty"`
+
+	// LabelAddress The address where the package is being shipped from. The ZIP Code™ in the `fromAddress` object is used to calculate pricing.
+	//
+	// Notes:
+	// * The First and Last Name or Firm Name are always required.
+	// * If the `returnAddress` is not provided, the `fromAddress` will be used as the `returnAddress`.
+	// * If the `returnLabel` field is set to “true”, then the `fromAddress` ZIP Plus 4 is looked up by the API, unless the `ignoreBadAddress` field is set to true or the address cannot be found. If `ignoreBadAddress` field is true then ZIP Plus 4 is required.
+	LabelAddress *DomesticLabelAddress `json:"labelAddress,omitempty"`
+
+	// LabelBrokerID Unique Label Broker ID that can be used as an alternative to the Label Broker QR Code to retrieve the label at a Post Office. Will only be provided when an imageType of LABEL_BROKER is requested.
+	LabelBrokerID *string `json:"labelBrokerID,omitempty"`
+
+	// LabelBrokerQR The Label Broker QR Code image, Base64 encoded file contents. Only provided if `imageType` in the `imageInfo` is set to `LABEL_BROKER`.
+	LabelBrokerQR *[]byte `json:"labelBrokerQR,omitempty"`
+
+	// Links Hypermedia links to related resources.
+	Links *Links `json:"links,omitempty"`
+
+	// MailingDate The date and time when the request was processed, with a two-hour offset applied.
+	MailingDate *time.Time `json:"mailingDate,omitempty"`
+
+	// Postage Amount of Postage Required, does not include insurance or other extra service fees.
+	Postage *float32 `json:"postage,omitempty"`
+
+	// RetailDistributionCode Retail Description Code associated with the label
+	RetailDistributionCode *string `json:"retailDistributionCode,omitempty"`
+
+	// ReturnLabelImage Contains the Base64-encoded file contents of the return label image. Provided only when `imageInfo.imageType` is not `NONE`.
+	//
+	// Note:
+	// - Not provided when Extra Service Code `415 - USPS Label Delivery` is requested, as no images are returned for this service.
+	ReturnLabelImage *[]byte `json:"returnLabelImage,omitempty"`
+
+	// ReturnReceiptImage Contains the Base64-encoded file contents of the return receipt image. Provided only when `imageInfo.receiptOption` is `SEPARATE_PAGE`.
+	//
+	// Note:
+	// - When `imageInfo.imageType` is `ZPL203DPI` or `ZPL300DPI` and `imageInfo.receiptOption` is `SEPARATE_PAGE`, the receipt will be returned as an additional label segment within the single ZPL payload in `labelImage`. In this case, `receiptImage` will not be populated.
+	// - Not provided when Extra Service Code `415 - USPS Label Delivery` is requested, as no images are returned for this service.
+	ReturnReceiptImage *[]byte `json:"returnReceiptImage,omitempty"`
+
+	// RoutingInformation The "420" 3-digit GS1 Application Identifier and the 5 or 9 digit Destination ZIP Code&#8482;
+	RoutingInformation *string `json:"routingInformation,omitempty"`
+
+	// ServiceTypeCode The Service Type Code associated with the package. A list of Service Type Codes can be found at: [https://postalpro.usps.com/IMPB_Service_Type_Codes](https://postalpro.usps.com/IMPB_Service_Type_Codes)
+	ServiceTypeCode *string `json:"serviceTypeCode,omitempty"`
+
+	// Sku Pricing SKU
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+	Sku *string `json:"sku,omitempty"`
+
+	// TrackingNumber The human readable version of the package tracking number
+	TrackingNumber *string `json:"trackingNumber,omitempty"`
+
+	// Warnings Warnings and additional details around the Label.
+	Warnings *Warnings `json:"warnings,omitempty"`
+
+	// Weight The package weight, in weightUOM. Items must weigh 70 pounds (1120 ounces) or less.
+	Weight *float32 `json:"weight,omitempty"`
+
+	// WeightUOM Weight Unit of Measurement
+	//    * lb - Pounds
+	WeightUOM *string `json:"weightUOM,omitempty"`
+
+	// Zone Indicates the calculated zone used for pricing between the provided `originZIPCode` and `destinationZIPCode` for a given `mailClass`, `mailingDate`, `rateIndicator`, and `weight`.
+	Zone *string `json:"zone,omitempty"`
+}
+
+// ReturnsPackageDescription defines model for ReturnsPackageDescription.
+type ReturnsPackageDescription struct {
+	// CustomerReference Used for shippers to print a value on a label and included in the Shipping Services Files.
+	CustomerReference *[]DomesticCustomerReference `json:"customerReference,omitempty"`
+
+	// DestinationEntryFacilityAddress Destination entry facility address
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+	DestinationEntryFacilityAddress *DomesticAddress `json:"destinationEntryFacilityAddress,omitempty"`
+
+	// DimensionsUOM Dimensions unit of measure
+	// * in - Inches
+	DimensionsUOM *ReturnsPackageDescriptionDimensionsUOM `json:"dimensionsUOM,omitempty"`
+
+	// ExtraServices Extra Service Code requested.
+	// * 365 - Global Direct Entry
+	// * 415 - USPS Label Delivery
+	// * 480 - Tracking Plus 6 Months
+	// * 481 - Tracking Plus 1 Year
+	// * 482 - Tracking Plus 3 Years
+	// * 483 - Tracking Plus 5 Years
+	// * 484 - Tracking Plus 7 Years
+	// * 485 - Tracking Plus 10 Years
+	// * 486 - Tracking Plus Signature 3 Years
+	// * 487 - Tracking Plus Signature 5 Years
+	// * 488 - Tracking Plus Signature 7 Years
+	// * 489 - Tracking Plus Signature 10 Years
+	// * 810 - HAZMAT Air Eligible Ethanol Package
+	// * 811 - HAZMAT Class 1 - Toy Propellant/Safety Fuse Package
+	// * 812 - HAZMAT Class 3 – Flammable Liquid Package
+	// * 813 - HAZMAT Class 7 - Radioactive Materials Package
+	// * 814 - HAZMAT Class 8 - Corrosive Materials Package
+	// * 815 - HAZMAT Class 8 - Nonspillable Wet Battery Package
+	// * 816 - HAZMAT Class 9 - Lithium Battery Marked - Ground Only Package
+	// * 817 - HAZMAT Class 9 - Lithium Battery - Returns Package
+	// * 818 - HAZMAT Class 9 - Lithium batteries, marked package
+	// * 819 - HAZMAT Class 9 - Dry Ice Package
+	// * 820 - HAZMAT Class 9 - Lithium batteries, unmarked package
+	// * 821 - HAZMAT Class 9 - Magnetized Materials Package
+	// * 822 - HAZMAT Division 4.1 – Flammable Solids or Safety Matches Package
+	// * 823 - HAZMAT Division 5.1 - Oxidizers Package
+	// * 824 - HAZMAT Division 5.2 - Organic Peroxides Package
+	// * 825 - HAZMAT Division 6.1 – Toxic Materials Package
+	// * 826 - HAZMAT Division 6.2 – Infectious Substances Package
+	// * 827 - HAZMAT Excepted Quantity Provision Package
+	// * 828 - HAZMAT Ground Only
+	// * 829 - HAZMAT ID8000 Consumer Commodity Package
+	// * 830 - HAZMAT Lighters Package
+	// * 831 - HAZMAT LTD QTY Ground Package
+	// * 832 - HAZMAT Small Quantity Provision Package
+	// * 857 - Hazardous Material
+	// * 910 - Certified Mail
+	// * 911 - Certified Mail Restricted Delivery
+	// * 912 - Certified Mail Adult Signature Required
+	// * 913 - Certified Mail Adult Signature Restricted Delivery
+	// * 920 - USPS Tracking
+	// * 921 - Signature Confirmation
+	// * 922 - Adult Signature Required 21 or Over
+	// * 923 - Adult Signature Restricted Delivery 21 or Over
+	// * 924 - Signature Confirmation Restricted Delivery
+	// * 925 - Priority Mail Express Merchandise Insurance
+	// * 930 - Insurance <= $500
+	// * 931 - Insurance > $500
+	// * 934 - Insurance Restricted Delivery
+	// * 955 - Return Receipt
+	// * 957 - Return Receipt Electronic
+	// * 981 - Signature Requested (PRIORITY_MAIL_EXPRESS only)
+	// * 986 - PO to Addressee (PRIORITY_MAIL_EXPRESS only)
+	// * 991 - Sunday Delivery
+	//
+	// Note:
+	//  * When the extra service code "930" is provided in the request, if the item value is over $500, "930" will automatically be replaced with "931" - Insurance (Greater than $500).
+	//  * USPS Label Delivery (Extra Service Code "415"): When requesting this service, no images will be returned in the API response. The label and receipt will be printed and mailed to the `fromAddress` provided. The mailed label will always include a receipt on the page. This service is not available at all locations.
+	//  * Some service codes require a combination with extra services such as "955" and "957". For all valid combinations, visit [https://postalpro.usps.com/IMPB_Service_Type_Codes](https://postalpro.usps.com/IMPB_Service_Type_Codes).
+	ExtraServices *[]ExtraService `json:"extraServices,omitempty"`
+
+	// Girth The girth of the container, in dimensionsUOM. If partial dimensions are provided, an error response will return. Length, Width, Height are required for accurate pricing of a rectangular package when any dimension of the item exceeds 12 inches. In addition, Girth is required only for a non- rectangular package in addition to Length, Width, Height when any dimension of the package exceeds 12 inches. For rectangular packages, the Girth dimension must be left blank as this dimension is to only be used for non- rectangular packages.
+	Girth *float32 `json:"girth,omitempty"`
+
+	// HasNonstandardCharacteristics Package is nonstandard. Nonstandard packages include cylindrical tubes and rolls, certain high-density items, cartons containing more than 24 ounces of liquids in one or more glass containers, cartons containing 1 gallon or more of liquid in metal or plastic containers, and items in [201.7.6.2](https://pe.usps.com/text/dmm300/201.htm#7.6.2).
+	HasNonstandardCharacteristics *bool `json:"hasNonstandardCharacteristics,omitempty"`
+
+	// Height The height of the container, in dimensionsUOM. If partial dimensions are provided, an error response will return. Length, Width, and Height are required for accurate pricing of a rectangular package when any dimension of the item exceeds 12 inches. Girth is required only for a non-rectangular package in addition to Length, Width, and Height when any dimension of the package exceeds 12 inches. For rectangular packages, the Girth dimension must be left blank as this dimension is to only be used for non-rectangular packages.
+	Height float32 `json:"height"`
+
+	// InductionZIPCode The 5-Digit ZIP Code representing the location where the package is being inducted (i.e. dropped off) into the mailstream.  When provided, this ZIP Code will be used for pricing instead of `fromAddress.ZIPCode`.
+	InductionZIPCode *InductionZIPCode `json:"inductionZIPCode,omitempty"`
+
+	// Length The length of the container, in dimensionsUOM. If partial dimensions are provided, an error response will return. Length, Width, and Height are required for accurate pricing of a rectangular package when any dimension of the item exceeds 12 inches. Girth is required only for a non-rectangular package in addition to Length, Width, and Height when any dimension of the package exceeds 12 inches. For rectangular packages, the Girth dimension must be left blank as this dimension is to only be used for non-rectangular packages.
+	Length float32 `json:"length"`
+
+	// MailClass The mail service requested.
+	//
+	// Note:
+	// - `FIRST-CLASS_PACKAGE_RETURN_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE_RETURN_SERVICE`
+	// - `GROUND_RETURN_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE_RETURN_SERVICE`
+	MailClass ReturnsPackageDescriptionMailClass `json:"mailClass"`
+
+	// PackageOptions Options added to packages that are less frequently used
+	PackageOptions *DomesticPackageReturnOptions `json:"packageOptions,omitempty"`
+
+	// ProcessingCategory Value designates if the shipment is `MACHINABLE`, `NONSTANDARD`, `LETTERS`, or `FLATS`.
+	//
+	// Note:
+	// * The processing category `LETTERS` is only valid when the mail class is `PRIORITY_MAIL_RETURN_SERVICE` or `PRIORITY_MAIL_EXPRESS_RETURN_SERVICE` for returns shipments.
+	// * The processing category `FLATS` is not valid for mail class `USPS_GROUND_ADVANTAGE_RETURN_SERVICE`.
+	// * `IRREGULAR` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+	// * `NON_MACHINABLE` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+	ProcessingCategory ReturnsPackageDescriptionProcessingCategory `json:"processingCategory"`
+
+	// RateIndicator Use to specify USPS containers/packaging or container attributes that may affect postage.
+	//
+	// Note:
+	//   * Effective 07/12/2026:  Rate indicators `Q6`, `Q7`, `Q8`, `Q9`, and `Q0` are no longer supported.  The dimensions for Cubic Soft Pack tiers `P5`, `P6`, `P7`, `P8`, and `P9` will be updated to include the dimensions for Tiers 6-10.  For updated tiers and more information, please view the [Postal Bulletin](https://about.usps.com/postal-bulletin/2026/pb22705/html/updt_001.htm).
+	//
+	// Rate indicator list:
+	//  * CP - Cubic Parcel
+	//  * DN - Dimensional Nonrectangular
+	//  * DR - Dimensional Rectangular
+	//  * E4 - Priority Mail Express Flat Rate Envelope - Post Office To Addressee
+	//  * E6 - Priority Mail Express Legal Flat Rate Envelope
+	//  * FA - Legal Flat Rate Envelope
+	//  * FB - Medium Flat Rate Box/Large Flat Rate Bag
+	//  * FE - Flat Rate Envelope
+	//  * FP - Padded Flat Rate Envelope
+	//  * FS - Small Flat Rate Box
+	//  * OS - Oversized
+	//  * P5 - Cubic Soft Pack Tier 1
+	//  * P6 - Cubic Soft Pack Tier 2
+	//  * P7 - Cubic Soft Pack Tier 3
+	//  * P8 - Cubic Soft Pack Tier 4
+	//  * P9 - Cubic Soft Pack Tier 5
+	//  * Q6 - Cubic Soft Pack Tier 6
+	//  * Q7 - Cubic Soft Pack Tier 7
+	//  * Q8 - Cubic Soft Pack Tier 8
+	//  * Q9 - Cubic Soft Pack Tier 9
+	//  * Q0 - Cubic Soft Pack Tier 10
+	//  * PA - Priority Mail Express Single Piece
+	//  * PL - Large Flat Rate Box
+	//  * PM - Large Flat Rate Box APO/FPO/DPO
+	//  * SP - Single Piece
+	RateIndicator ReturnsPackageDescriptionRateIndicator `json:"rateIndicator"`
+
+	// ShipperVisibilityMethod When generating labels for a third party shipper the label provider must capture and provide contact details of the individual or entity to whom they provide the label. For return labels, there is one method for reporting shipper information to USPS:
+	//
+	// 1. An alternative method allows for the label provider to assign a unique alphanumeric value known as a `platformUserId` to each shipper and to report the `platformUserId` together with the required shipper contact details. When using this method the shipper contact details are required in the `senderAddress` object (including `streetAddress`, `city`, `state`, `ZIPCode`, `phone`, `email`, `platformUserId` & `firstName`/`lastName` or `firm`) and this field should be populated with 'SENDER_INFORMATION'.
+	ShipperVisibilityMethod *ReturnsPackageDescriptionShipperVisibilityMethod `json:"shipperVisibilityMethod,omitempty"`
+
+	// Weight The package weight, in weightUOM (Unit Of Measure). Items must weigh 70 pounds (1120 ounces) or less.
+	Weight float32 `json:"weight"`
+
+	// WeightUOM Weight Unit of Measurement
+	//   * lb - Pounds
+	WeightUOM *ReturnsPackageDescriptionWeightUOM `json:"weightUOM,omitempty"`
+
+	// Width The width of the container, in dimensionsUOM. If partial dimensions are provided, an error response will return. Length, Width, and Height are required for accurate pricing of a rectangular package when any dimension of the item exceeds 12 inches. Girth is required only for a non-rectangular package in addition to Length, Width, and Height when any dimension of the package exceeds 12 inches. For rectangular packages, the Girth dimension must be left blank as this dimension is to only be used for non- rectangular packages.
+	Width                float32                `json:"width"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// ReturnsPackageDescriptionDimensionsUOM Dimensions unit of measure
+// * in - Inches
+type ReturnsPackageDescriptionDimensionsUOM string
+
+// ReturnsPackageDescriptionMailClass The mail service requested.
+//
+// Note:
+// - `FIRST-CLASS_PACKAGE_RETURN_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE_RETURN_SERVICE`
+// - `GROUND_RETURN_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE_RETURN_SERVICE`
+type ReturnsPackageDescriptionMailClass string
+
+// ReturnsPackageDescriptionProcessingCategory Value designates if the shipment is `MACHINABLE`, `NONSTANDARD`, `LETTERS`, or `FLATS`.
+//
+// Note:
+// * The processing category `LETTERS` is only valid when the mail class is `PRIORITY_MAIL_RETURN_SERVICE` or `PRIORITY_MAIL_EXPRESS_RETURN_SERVICE` for returns shipments.
+// * The processing category `FLATS` is not valid for mail class `USPS_GROUND_ADVANTAGE_RETURN_SERVICE`.
+// * `IRREGULAR` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+// * `NON_MACHINABLE` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+type ReturnsPackageDescriptionProcessingCategory string
+
+// ReturnsPackageDescriptionRateIndicator Use to specify USPS containers/packaging or container attributes that may affect postage.
+//
+// Note:
+//   - Effective 07/12/2026:  Rate indicators `Q6`, `Q7`, `Q8`, `Q9`, and `Q0` are no longer supported.  The dimensions for Cubic Soft Pack tiers `P5`, `P6`, `P7`, `P8`, and `P9` will be updated to include the dimensions for Tiers 6-10.  For updated tiers and more information, please view the [Postal Bulletin](https://about.usps.com/postal-bulletin/2026/pb22705/html/updt_001.htm).
+//
+// Rate indicator list:
+//   - CP - Cubic Parcel
+//   - DN - Dimensional Nonrectangular
+//   - DR - Dimensional Rectangular
+//   - E4 - Priority Mail Express Flat Rate Envelope - Post Office To Addressee
+//   - E6 - Priority Mail Express Legal Flat Rate Envelope
+//   - FA - Legal Flat Rate Envelope
+//   - FB - Medium Flat Rate Box/Large Flat Rate Bag
+//   - FE - Flat Rate Envelope
+//   - FP - Padded Flat Rate Envelope
+//   - FS - Small Flat Rate Box
+//   - OS - Oversized
+//   - P5 - Cubic Soft Pack Tier 1
+//   - P6 - Cubic Soft Pack Tier 2
+//   - P7 - Cubic Soft Pack Tier 3
+//   - P8 - Cubic Soft Pack Tier 4
+//   - P9 - Cubic Soft Pack Tier 5
+//   - Q6 - Cubic Soft Pack Tier 6
+//   - Q7 - Cubic Soft Pack Tier 7
+//   - Q8 - Cubic Soft Pack Tier 8
+//   - Q9 - Cubic Soft Pack Tier 9
+//   - Q0 - Cubic Soft Pack Tier 10
+//   - PA - Priority Mail Express Single Piece
+//   - PL - Large Flat Rate Box
+//   - PM - Large Flat Rate Box APO/FPO/DPO
+//   - SP - Single Piece
+type ReturnsPackageDescriptionRateIndicator string
+
+// ReturnsPackageDescriptionShipperVisibilityMethod When generating labels for a third party shipper the label provider must capture and provide contact details of the individual or entity to whom they provide the label. For return labels, there is one method for reporting shipper information to USPS:
+//
+// 1. An alternative method allows for the label provider to assign a unique alphanumeric value known as a `platformUserId` to each shipper and to report the `platformUserId` together with the required shipper contact details. When using this method the shipper contact details are required in the `senderAddress` object (including `streetAddress`, `city`, `state`, `ZIPCode`, `phone`, `email`, `platformUserId` & `firstName`/`lastName` or `firm`) and this field should be populated with 'SENDER_INFORMATION'.
+type ReturnsPackageDescriptionShipperVisibilityMethod string
+
+// ReturnsPackageDescriptionWeightUOM Weight Unit of Measurement
+//   - lb - Pounds
+type ReturnsPackageDescriptionWeightUOM string
+
+// ReturnsPackageDescriptionWithoutRateIndicator defines model for ReturnsPackageDescriptionWithoutRateIndicator.
+type ReturnsPackageDescriptionWithoutRateIndicator struct {
+	// CustomerReference Used for shippers to print a value on a label and included in the Shipping Services Files.
+	CustomerReference *[]DomesticCustomerReference `json:"customerReference,omitempty"`
+
+	// DestinationEntryFacilityAddress Destination entry facility address
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+	DestinationEntryFacilityAddress *DomesticAddress `json:"destinationEntryFacilityAddress,omitempty"`
+
+	// DimensionsUOM Dimensions unit of measure
+	// * in - Inches
+	DimensionsUOM *ReturnsPackageDescriptionWithoutRateIndicatorDimensionsUOM `json:"dimensionsUOM,omitempty"`
+
+	// ExtraServices Extra Service Code requested.
+	// * 365 - Global Direct Entry
+	// * 415 - USPS Label Delivery
+	// * 480 - Tracking Plus 6 Months
+	// * 481 - Tracking Plus 1 Year
+	// * 482 - Tracking Plus 3 Years
+	// * 483 - Tracking Plus 5 Years
+	// * 484 - Tracking Plus 7 Years
+	// * 485 - Tracking Plus 10 Years
+	// * 486 - Tracking Plus Signature 3 Years
+	// * 487 - Tracking Plus Signature 5 Years
+	// * 488 - Tracking Plus Signature 7 Years
+	// * 489 - Tracking Plus Signature 10 Years
+	// * 810 - HAZMAT Air Eligible Ethanol Package
+	// * 811 - HAZMAT Class 1 - Toy Propellant/Safety Fuse Package
+	// * 812 - HAZMAT Class 3 – Flammable Liquid Package
+	// * 813 - HAZMAT Class 7 - Radioactive Materials Package
+	// * 814 - HAZMAT Class 8 - Corrosive Materials Package
+	// * 815 - HAZMAT Class 8 - Nonspillable Wet Battery Package
+	// * 816 - HAZMAT Class 9 - Lithium Battery Marked - Ground Only Package
+	// * 817 - HAZMAT Class 9 - Lithium Battery - Returns Package
+	// * 818 - HAZMAT Class 9 - Lithium batteries, marked package
+	// * 819 - HAZMAT Class 9 - Dry Ice Package
+	// * 820 - HAZMAT Class 9 - Lithium batteries, unmarked package
+	// * 821 - HAZMAT Class 9 - Magnetized Materials Package
+	// * 822 - HAZMAT Division 4.1 – Flammable Solids or Safety Matches Package
+	// * 823 - HAZMAT Division 5.1 - Oxidizers Package
+	// * 824 - HAZMAT Division 5.2 - Organic Peroxides Package
+	// * 825 - HAZMAT Division 6.1 – Toxic Materials Package
+	// * 826 - HAZMAT Division 6.2 – Infectious Substances Package
+	// * 827 - HAZMAT Excepted Quantity Provision Package
+	// * 828 - HAZMAT Ground Only
+	// * 829 - HAZMAT ID8000 Consumer Commodity Package
+	// * 830 - HAZMAT Lighters Package
+	// * 831 - HAZMAT LTD QTY Ground Package
+	// * 832 - HAZMAT Small Quantity Provision Package
+	// * 857 - Hazardous Material
+	// * 910 - Certified Mail
+	// * 911 - Certified Mail Restricted Delivery
+	// * 912 - Certified Mail Adult Signature Required
+	// * 913 - Certified Mail Adult Signature Restricted Delivery
+	// * 920 - USPS Tracking
+	// * 921 - Signature Confirmation
+	// * 922 - Adult Signature Required 21 or Over
+	// * 923 - Adult Signature Restricted Delivery 21 or Over
+	// * 924 - Signature Confirmation Restricted Delivery
+	// * 925 - Priority Mail Express Merchandise Insurance
+	// * 930 - Insurance <= $500
+	// * 931 - Insurance > $500
+	// * 934 - Insurance Restricted Delivery
+	// * 955 - Return Receipt
+	// * 957 - Return Receipt Electronic
+	// * 981 - Signature Requested (PRIORITY_MAIL_EXPRESS only)
+	// * 986 - PO to Addressee (PRIORITY_MAIL_EXPRESS only)
+	// * 991 - Sunday Delivery
+	//
+	// Note:
+	//  * When the extra service code "930" is provided in the request, if the item value is over $500, "930" will automatically be replaced with "931" - Insurance (Greater than $500).
+	//  * USPS Label Delivery (Extra Service Code "415"): When requesting this service, no images will be returned in the API response. The label and receipt will be printed and mailed to the `fromAddress` provided. The mailed label will always include a receipt on the page. This service is not available at all locations.
+	//  * Some service codes require a combination with extra services such as "955" and "957". For all valid combinations, visit [https://postalpro.usps.com/IMPB_Service_Type_Codes](https://postalpro.usps.com/IMPB_Service_Type_Codes).
+	ExtraServices *[]ExtraService `json:"extraServices,omitempty"`
+
+	// Girth The girth of the container, in dimensionsUOM. If partial dimensions are provided, an error response will return. Length, Width, Height are required for accurate pricing of a rectangular package when any dimension of the item exceeds 12 inches. In addition, Girth is required only for a non- rectangular package in addition to Length, Width, Height when any dimension of the package exceeds 12 inches. For rectangular packages, the Girth dimension must be left blank as this dimension is to only be used for non- rectangular packages.
+	Girth *float32 `json:"girth,omitempty"`
+
+	// HasNonstandardCharacteristics Package is nonstandard. Nonstandard packages include cylindrical tubes and rolls, certain high-density items, cartons containing more than 24 ounces of liquids in one or more glass containers, cartons containing 1 gallon or more of liquid in metal or plastic containers, and items in [201.7.6.2](https://pe.usps.com/text/dmm300/201.htm#7.6.2).
+	HasNonstandardCharacteristics *bool `json:"hasNonstandardCharacteristics,omitempty"`
+
+	// Height The height of the container, in dimensionsUOM. If partial dimensions are provided, an error response will return. Length, Width, and Height are required for accurate pricing of a rectangular package when any dimension of the item exceeds 12 inches. Girth is required only for a non-rectangular package in addition to Length, Width, and Height when any dimension of the package exceeds 12 inches. For rectangular packages, the Girth dimension must be left blank as this dimension is to only be used for non-rectangular packages.
+	Height float32 `json:"height"`
+
+	// InductionZIPCode The 5-Digit ZIP Code representing the location where the package is being inducted (i.e. dropped off) into the mailstream.  When provided, this ZIP Code will be used for pricing instead of `fromAddress.ZIPCode`.
+	InductionZIPCode *InductionZIPCode `json:"inductionZIPCode,omitempty"`
+
+	// Length The length of the container, in dimensionsUOM. If partial dimensions are provided, an error response will return. Length, Width, and Height are required for accurate pricing of a rectangular package when any dimension of the item exceeds 12 inches. Girth is required only for a non-rectangular package in addition to Length, Width, and Height when any dimension of the package exceeds 12 inches. For rectangular packages, the Girth dimension must be left blank as this dimension is to only be used for non-rectangular packages.
+	Length float32 `json:"length"`
+
+	// MailClass The mail service requested.
+	//
+	// Note:
+	// - `FIRST-CLASS_PACKAGE_RETURN_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE_RETURN_SERVICE`
+	// - `GROUND_RETURN_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE_RETURN_SERVICE`
+	MailClass ReturnsPackageDescriptionWithoutRateIndicatorMailClass `json:"mailClass"`
+
+	// PackageOptions Options added to packages that are less frequently used
+	PackageOptions *DomesticPackageReturnOptions `json:"packageOptions,omitempty"`
+
+	// PackagingType USPS packaging or container attributes that may affect postage. If the packaging is customer provided, use `VARIABLE`.
+	PackagingType ReturnsPackageDescriptionWithoutRateIndicatorPackagingType `json:"packagingType"`
+
+	// ProcessingCategory Value designates if the shipment is `MACHINABLE`, `NONSTANDARD`, `LETTERS`, or `FLATS`.
+	//
+	// Note:
+	// * The processing category `LETTERS` is only valid when the mail class is `PRIORITY_MAIL_RETURN_SERVICE` or `PRIORITY_MAIL_EXPRESS_RETURN_SERVICE` for returns shipments.
+	// * The processing category `FLATS` is not valid for mail class `USPS_GROUND_ADVANTAGE_RETURN_SERVICE`.
+	// * `IRREGULAR` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+	// * `NON_MACHINABLE` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+	ProcessingCategory ReturnsPackageDescriptionWithoutRateIndicatorProcessingCategory `json:"processingCategory"`
+
+	// Shape The shape of the package
+	Shape ReturnsPackageDescriptionWithoutRateIndicatorShape `json:"shape"`
+
+	// ShipperVisibilityMethod When generating labels for a third party shipper the label provider must capture and provide contact details of the individual or entity to whom they provide the label. For return labels, there is one method for reporting shipper information to USPS:
+	//
+	// 1. An alternative method allows for the label provider to assign a unique alphanumeric value known as a `platformUserId` to each shipper and to report the `platformUserId` together with the required shipper contact details. When using this method the shipper contact details are required in the `senderAddress` object (including `streetAddress`, `city`, `state`, `ZIPCode`, `phone`, `email`, `platformUserId` & `firstName`/`lastName` or `firm`) and this field should be populated with 'SENDER_INFORMATION'.
+	ShipperVisibilityMethod *ReturnsPackageDescriptionWithoutRateIndicatorShipperVisibilityMethod `json:"shipperVisibilityMethod,omitempty"`
+
+	// Weight The package weight, in weightUOM (Unit Of Measure). Items must weigh 70 pounds (1120 ounces) or less.
+	Weight float32 `json:"weight"`
+
+	// WeightUOM Weight Unit of Measurement
+	//   * lb - Pounds
+	WeightUOM *ReturnsPackageDescriptionWithoutRateIndicatorWeightUOM `json:"weightUOM,omitempty"`
+
+	// Width The width of the container, in dimensionsUOM. If partial dimensions are provided, an error response will return. Length, Width, and Height are required for accurate pricing of a rectangular package when any dimension of the item exceeds 12 inches. Girth is required only for a non-rectangular package in addition to Length, Width, and Height when any dimension of the package exceeds 12 inches. For rectangular packages, the Girth dimension must be left blank as this dimension is to only be used for non- rectangular packages.
+	Width                float32                `json:"width"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// ReturnsPackageDescriptionWithoutRateIndicatorDimensionsUOM Dimensions unit of measure
+// * in - Inches
+type ReturnsPackageDescriptionWithoutRateIndicatorDimensionsUOM string
+
+// ReturnsPackageDescriptionWithoutRateIndicatorMailClass The mail service requested.
+//
+// Note:
+// - `FIRST-CLASS_PACKAGE_RETURN_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE_RETURN_SERVICE`
+// - `GROUND_RETURN_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE_RETURN_SERVICE`
+type ReturnsPackageDescriptionWithoutRateIndicatorMailClass string
+
+// ReturnsPackageDescriptionWithoutRateIndicatorPackagingType USPS packaging or container attributes that may affect postage. If the packaging is customer provided, use `VARIABLE`.
+type ReturnsPackageDescriptionWithoutRateIndicatorPackagingType string
+
+// ReturnsPackageDescriptionWithoutRateIndicatorProcessingCategory Value designates if the shipment is `MACHINABLE`, `NONSTANDARD`, `LETTERS`, or `FLATS`.
+//
+// Note:
+// * The processing category `LETTERS` is only valid when the mail class is `PRIORITY_MAIL_RETURN_SERVICE` or `PRIORITY_MAIL_EXPRESS_RETURN_SERVICE` for returns shipments.
+// * The processing category `FLATS` is not valid for mail class `USPS_GROUND_ADVANTAGE_RETURN_SERVICE`.
+// * `IRREGULAR` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+// * `NON_MACHINABLE` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+type ReturnsPackageDescriptionWithoutRateIndicatorProcessingCategory string
+
+// ReturnsPackageDescriptionWithoutRateIndicatorShape The shape of the package
+type ReturnsPackageDescriptionWithoutRateIndicatorShape string
+
+// ReturnsPackageDescriptionWithoutRateIndicatorShipperVisibilityMethod When generating labels for a third party shipper the label provider must capture and provide contact details of the individual or entity to whom they provide the label. For return labels, there is one method for reporting shipper information to USPS:
+//
+// 1. An alternative method allows for the label provider to assign a unique alphanumeric value known as a `platformUserId` to each shipper and to report the `platformUserId` together with the required shipper contact details. When using this method the shipper contact details are required in the `senderAddress` object (including `streetAddress`, `city`, `state`, `ZIPCode`, `phone`, `email`, `platformUserId` & `firstName`/`lastName` or `firm`) and this field should be populated with 'SENDER_INFORMATION'.
+type ReturnsPackageDescriptionWithoutRateIndicatorShipperVisibilityMethod string
+
+// ReturnsPackageDescriptionWithoutRateIndicatorWeightUOM Weight Unit of Measurement
+//   - lb - Pounds
+type ReturnsPackageDescriptionWithoutRateIndicatorWeightUOM string
+
+// SerialNumberFormat Used to specify the barcode construct used for the generated tracking number.  For details on barcode constructs, reference Appendix J in [Pub 199](https://postalpro.usps.com/pub199).
+//
+// `STANDARD` - Will generate a `C01`, `C03`, `C05`, or `C07` barcode construct, based on the Label Owner's `MID` in the Payment Authorization Token.
+//
+// `EXTENDED` - Will generate a `C02` or `C06` barcode construct, based on the Label Owner's `MID` in the Payment Authorization Token.
+type SerialNumberFormat string
+
+// ShippingContents Required repeating up to 30 times if generating an Integrated Customs Form, otherwise not required.
+type ShippingContents struct {
+	// HSTariffNumber For commercial items only. The HS tariff number is based on the Harmonized Commodity Description and Coding System developed by the World Customs Organization.
+	// Providing this value is strongly recommended for faster processing. If not supplied, USPS will attempt to look up the HS tariff number, which may result in longer response times.
+	// The value should follow the pattern: `^\.*(?:[A-Za-z\d]\.*){6,14}$`.
+	// For more information, see: [https://hts.usitc.gov/current](https://hts.usitc.gov/current).
+	HSTariffNumber *string `json:"HSTariffNumber,omitempty"`
+
+	// CountryofOrigin 2 digit Alpha Country Code defined by ISO is required for international address.
+	CountryofOrigin *string `json:"countryofOrigin,omitempty"`
+
+	// ItemCategory Category of the item being shipped.
+	ItemCategory *string `json:"itemCategory,omitempty"`
+
+	// ItemDescription Description of the item.  It is important to note that the following descriptions, regardless of case sensitivity, are not considered valid: None, Not Applicable, N/A, Null, Gift, and Merchandise.
+	ItemDescription *string `json:"itemDescription,omitempty"`
+
+	// ItemQuantity Quantity of the item. Integer value required.
+	ItemQuantity *int `json:"itemQuantity,omitempty"`
+
+	// ItemSubcategory Subcategory of the item being shipped.
+	ItemSubcategory *string `json:"itemSubcategory,omitempty"`
+
+	// ItemTotalValue The total item value, in USD, of the items matching the `itemDescription`.
+	ItemTotalValue *float32 `json:"itemTotalValue,omitempty"`
+
+	// ItemTotalWeight Provide the total weight in `weightUOM` for the all items matching the `itemDescription`.
+	ItemTotalWeight *float32 `json:"itemTotalWeight,omitempty"`
+
+	// ItemValue Value of the individual item in USD.
+	//
+	// Note:
+	// * This field has been deprecated in favor of `itemTotalValue` and will be removed in a future release. Please transition to using `itemTotalValue`.
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+	ItemValue *float32 `json:"itemValue,omitempty"`
+
+	// ItemWeight Provide the weight in `weightUOM` for the individual item listed with `itemDescription`.
+	//
+	// Note:
+	// * This field has been deprecated in favor of `itemTotalWeight` and will be removed in a future release. Please transition to using `itemTotalWeight`.
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+	ItemWeight *float32 `json:"itemWeight,omitempty"`
+
+	// WeightUOM Weight Unit of Measurement
+	//   * lb - Pounds
+	WeightUOM            *ShippingContentsWeightUOM `json:"weightUOM,omitempty"`
+	AdditionalProperties map[string]interface{}     `json:"-"`
+}
+
+// ShippingContentsWeightUOM Weight Unit of Measurement
+//   - lb - Pounds
+type ShippingContentsWeightUOM string
+
+// State This is the two-character state code of the address.
+type State = string
+
+// Warnings Warnings and additional details around the Label.
+type Warnings = []struct {
+	// WarningCode Code corresponding to the warning
+	WarningCode *string `json:"warningCode,omitempty"`
+
+	// WarningDescription Warning or additional information regarding the Label.
+	WarningDescription *string `json:"warningDescription,omitempty"`
+}
+
+// IMB defines model for IMB.
+type IMB = string
+
+// LabelBrandingImageUUID defines model for LabelBrandingImageUUID.
+type LabelBrandingImageUUID = string
+
+// TrackingNumber defines model for TrackingNumber.
+type TrackingNumber = string
+
+// XIdempotencyKey defines model for X-Idempotency-Key.
+type XIdempotencyKey = openapi_types.UUID
+
+// XPaymentAuthorizationToken defines model for X-Payment-Authorization-Token.
+type XPaymentAuthorizationToken = string
+
+// GetListLabelBrandingParams defines parameters for GetListLabelBranding.
+type GetListLabelBrandingParams struct {
+	// Limit The number of items to return.
+	Limit *int `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Offset The number of items to skip before returning the results.
+	Offset *int `form:"offset,omitempty" json:"offset,omitempty"`
+
+	// OrderBy Sort results in ascending or descending order.
+	OrderBy *GetListLabelBrandingParamsOrderBy `form:"orderBy,omitempty" json:"orderBy,omitempty"`
+
+	// SortBy Sort by field, e.g., `imageName` or `createdDateTime`.
+	SortBy *GetListLabelBrandingParamsSortBy `form:"sortBy,omitempty" json:"sortBy,omitempty"`
+
+	// XPaymentAuthorizationToken Payment Authorization Token from the payments API Call.
+	XPaymentAuthorizationToken XPaymentAuthorizationToken `json:"X-Payment-Authorization-Token"`
+}
+
+// GetListLabelBrandingParamsOrderBy defines parameters for GetListLabelBranding.
+type GetListLabelBrandingParamsOrderBy string
+
+// GetListLabelBrandingParamsSortBy defines parameters for GetListLabelBranding.
+type GetListLabelBrandingParamsSortBy string
+
+// PostLabelBrandingParams defines parameters for PostLabelBranding.
+type PostLabelBrandingParams struct {
+	// XPaymentAuthorizationToken Payment Authorization Token from the payments API Call.
+	XPaymentAuthorizationToken XPaymentAuthorizationToken `json:"X-Payment-Authorization-Token"`
+}
+
+// DeleteLabelBrandingParams defines parameters for DeleteLabelBranding.
+type DeleteLabelBrandingParams struct {
+	// XPaymentAuthorizationToken Payment Authorization Token from the payments API Call.
+	XPaymentAuthorizationToken XPaymentAuthorizationToken `json:"X-Payment-Authorization-Token"`
+}
+
+// GetSingleLabelBrandingParams defines parameters for GetSingleLabelBranding.
+type GetSingleLabelBrandingParams struct {
+	// XPaymentAuthorizationToken Payment Authorization Token from the payments API Call.
+	XPaymentAuthorizationToken XPaymentAuthorizationToken `json:"X-Payment-Authorization-Token"`
+}
+
+// PatchLabelBrandingParams defines parameters for PatchLabelBranding.
+type PatchLabelBrandingParams struct {
+	// XPaymentAuthorizationToken Payment Authorization Token from the payments API Call.
+	XPaymentAuthorizationToken XPaymentAuthorizationToken `json:"X-Payment-Authorization-Token"`
+}
+
+// PostLabelIndiciaParams defines parameters for PostLabelIndicia.
+type PostLabelIndiciaParams struct {
+	// XPaymentAuthorizationToken Payment Authorization Token from the payments API Call.
+	XPaymentAuthorizationToken XPaymentAuthorizationToken `json:"X-Payment-Authorization-Token"`
+}
+
+// PostIndiciaImbParams defines parameters for PostIndiciaImb.
+type PostIndiciaImbParams struct {
+	// XPaymentAuthorizationToken Payment Authorization Token from the payments API Call.
+	XPaymentAuthorizationToken XPaymentAuthorizationToken `json:"X-Payment-Authorization-Token"`
+}
+
+// DeleteIndiciaImbParams defines parameters for DeleteIndiciaImb.
+type DeleteIndiciaImbParams struct {
+	// XPaymentAuthorizationToken Payment Authorization Token from the payments API Call.
+	XPaymentAuthorizationToken XPaymentAuthorizationToken `json:"X-Payment-Authorization-Token"`
+}
+
+// DeleteLabelByIdempotencyParams defines parameters for DeleteLabelByIdempotency.
+type DeleteLabelByIdempotencyParams struct {
+	// XPaymentAuthorizationToken Payment Authorization Token from the payments API Call.
+	XPaymentAuthorizationToken XPaymentAuthorizationToken `json:"X-Payment-Authorization-Token"`
+
+	// XIdempotencyKey A client-created, randomly generated UUID that uniquely identifies a label request. The value must be unique across all label requests for each customer (CRID) and serves as the idempotency key for downstream reprint and cancellation operations.
+	//
+	// **Usage**:
+	// - *Reprint requests*: Submitting the idempotency key to the reprint endpoint returns the original label image and metadata.
+	// - *Cancellation requests*: Submitting the idempotency key to the cancel endpoint cancels an unused label or initiates a refund.
+	// - *Label endpoint*: Not idempotent. Resubmission of a previously used UUID will generate a new label and may result in multiple labels bound to the same UUID.  If a previously used UUID is resubmitted, the reprint and cancellation requests will reference the most recent instance of the UUID.
+	//
+	// The UUID is included in the electronic manifest data (Shipping Services File, D5 record) transmitted to Postal systems.  This will be reflected in the Package Transaction Details Report through IV-MTR as the `External Reference ID`.
+	XIdempotencyKey *XIdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
+// PostLabelParams defines parameters for PostLabel.
+type PostLabelParams struct {
+	// XPaymentAuthorizationToken Payment Authorization Token from the payments API Call.
+	XPaymentAuthorizationToken XPaymentAuthorizationToken `json:"X-Payment-Authorization-Token"`
+
+	// XIdempotencyKey A client-created, randomly generated UUID that uniquely identifies a label request. The value must be unique across all label requests for each customer (CRID) and serves as the idempotency key for downstream reprint and cancellation operations.
+	//
+	// **Usage**:
+	// - *Reprint requests*: Submitting the idempotency key to the reprint endpoint returns the original label image and metadata.
+	// - *Cancellation requests*: Submitting the idempotency key to the cancel endpoint cancels an unused label or initiates a refund.
+	// - *Label endpoint*: Not idempotent. Resubmission of a previously used UUID will generate a new label and may result in multiple labels bound to the same UUID.  If a previously used UUID is resubmitted, the reprint and cancellation requests will reference the most recent instance of the UUID.
+	//
+	// The UUID is included in the electronic manifest data (Shipping Services File, D5 record) transmitted to Postal systems.  This will be reflected in the Package Transaction Details Report through IV-MTR as the `External Reference ID`.
+	XIdempotencyKey *XIdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
+// PostLabelReprintByIdempotencyParams defines parameters for PostLabelReprintByIdempotency.
+type PostLabelReprintByIdempotencyParams struct {
+	// XPaymentAuthorizationToken Payment Authorization Token from the payments API Call.
+	XPaymentAuthorizationToken XPaymentAuthorizationToken `json:"X-Payment-Authorization-Token"`
+
+	// XIdempotencyKey A client-created, randomly generated UUID that uniquely identifies a label request. The value must be unique across all label requests for each customer (CRID) and serves as the idempotency key for downstream reprint and cancellation operations.
+	//
+	// **Usage**:
+	// - *Reprint requests*: Submitting the idempotency key to the reprint endpoint returns the original label image and metadata.
+	// - *Cancellation requests*: Submitting the idempotency key to the cancel endpoint cancels an unused label or initiates a refund.
+	// - *Label endpoint*: Not idempotent. Resubmission of a previously used UUID will generate a new label and may result in multiple labels bound to the same UUID.  If a previously used UUID is resubmitted, the reprint and cancellation requests will reference the most recent instance of the UUID.
+	//
+	// The UUID is included in the electronic manifest data (Shipping Services File, D5 record) transmitted to Postal systems.  This will be reflected in the Package Transaction Details Report through IV-MTR as the `External Reference ID`.
+	XIdempotencyKey *XIdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
+// PostLabelReprintByTrackingParams defines parameters for PostLabelReprintByTracking.
+type PostLabelReprintByTrackingParams struct {
+	// XPaymentAuthorizationToken Payment Authorization Token from the payments API Call.
+	XPaymentAuthorizationToken XPaymentAuthorizationToken `json:"X-Payment-Authorization-Token"`
+}
+
+// DeleteLabelByTrackingParams defines parameters for DeleteLabelByTracking.
+type DeleteLabelByTrackingParams struct {
+	// XPaymentAuthorizationToken Payment Authorization Token from the payments API Call.
+	XPaymentAuthorizationToken XPaymentAuthorizationToken `json:"X-Payment-Authorization-Token"`
+}
+
+// PatchLabelEditParams defines parameters for PatchLabelEdit.
+type PatchLabelEditParams struct {
+	// XPaymentAuthorizationToken Payment Authorization Token from the payments API Call.
+	XPaymentAuthorizationToken XPaymentAuthorizationToken `json:"X-Payment-Authorization-Token"`
+}
+
+// PostReturnLabelParams defines parameters for PostReturnLabel.
+type PostReturnLabelParams struct {
+	// XPaymentAuthorizationToken Payment Authorization Token from the payments API Call.
+	XPaymentAuthorizationToken XPaymentAuthorizationToken `json:"X-Payment-Authorization-Token"`
+
+	// XIdempotencyKey A client-created, randomly generated UUID that uniquely identifies a label request. The value must be unique across all label requests for each customer (CRID) and serves as the idempotency key for downstream reprint and cancellation operations.
+	//
+	// **Usage**:
+	// - *Reprint requests*: Submitting the idempotency key to the reprint endpoint returns the original label image and metadata.
+	// - *Cancellation requests*: Submitting the idempotency key to the cancel endpoint cancels an unused label or initiates a refund.
+	// - *Label endpoint*: Not idempotent. Resubmission of a previously used UUID will generate a new label and may result in multiple labels bound to the same UUID.  If a previously used UUID is resubmitted, the reprint and cancellation requests will reference the most recent instance of the UUID.
+	//
+	// The UUID is included in the electronic manifest data (Shipping Services File, D5 record) transmitted to Postal systems.  This will be reflected in the Package Transaction Details Report through IV-MTR as the `External Reference ID`.
+	XIdempotencyKey *XIdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
+// PostLabelBrandingJSONRequestBody defines body for PostLabelBranding for application/json ContentType.
+type PostLabelBrandingJSONRequestBody = LabelBrandingUploadRequest
+
+// PatchLabelBrandingJSONRequestBody defines body for PatchLabelBranding for application/json ContentType.
+type PatchLabelBrandingJSONRequestBody = BrandingPatchRequest
+
+// PostLabelIndiciaJSONRequestBody defines body for PostLabelIndicia for application/json ContentType.
+type PostLabelIndiciaJSONRequestBody = IndiciaRequest
+
+// PostIndiciaImbJSONRequestBody defines body for PostIndiciaImb for application/json ContentType.
+type PostIndiciaImbJSONRequestBody = IndiciaImbRequest
+
+// PostLabelJSONRequestBody defines body for PostLabel for application/json ContentType.
+type PostLabelJSONRequestBody = LabelRequest
+
+// PostLabelReprintByIdempotencyJSONRequestBody defines body for PostLabelReprintByIdempotency for application/json ContentType.
+type PostLabelReprintByIdempotencyJSONRequestBody = LabelReprintRequest
+
+// PostLabelReprintByTrackingJSONRequestBody defines body for PostLabelReprintByTracking for application/json ContentType.
+type PostLabelReprintByTrackingJSONRequestBody = LabelReprintRequest
+
+// PatchLabelEditJSONRequestBody defines body for PatchLabelEdit for application/json ContentType.
+type PatchLabelEditJSONRequestBody = PatchRequest
+
+// PostReturnLabelJSONRequestBody defines body for PostReturnLabel for application/json ContentType.
+type PostReturnLabelJSONRequestBody = ReturnLabelRequest
+
+// Getter for additional properties for Address. Returns the specified
 // element and whether it was found
-func (a LabelResponse) Get(fieldName string) (value interface{}, found bool) {
+func (a Address) Get(fieldName string) (value interface{}, found bool) {
 	if a.AdditionalProperties != nil {
 		value, found = a.AdditionalProperties[fieldName]
 	}
 	return
 }
 
-// Setter for additional properties for LabelResponse
-func (a *LabelResponse) Set(fieldName string, value interface{}) {
+// Setter for additional properties for Address
+func (a *Address) Set(fieldName string, value interface{}) {
 	if a.AdditionalProperties == nil {
 		a.AdditionalProperties = make(map[string]interface{})
 	}
 	a.AdditionalProperties[fieldName] = value
 }
 
-// Override default JSON handling for LabelResponse to handle AdditionalProperties
-func (a *LabelResponse) UnmarshalJSON(b []byte) error {
+// Override default JSON handling for Address to handle AdditionalProperties
+func (a *Address) UnmarshalJSON(b []byte) error {
 	object := make(map[string]json.RawMessage)
 	err := json.Unmarshal(b, &object)
 	if err != nil {
 		return err
 	}
 
-	if raw, found := object["image"]; found {
-		err = json.Unmarshal(raw, &a.Image)
+	if raw, found := object["cityAbbreviation"]; found {
+		err = json.Unmarshal(raw, &a.CityAbbreviation)
 		if err != nil {
-			return fmt.Errorf("error reading 'image': %w", err)
+			return fmt.Errorf("error reading 'cityAbbreviation': %w", err)
 		}
-		delete(object, "image")
+		delete(object, "cityAbbreviation")
+	}
+
+	if raw, found := object["secondaryAddress"]; found {
+		err = json.Unmarshal(raw, &a.SecondaryAddress)
+		if err != nil {
+			return fmt.Errorf("error reading 'secondaryAddress': %w", err)
+		}
+		delete(object, "secondaryAddress")
+	}
+
+	if raw, found := object["streetAddress"]; found {
+		err = json.Unmarshal(raw, &a.StreetAddress)
+		if err != nil {
+			return fmt.Errorf("error reading 'streetAddress': %w", err)
+		}
+		delete(object, "streetAddress")
+	}
+
+	if raw, found := object["streetAddressAbbreviation"]; found {
+		err = json.Unmarshal(raw, &a.StreetAddressAbbreviation)
+		if err != nil {
+			return fmt.Errorf("error reading 'streetAddressAbbreviation': %w", err)
+		}
+		delete(object, "streetAddressAbbreviation")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for Address to handle AdditionalProperties
+func (a Address) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.CityAbbreviation != nil {
+		object["cityAbbreviation"], err = json.Marshal(a.CityAbbreviation)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'cityAbbreviation': %w", err)
+		}
+	}
+
+	if a.SecondaryAddress != nil {
+		object["secondaryAddress"], err = json.Marshal(a.SecondaryAddress)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'secondaryAddress': %w", err)
+		}
+	}
+
+	if a.StreetAddress != nil {
+		object["streetAddress"], err = json.Marshal(a.StreetAddress)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'streetAddress': %w", err)
+		}
+	}
+
+	if a.StreetAddressAbbreviation != nil {
+		object["streetAddressAbbreviation"], err = json.Marshal(a.StreetAddressAbbreviation)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'streetAddressAbbreviation': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for Addressee. Returns the specified
+// element and whether it was found
+func (a Addressee) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for Addressee
+func (a *Addressee) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for Addressee to handle AdditionalProperties
+func (a *Addressee) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["firm"]; found {
+		err = json.Unmarshal(raw, &a.Firm)
+		if err != nil {
+			return fmt.Errorf("error reading 'firm': %w", err)
+		}
+		delete(object, "firm")
+	}
+
+	if raw, found := object["firstName"]; found {
+		err = json.Unmarshal(raw, &a.FirstName)
+		if err != nil {
+			return fmt.Errorf("error reading 'firstName': %w", err)
+		}
+		delete(object, "firstName")
+	}
+
+	if raw, found := object["lastName"]; found {
+		err = json.Unmarshal(raw, &a.LastName)
+		if err != nil {
+			return fmt.Errorf("error reading 'lastName': %w", err)
+		}
+		delete(object, "lastName")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for Addressee to handle AdditionalProperties
+func (a Addressee) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.Firm != nil {
+		object["firm"], err = json.Marshal(a.Firm)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'firm': %w", err)
+		}
+	}
+
+	if a.FirstName != nil {
+		object["firstName"], err = json.Marshal(a.FirstName)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'firstName': %w", err)
+		}
+	}
+
+	if a.LastName != nil {
+		object["lastName"], err = json.Marshal(a.LastName)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'lastName': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for BaseDomesticPackageDescription. Returns the specified
+// element and whether it was found
+func (a BaseDomesticPackageDescription) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for BaseDomesticPackageDescription
+func (a *BaseDomesticPackageDescription) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for BaseDomesticPackageDescription to handle AdditionalProperties
+func (a *BaseDomesticPackageDescription) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["carrierRelease"]; found {
+		err = json.Unmarshal(raw, &a.CarrierRelease)
+		if err != nil {
+			return fmt.Errorf("error reading 'carrierRelease': %w", err)
+		}
+		delete(object, "carrierRelease")
+	}
+
+	if raw, found := object["customerReference"]; found {
+		err = json.Unmarshal(raw, &a.CustomerReference)
+		if err != nil {
+			return fmt.Errorf("error reading 'customerReference': %w", err)
+		}
+		delete(object, "customerReference")
+	}
+
+	if raw, found := object["destinationEntryFacilityAddress"]; found {
+		err = json.Unmarshal(raw, &a.DestinationEntryFacilityAddress)
+		if err != nil {
+			return fmt.Errorf("error reading 'destinationEntryFacilityAddress': %w", err)
+		}
+		delete(object, "destinationEntryFacilityAddress")
+	}
+
+	if raw, found := object["destinationEntryFacilityType"]; found {
+		err = json.Unmarshal(raw, &a.DestinationEntryFacilityType)
+		if err != nil {
+			return fmt.Errorf("error reading 'destinationEntryFacilityType': %w", err)
+		}
+		delete(object, "destinationEntryFacilityType")
+	}
+
+	if raw, found := object["dimensionsUOM"]; found {
+		err = json.Unmarshal(raw, &a.DimensionsUOM)
+		if err != nil {
+			return fmt.Errorf("error reading 'dimensionsUOM': %w", err)
+		}
+		delete(object, "dimensionsUOM")
+	}
+
+	if raw, found := object["extraServices"]; found {
+		err = json.Unmarshal(raw, &a.ExtraServices)
+		if err != nil {
+			return fmt.Errorf("error reading 'extraServices': %w", err)
+		}
+		delete(object, "extraServices")
+	}
+
+	if raw, found := object["girth"]; found {
+		err = json.Unmarshal(raw, &a.Girth)
+		if err != nil {
+			return fmt.Errorf("error reading 'girth': %w", err)
+		}
+		delete(object, "girth")
+	}
+
+	if raw, found := object["hasNonstandardCharacteristics"]; found {
+		err = json.Unmarshal(raw, &a.HasNonstandardCharacteristics)
+		if err != nil {
+			return fmt.Errorf("error reading 'hasNonstandardCharacteristics': %w", err)
+		}
+		delete(object, "hasNonstandardCharacteristics")
+	}
+
+	if raw, found := object["height"]; found {
+		err = json.Unmarshal(raw, &a.Height)
+		if err != nil {
+			return fmt.Errorf("error reading 'height': %w", err)
+		}
+		delete(object, "height")
+	}
+
+	if raw, found := object["inductionZIPCode"]; found {
+		err = json.Unmarshal(raw, &a.InductionZIPCode)
+		if err != nil {
+			return fmt.Errorf("error reading 'inductionZIPCode': %w", err)
+		}
+		delete(object, "inductionZIPCode")
+	}
+
+	if raw, found := object["length"]; found {
+		err = json.Unmarshal(raw, &a.Length)
+		if err != nil {
+			return fmt.Errorf("error reading 'length': %w", err)
+		}
+		delete(object, "length")
+	}
+
+	if raw, found := object["logisticsManagerMID"]; found {
+		err = json.Unmarshal(raw, &a.LogisticsManagerMID)
+		if err != nil {
+			return fmt.Errorf("error reading 'logisticsManagerMID': %w", err)
+		}
+		delete(object, "logisticsManagerMID")
+	}
+
+	if raw, found := object["mailClass"]; found {
+		err = json.Unmarshal(raw, &a.MailClass)
+		if err != nil {
+			return fmt.Errorf("error reading 'mailClass': %w", err)
+		}
+		delete(object, "mailClass")
+	}
+
+	if raw, found := object["mailOwnerMID"]; found {
+		err = json.Unmarshal(raw, &a.MailOwnerMID)
+		if err != nil {
+			return fmt.Errorf("error reading 'mailOwnerMID': %w", err)
+		}
+		delete(object, "mailOwnerMID")
+	}
+
+	if raw, found := object["mailingDate"]; found {
+		err = json.Unmarshal(raw, &a.MailingDate)
+		if err != nil {
+			return fmt.Errorf("error reading 'mailingDate': %w", err)
+		}
+		delete(object, "mailingDate")
+	}
+
+	if raw, found := object["nonprofit"]; found {
+		err = json.Unmarshal(raw, &a.Nonprofit)
+		if err != nil {
+			return fmt.Errorf("error reading 'nonprofit': %w", err)
+		}
+		delete(object, "nonprofit")
+	}
+
+	if raw, found := object["packageOptions"]; found {
+		err = json.Unmarshal(raw, &a.PackageOptions)
+		if err != nil {
+			return fmt.Errorf("error reading 'packageOptions': %w", err)
+		}
+		delete(object, "packageOptions")
+	}
+
+	if raw, found := object["physicalSignatureRequired"]; found {
+		err = json.Unmarshal(raw, &a.PhysicalSignatureRequired)
+		if err != nil {
+			return fmt.Errorf("error reading 'physicalSignatureRequired': %w", err)
+		}
+		delete(object, "physicalSignatureRequired")
+	}
+
+	if raw, found := object["processingCategory"]; found {
+		err = json.Unmarshal(raw, &a.ProcessingCategory)
+		if err != nil {
+			return fmt.Errorf("error reading 'processingCategory': %w", err)
+		}
+		delete(object, "processingCategory")
+	}
+
+	if raw, found := object["serialNumberFormat"]; found {
+		err = json.Unmarshal(raw, &a.SerialNumberFormat)
+		if err != nil {
+			return fmt.Errorf("error reading 'serialNumberFormat': %w", err)
+		}
+		delete(object, "serialNumberFormat")
+	}
+
+	if raw, found := object["shipperVisibilityMethod"]; found {
+		err = json.Unmarshal(raw, &a.ShipperVisibilityMethod)
+		if err != nil {
+			return fmt.Errorf("error reading 'shipperVisibilityMethod': %w", err)
+		}
+		delete(object, "shipperVisibilityMethod")
+	}
+
+	if raw, found := object["weight"]; found {
+		err = json.Unmarshal(raw, &a.Weight)
+		if err != nil {
+			return fmt.Errorf("error reading 'weight': %w", err)
+		}
+		delete(object, "weight")
+	}
+
+	if raw, found := object["weightUOM"]; found {
+		err = json.Unmarshal(raw, &a.WeightUOM)
+		if err != nil {
+			return fmt.Errorf("error reading 'weightUOM': %w", err)
+		}
+		delete(object, "weightUOM")
+	}
+
+	if raw, found := object["width"]; found {
+		err = json.Unmarshal(raw, &a.Width)
+		if err != nil {
+			return fmt.Errorf("error reading 'width': %w", err)
+		}
+		delete(object, "width")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for BaseDomesticPackageDescription to handle AdditionalProperties
+func (a BaseDomesticPackageDescription) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.CarrierRelease != nil {
+		object["carrierRelease"], err = json.Marshal(a.CarrierRelease)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'carrierRelease': %w", err)
+		}
+	}
+
+	if a.CustomerReference != nil {
+		object["customerReference"], err = json.Marshal(a.CustomerReference)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'customerReference': %w", err)
+		}
+	}
+
+	if a.DestinationEntryFacilityAddress != nil {
+		object["destinationEntryFacilityAddress"], err = json.Marshal(a.DestinationEntryFacilityAddress)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'destinationEntryFacilityAddress': %w", err)
+		}
+	}
+
+	object["destinationEntryFacilityType"], err = json.Marshal(a.DestinationEntryFacilityType)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'destinationEntryFacilityType': %w", err)
+	}
+
+	if a.DimensionsUOM != nil {
+		object["dimensionsUOM"], err = json.Marshal(a.DimensionsUOM)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'dimensionsUOM': %w", err)
+		}
+	}
+
+	if a.ExtraServices != nil {
+		object["extraServices"], err = json.Marshal(a.ExtraServices)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'extraServices': %w", err)
+		}
+	}
+
+	if a.Girth != nil {
+		object["girth"], err = json.Marshal(a.Girth)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'girth': %w", err)
+		}
+	}
+
+	if a.HasNonstandardCharacteristics != nil {
+		object["hasNonstandardCharacteristics"], err = json.Marshal(a.HasNonstandardCharacteristics)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'hasNonstandardCharacteristics': %w", err)
+		}
+	}
+
+	object["height"], err = json.Marshal(a.Height)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'height': %w", err)
+	}
+
+	if a.InductionZIPCode != nil {
+		object["inductionZIPCode"], err = json.Marshal(a.InductionZIPCode)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'inductionZIPCode': %w", err)
+		}
+	}
+
+	object["length"], err = json.Marshal(a.Length)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'length': %w", err)
+	}
+
+	if a.LogisticsManagerMID != nil {
+		object["logisticsManagerMID"], err = json.Marshal(a.LogisticsManagerMID)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'logisticsManagerMID': %w", err)
+		}
+	}
+
+	object["mailClass"], err = json.Marshal(a.MailClass)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'mailClass': %w", err)
+	}
+
+	if a.MailOwnerMID != nil {
+		object["mailOwnerMID"], err = json.Marshal(a.MailOwnerMID)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'mailOwnerMID': %w", err)
+		}
+	}
+
+	object["mailingDate"], err = json.Marshal(a.MailingDate)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'mailingDate': %w", err)
+	}
+
+	if a.Nonprofit != nil {
+		object["nonprofit"], err = json.Marshal(a.Nonprofit)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'nonprofit': %w", err)
+		}
+	}
+
+	if a.PackageOptions != nil {
+		object["packageOptions"], err = json.Marshal(a.PackageOptions)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'packageOptions': %w", err)
+		}
+	}
+
+	if a.PhysicalSignatureRequired != nil {
+		object["physicalSignatureRequired"], err = json.Marshal(a.PhysicalSignatureRequired)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'physicalSignatureRequired': %w", err)
+		}
+	}
+
+	object["processingCategory"], err = json.Marshal(a.ProcessingCategory)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'processingCategory': %w", err)
+	}
+
+	if a.SerialNumberFormat != nil {
+		object["serialNumberFormat"], err = json.Marshal(a.SerialNumberFormat)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'serialNumberFormat': %w", err)
+		}
+	}
+
+	if a.ShipperVisibilityMethod != nil {
+		object["shipperVisibilityMethod"], err = json.Marshal(a.ShipperVisibilityMethod)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'shipperVisibilityMethod': %w", err)
+		}
+	}
+
+	object["weight"], err = json.Marshal(a.Weight)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'weight': %w", err)
+	}
+
+	if a.WeightUOM != nil {
+		object["weightUOM"], err = json.Marshal(a.WeightUOM)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'weightUOM': %w", err)
+		}
+	}
+
+	object["width"], err = json.Marshal(a.Width)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'width': %w", err)
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for BaseDomesticPackageDescription_PackageOptions. Returns the specified
+// element and whether it was found
+func (a BaseDomesticPackageDescription_PackageOptions) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for BaseDomesticPackageDescription_PackageOptions
+func (a *BaseDomesticPackageDescription_PackageOptions) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for BaseDomesticPackageDescription_PackageOptions to handle AdditionalProperties
+func (a *BaseDomesticPackageDescription_PackageOptions) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["ancillaryServiceEndorsements"]; found {
+		err = json.Unmarshal(raw, &a.AncillaryServiceEndorsements)
+		if err != nil {
+			return fmt.Errorf("error reading 'ancillaryServiceEndorsements': %w", err)
+		}
+		delete(object, "ancillaryServiceEndorsements")
+	}
+
+	if raw, found := object["containers"]; found {
+		err = json.Unmarshal(raw, &a.Containers)
+		if err != nil {
+			return fmt.Errorf("error reading 'containers': %w", err)
+		}
+		delete(object, "containers")
+	}
+
+	if raw, found := object["contentType"]; found {
+		err = json.Unmarshal(raw, &a.ContentType)
+		if err != nil {
+			return fmt.Errorf("error reading 'contentType': %w", err)
+		}
+		delete(object, "contentType")
+	}
+
+	if raw, found := object["generateGXEvent"]; found {
+		err = json.Unmarshal(raw, &a.GenerateGXEvent)
+		if err != nil {
+			return fmt.Errorf("error reading 'generateGXEvent': %w", err)
+		}
+		delete(object, "generateGXEvent")
+	}
+
+	if raw, found := object["immediateManifest"]; found {
+		err = json.Unmarshal(raw, &a.ImmediateManifest)
+		if err != nil {
+			return fmt.Errorf("error reading 'immediateManifest': %w", err)
+		}
+		delete(object, "immediateManifest")
+	}
+
+	if raw, found := object["nonDeliveryOption"]; found {
+		err = json.Unmarshal(raw, &a.NonDeliveryOption)
+		if err != nil {
+			return fmt.Errorf("error reading 'nonDeliveryOption': %w", err)
+		}
+		delete(object, "nonDeliveryOption")
+	}
+
+	if raw, found := object["omas"]; found {
+		err = json.Unmarshal(raw, &a.Omas)
+		if err != nil {
+			return fmt.Errorf("error reading 'omas': %w", err)
+		}
+		delete(object, "omas")
+	}
+
+	if raw, found := object["originalPackage"]; found {
+		err = json.Unmarshal(raw, &a.OriginalPackage)
+		if err != nil {
+			return fmt.Errorf("error reading 'originalPackage': %w", err)
+		}
+		delete(object, "originalPackage")
+	}
+
+	if raw, found := object["packageValue"]; found {
+		err = json.Unmarshal(raw, &a.PackageValue)
+		if err != nil {
+			return fmt.Errorf("error reading 'packageValue': %w", err)
+		}
+		delete(object, "packageValue")
+	}
+
+	if raw, found := object["redirectAddress"]; found {
+		err = json.Unmarshal(raw, &a.RedirectAddress)
+		if err != nil {
+			return fmt.Errorf("error reading 'redirectAddress': %w", err)
+		}
+		delete(object, "redirectAddress")
+	}
+
+	if raw, found := object["returnReceiptTracking"]; found {
+		err = json.Unmarshal(raw, &a.ReturnReceiptTracking)
+		if err != nil {
+			return fmt.Errorf("error reading 'returnReceiptTracking': %w", err)
+		}
+		delete(object, "returnReceiptTracking")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for BaseDomesticPackageDescription_PackageOptions to handle AdditionalProperties
+func (a BaseDomesticPackageDescription_PackageOptions) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.AncillaryServiceEndorsements != nil {
+		object["ancillaryServiceEndorsements"], err = json.Marshal(a.AncillaryServiceEndorsements)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'ancillaryServiceEndorsements': %w", err)
+		}
+	}
+
+	if a.Containers != nil {
+		object["containers"], err = json.Marshal(a.Containers)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'containers': %w", err)
+		}
+	}
+
+	if a.ContentType != nil {
+		object["contentType"], err = json.Marshal(a.ContentType)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'contentType': %w", err)
+		}
+	}
+
+	if a.GenerateGXEvent != nil {
+		object["generateGXEvent"], err = json.Marshal(a.GenerateGXEvent)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'generateGXEvent': %w", err)
+		}
+	}
+
+	if a.ImmediateManifest != nil {
+		object["immediateManifest"], err = json.Marshal(a.ImmediateManifest)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'immediateManifest': %w", err)
+		}
+	}
+
+	if a.NonDeliveryOption != nil {
+		object["nonDeliveryOption"], err = json.Marshal(a.NonDeliveryOption)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'nonDeliveryOption': %w", err)
+		}
+	}
+
+	if a.Omas != nil {
+		object["omas"], err = json.Marshal(a.Omas)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'omas': %w", err)
+		}
+	}
+
+	if a.OriginalPackage != nil {
+		object["originalPackage"], err = json.Marshal(a.OriginalPackage)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'originalPackage': %w", err)
+		}
+	}
+
+	if a.PackageValue != nil {
+		object["packageValue"], err = json.Marshal(a.PackageValue)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'packageValue': %w", err)
+		}
+	}
+
+	if a.RedirectAddress != nil {
+		object["redirectAddress"], err = json.Marshal(a.RedirectAddress)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'redirectAddress': %w", err)
+		}
+	}
+
+	if a.ReturnReceiptTracking != nil {
+		object["returnReceiptTracking"], err = json.Marshal(a.ReturnReceiptTracking)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'returnReceiptTracking': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for BaseReturnsPackageDescription. Returns the specified
+// element and whether it was found
+func (a BaseReturnsPackageDescription) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for BaseReturnsPackageDescription
+func (a *BaseReturnsPackageDescription) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for BaseReturnsPackageDescription to handle AdditionalProperties
+func (a *BaseReturnsPackageDescription) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["customerReference"]; found {
+		err = json.Unmarshal(raw, &a.CustomerReference)
+		if err != nil {
+			return fmt.Errorf("error reading 'customerReference': %w", err)
+		}
+		delete(object, "customerReference")
+	}
+
+	if raw, found := object["destinationEntryFacilityAddress"]; found {
+		err = json.Unmarshal(raw, &a.DestinationEntryFacilityAddress)
+		if err != nil {
+			return fmt.Errorf("error reading 'destinationEntryFacilityAddress': %w", err)
+		}
+		delete(object, "destinationEntryFacilityAddress")
+	}
+
+	if raw, found := object["dimensionsUOM"]; found {
+		err = json.Unmarshal(raw, &a.DimensionsUOM)
+		if err != nil {
+			return fmt.Errorf("error reading 'dimensionsUOM': %w", err)
+		}
+		delete(object, "dimensionsUOM")
+	}
+
+	if raw, found := object["extraServices"]; found {
+		err = json.Unmarshal(raw, &a.ExtraServices)
+		if err != nil {
+			return fmt.Errorf("error reading 'extraServices': %w", err)
+		}
+		delete(object, "extraServices")
+	}
+
+	if raw, found := object["girth"]; found {
+		err = json.Unmarshal(raw, &a.Girth)
+		if err != nil {
+			return fmt.Errorf("error reading 'girth': %w", err)
+		}
+		delete(object, "girth")
+	}
+
+	if raw, found := object["hasNonstandardCharacteristics"]; found {
+		err = json.Unmarshal(raw, &a.HasNonstandardCharacteristics)
+		if err != nil {
+			return fmt.Errorf("error reading 'hasNonstandardCharacteristics': %w", err)
+		}
+		delete(object, "hasNonstandardCharacteristics")
+	}
+
+	if raw, found := object["height"]; found {
+		err = json.Unmarshal(raw, &a.Height)
+		if err != nil {
+			return fmt.Errorf("error reading 'height': %w", err)
+		}
+		delete(object, "height")
+	}
+
+	if raw, found := object["inductionZIPCode"]; found {
+		err = json.Unmarshal(raw, &a.InductionZIPCode)
+		if err != nil {
+			return fmt.Errorf("error reading 'inductionZIPCode': %w", err)
+		}
+		delete(object, "inductionZIPCode")
+	}
+
+	if raw, found := object["length"]; found {
+		err = json.Unmarshal(raw, &a.Length)
+		if err != nil {
+			return fmt.Errorf("error reading 'length': %w", err)
+		}
+		delete(object, "length")
+	}
+
+	if raw, found := object["mailClass"]; found {
+		err = json.Unmarshal(raw, &a.MailClass)
+		if err != nil {
+			return fmt.Errorf("error reading 'mailClass': %w", err)
+		}
+		delete(object, "mailClass")
+	}
+
+	if raw, found := object["packageOptions"]; found {
+		err = json.Unmarshal(raw, &a.PackageOptions)
+		if err != nil {
+			return fmt.Errorf("error reading 'packageOptions': %w", err)
+		}
+		delete(object, "packageOptions")
+	}
+
+	if raw, found := object["processingCategory"]; found {
+		err = json.Unmarshal(raw, &a.ProcessingCategory)
+		if err != nil {
+			return fmt.Errorf("error reading 'processingCategory': %w", err)
+		}
+		delete(object, "processingCategory")
+	}
+
+	if raw, found := object["shipperVisibilityMethod"]; found {
+		err = json.Unmarshal(raw, &a.ShipperVisibilityMethod)
+		if err != nil {
+			return fmt.Errorf("error reading 'shipperVisibilityMethod': %w", err)
+		}
+		delete(object, "shipperVisibilityMethod")
+	}
+
+	if raw, found := object["weight"]; found {
+		err = json.Unmarshal(raw, &a.Weight)
+		if err != nil {
+			return fmt.Errorf("error reading 'weight': %w", err)
+		}
+		delete(object, "weight")
+	}
+
+	if raw, found := object["weightUOM"]; found {
+		err = json.Unmarshal(raw, &a.WeightUOM)
+		if err != nil {
+			return fmt.Errorf("error reading 'weightUOM': %w", err)
+		}
+		delete(object, "weightUOM")
+	}
+
+	if raw, found := object["width"]; found {
+		err = json.Unmarshal(raw, &a.Width)
+		if err != nil {
+			return fmt.Errorf("error reading 'width': %w", err)
+		}
+		delete(object, "width")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for BaseReturnsPackageDescription to handle AdditionalProperties
+func (a BaseReturnsPackageDescription) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.CustomerReference != nil {
+		object["customerReference"], err = json.Marshal(a.CustomerReference)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'customerReference': %w", err)
+		}
+	}
+
+	if a.DestinationEntryFacilityAddress != nil {
+		object["destinationEntryFacilityAddress"], err = json.Marshal(a.DestinationEntryFacilityAddress)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'destinationEntryFacilityAddress': %w", err)
+		}
+	}
+
+	if a.DimensionsUOM != nil {
+		object["dimensionsUOM"], err = json.Marshal(a.DimensionsUOM)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'dimensionsUOM': %w", err)
+		}
+	}
+
+	if a.ExtraServices != nil {
+		object["extraServices"], err = json.Marshal(a.ExtraServices)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'extraServices': %w", err)
+		}
+	}
+
+	if a.Girth != nil {
+		object["girth"], err = json.Marshal(a.Girth)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'girth': %w", err)
+		}
+	}
+
+	if a.HasNonstandardCharacteristics != nil {
+		object["hasNonstandardCharacteristics"], err = json.Marshal(a.HasNonstandardCharacteristics)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'hasNonstandardCharacteristics': %w", err)
+		}
+	}
+
+	object["height"], err = json.Marshal(a.Height)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'height': %w", err)
+	}
+
+	if a.InductionZIPCode != nil {
+		object["inductionZIPCode"], err = json.Marshal(a.InductionZIPCode)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'inductionZIPCode': %w", err)
+		}
+	}
+
+	object["length"], err = json.Marshal(a.Length)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'length': %w", err)
+	}
+
+	object["mailClass"], err = json.Marshal(a.MailClass)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'mailClass': %w", err)
+	}
+
+	if a.PackageOptions != nil {
+		object["packageOptions"], err = json.Marshal(a.PackageOptions)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'packageOptions': %w", err)
+		}
+	}
+
+	object["processingCategory"], err = json.Marshal(a.ProcessingCategory)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'processingCategory': %w", err)
+	}
+
+	if a.ShipperVisibilityMethod != nil {
+		object["shipperVisibilityMethod"], err = json.Marshal(a.ShipperVisibilityMethod)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'shipperVisibilityMethod': %w", err)
+		}
+	}
+
+	object["weight"], err = json.Marshal(a.Weight)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'weight': %w", err)
+	}
+
+	if a.WeightUOM != nil {
+		object["weightUOM"], err = json.Marshal(a.WeightUOM)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'weightUOM': %w", err)
+		}
+	}
+
+	object["width"], err = json.Marshal(a.Width)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'width': %w", err)
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for Commitment. Returns the specified
+// element and whether it was found
+func (a Commitment) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for Commitment
+func (a *Commitment) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for Commitment to handle AdditionalProperties
+func (a *Commitment) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["expectedDeliveryDate"]; found {
+		err = json.Unmarshal(raw, &a.ExpectedDeliveryDate)
+		if err != nil {
+			return fmt.Errorf("error reading 'expectedDeliveryDate': %w", err)
+		}
+		delete(object, "expectedDeliveryDate")
+	}
+
+	if raw, found := object["isPriorityMailNextDay"]; found {
+		err = json.Unmarshal(raw, &a.IsPriorityMailNextDay)
+		if err != nil {
+			return fmt.Errorf("error reading 'isPriorityMailNextDay': %w", err)
+		}
+		delete(object, "isPriorityMailNextDay")
+	}
+
+	if raw, found := object["name"]; found {
+		err = json.Unmarshal(raw, &a.Name)
+		if err != nil {
+			return fmt.Errorf("error reading 'name': %w", err)
+		}
+		delete(object, "name")
+	}
+
+	if raw, found := object["scheduleDeliveryDate"]; found {
+		err = json.Unmarshal(raw, &a.ScheduleDeliveryDate)
+		if err != nil {
+			return fmt.Errorf("error reading 'scheduleDeliveryDate': %w", err)
+		}
+		delete(object, "scheduleDeliveryDate")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for Commitment to handle AdditionalProperties
+func (a Commitment) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.ExpectedDeliveryDate != nil {
+		object["expectedDeliveryDate"], err = json.Marshal(a.ExpectedDeliveryDate)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'expectedDeliveryDate': %w", err)
+		}
+	}
+
+	if a.IsPriorityMailNextDay != nil {
+		object["isPriorityMailNextDay"], err = json.Marshal(a.IsPriorityMailNextDay)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'isPriorityMailNextDay': %w", err)
+		}
+	}
+
+	if a.Name != nil {
+		object["name"], err = json.Marshal(a.Name)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'name': %w", err)
+		}
+	}
+
+	if a.ScheduleDeliveryDate != nil {
+		object["scheduleDeliveryDate"], err = json.Marshal(a.ScheduleDeliveryDate)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'scheduleDeliveryDate': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for CustomerReference. Returns the specified
+// element and whether it was found
+func (a CustomerReference) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for CustomerReference
+func (a *CustomerReference) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for CustomerReference to handle AdditionalProperties
+func (a *CustomerReference) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["referenceNumber"]; found {
+		err = json.Unmarshal(raw, &a.ReferenceNumber)
+		if err != nil {
+			return fmt.Errorf("error reading 'referenceNumber': %w", err)
+		}
+		delete(object, "referenceNumber")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for CustomerReference to handle AdditionalProperties
+func (a CustomerReference) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.ReferenceNumber != nil {
+		object["referenceNumber"], err = json.Marshal(a.ReferenceNumber)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'referenceNumber': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for CustomsForm. Returns the specified
+// element and whether it was found
+func (a CustomsForm) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for CustomsForm
+func (a *CustomsForm) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for CustomsForm to handle AdditionalProperties
+func (a *CustomsForm) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["AESITN"]; found {
+		err = json.Unmarshal(raw, &a.AESITN)
+		if err != nil {
+			return fmt.Errorf("error reading 'AESITN': %w", err)
+		}
+		delete(object, "AESITN")
+	}
+
+	if raw, found := object["certificateNumber"]; found {
+		err = json.Unmarshal(raw, &a.CertificateNumber)
+		if err != nil {
+			return fmt.Errorf("error reading 'certificateNumber': %w", err)
+		}
+		delete(object, "certificateNumber")
+	}
+
+	if raw, found := object["contentComments"]; found {
+		err = json.Unmarshal(raw, &a.ContentComments)
+		if err != nil {
+			return fmt.Errorf("error reading 'contentComments': %w", err)
+		}
+		delete(object, "contentComments")
+	}
+
+	if raw, found := object["invoiceNumber"]; found {
+		err = json.Unmarshal(raw, &a.InvoiceNumber)
+		if err != nil {
+			return fmt.Errorf("error reading 'invoiceNumber': %w", err)
+		}
+		delete(object, "invoiceNumber")
+	}
+
+	if raw, found := object["licenseNumber"]; found {
+		err = json.Unmarshal(raw, &a.LicenseNumber)
+		if err != nil {
+			return fmt.Errorf("error reading 'licenseNumber': %w", err)
+		}
+		delete(object, "licenseNumber")
+	}
+
+	if raw, found := object["restrictionComments"]; found {
+		err = json.Unmarshal(raw, &a.RestrictionComments)
+		if err != nil {
+			return fmt.Errorf("error reading 'restrictionComments': %w", err)
+		}
+		delete(object, "restrictionComments")
+	}
+
+	if raw, found := object["restrictionType"]; found {
+		err = json.Unmarshal(raw, &a.RestrictionType)
+		if err != nil {
+			return fmt.Errorf("error reading 'restrictionType': %w", err)
+		}
+		delete(object, "restrictionType")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for CustomsForm to handle AdditionalProperties
+func (a CustomsForm) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.AESITN != nil {
+		object["AESITN"], err = json.Marshal(a.AESITN)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'AESITN': %w", err)
+		}
+	}
+
+	if a.CertificateNumber != nil {
+		object["certificateNumber"], err = json.Marshal(a.CertificateNumber)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'certificateNumber': %w", err)
+		}
+	}
+
+	if a.ContentComments != nil {
+		object["contentComments"], err = json.Marshal(a.ContentComments)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'contentComments': %w", err)
+		}
+	}
+
+	if a.InvoiceNumber != nil {
+		object["invoiceNumber"], err = json.Marshal(a.InvoiceNumber)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'invoiceNumber': %w", err)
+		}
+	}
+
+	if a.LicenseNumber != nil {
+		object["licenseNumber"], err = json.Marshal(a.LicenseNumber)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'licenseNumber': %w", err)
+		}
+	}
+
+	if a.RestrictionComments != nil {
+		object["restrictionComments"], err = json.Marshal(a.RestrictionComments)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'restrictionComments': %w", err)
+		}
+	}
+
+	if a.RestrictionType != nil {
+		object["restrictionType"], err = json.Marshal(a.RestrictionType)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'restrictionType': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for DomesticAddress. Returns the specified
+// element and whether it was found
+func (a DomesticAddress) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for DomesticAddress
+func (a *DomesticAddress) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for DomesticAddress to handle AdditionalProperties
+func (a *DomesticAddress) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["ZIPCode"]; found {
+		err = json.Unmarshal(raw, &a.ZIPCode)
+		if err != nil {
+			return fmt.Errorf("error reading 'ZIPCode': %w", err)
+		}
+		delete(object, "ZIPCode")
+	}
+
+	if raw, found := object["ZIPPlus4"]; found {
+		err = json.Unmarshal(raw, &a.ZIPPlus4)
+		if err != nil {
+			return fmt.Errorf("error reading 'ZIPPlus4': %w", err)
+		}
+		delete(object, "ZIPPlus4")
+	}
+
+	if raw, found := object["city"]; found {
+		err = json.Unmarshal(raw, &a.City)
+		if err != nil {
+			return fmt.Errorf("error reading 'city': %w", err)
+		}
+		delete(object, "city")
+	}
+
+	if raw, found := object["cityAbbreviation"]; found {
+		err = json.Unmarshal(raw, &a.CityAbbreviation)
+		if err != nil {
+			return fmt.Errorf("error reading 'cityAbbreviation': %w", err)
+		}
+		delete(object, "cityAbbreviation")
+	}
+
+	if raw, found := object["secondaryAddress"]; found {
+		err = json.Unmarshal(raw, &a.SecondaryAddress)
+		if err != nil {
+			return fmt.Errorf("error reading 'secondaryAddress': %w", err)
+		}
+		delete(object, "secondaryAddress")
+	}
+
+	if raw, found := object["state"]; found {
+		err = json.Unmarshal(raw, &a.State)
+		if err != nil {
+			return fmt.Errorf("error reading 'state': %w", err)
+		}
+		delete(object, "state")
+	}
+
+	if raw, found := object["streetAddress"]; found {
+		err = json.Unmarshal(raw, &a.StreetAddress)
+		if err != nil {
+			return fmt.Errorf("error reading 'streetAddress': %w", err)
+		}
+		delete(object, "streetAddress")
+	}
+
+	if raw, found := object["streetAddressAbbreviation"]; found {
+		err = json.Unmarshal(raw, &a.StreetAddressAbbreviation)
+		if err != nil {
+			return fmt.Errorf("error reading 'streetAddressAbbreviation': %w", err)
+		}
+		delete(object, "streetAddressAbbreviation")
+	}
+
+	if raw, found := object["urbanization"]; found {
+		err = json.Unmarshal(raw, &a.Urbanization)
+		if err != nil {
+			return fmt.Errorf("error reading 'urbanization': %w", err)
+		}
+		delete(object, "urbanization")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for DomesticAddress to handle AdditionalProperties
+func (a DomesticAddress) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.ZIPCode != nil {
+		object["ZIPCode"], err = json.Marshal(a.ZIPCode)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'ZIPCode': %w", err)
+		}
+	}
+
+	if a.ZIPPlus4 != nil {
+		object["ZIPPlus4"], err = json.Marshal(a.ZIPPlus4)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'ZIPPlus4': %w", err)
+		}
+	}
+
+	if a.City != nil {
+		object["city"], err = json.Marshal(a.City)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'city': %w", err)
+		}
+	}
+
+	if a.CityAbbreviation != nil {
+		object["cityAbbreviation"], err = json.Marshal(a.CityAbbreviation)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'cityAbbreviation': %w", err)
+		}
+	}
+
+	if a.SecondaryAddress != nil {
+		object["secondaryAddress"], err = json.Marshal(a.SecondaryAddress)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'secondaryAddress': %w", err)
+		}
+	}
+
+	if a.State != nil {
+		object["state"], err = json.Marshal(a.State)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'state': %w", err)
+		}
+	}
+
+	if a.StreetAddress != nil {
+		object["streetAddress"], err = json.Marshal(a.StreetAddress)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'streetAddress': %w", err)
+		}
+	}
+
+	if a.StreetAddressAbbreviation != nil {
+		object["streetAddressAbbreviation"], err = json.Marshal(a.StreetAddressAbbreviation)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'streetAddressAbbreviation': %w", err)
+		}
+	}
+
+	if a.Urbanization != nil {
+		object["urbanization"], err = json.Marshal(a.Urbanization)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'urbanization': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for DomesticCustomerReference. Returns the specified
+// element and whether it was found
+func (a DomesticCustomerReference) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for DomesticCustomerReference
+func (a *DomesticCustomerReference) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for DomesticCustomerReference to handle AdditionalProperties
+func (a *DomesticCustomerReference) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["printReferenceNumber"]; found {
+		err = json.Unmarshal(raw, &a.PrintReferenceNumber)
+		if err != nil {
+			return fmt.Errorf("error reading 'printReferenceNumber': %w", err)
+		}
+		delete(object, "printReferenceNumber")
+	}
+
+	if raw, found := object["referenceNumber"]; found {
+		err = json.Unmarshal(raw, &a.ReferenceNumber)
+		if err != nil {
+			return fmt.Errorf("error reading 'referenceNumber': %w", err)
+		}
+		delete(object, "referenceNumber")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for DomesticCustomerReference to handle AdditionalProperties
+func (a DomesticCustomerReference) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.PrintReferenceNumber != nil {
+		object["printReferenceNumber"], err = json.Marshal(a.PrintReferenceNumber)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'printReferenceNumber': %w", err)
+		}
+	}
+
+	if a.ReferenceNumber != nil {
+		object["referenceNumber"], err = json.Marshal(a.ReferenceNumber)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'referenceNumber': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for DomesticCustomsForm. Returns the specified
+// element and whether it was found
+func (a DomesticCustomsForm) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for DomesticCustomsForm
+func (a *DomesticCustomsForm) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for DomesticCustomsForm to handle AdditionalProperties
+func (a *DomesticCustomsForm) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["AESITN"]; found {
+		err = json.Unmarshal(raw, &a.AESITN)
+		if err != nil {
+			return fmt.Errorf("error reading 'AESITN': %w", err)
+		}
+		delete(object, "AESITN")
+	}
+
+	if raw, found := object["certificateNumber"]; found {
+		err = json.Unmarshal(raw, &a.CertificateNumber)
+		if err != nil {
+			return fmt.Errorf("error reading 'certificateNumber': %w", err)
+		}
+		delete(object, "certificateNumber")
+	}
+
+	if raw, found := object["contentComments"]; found {
+		err = json.Unmarshal(raw, &a.ContentComments)
+		if err != nil {
+			return fmt.Errorf("error reading 'contentComments': %w", err)
+		}
+		delete(object, "contentComments")
+	}
+
+	if raw, found := object["contents"]; found {
+		err = json.Unmarshal(raw, &a.Contents)
+		if err != nil {
+			return fmt.Errorf("error reading 'contents': %w", err)
+		}
+		delete(object, "contents")
+	}
+
+	if raw, found := object["customsContentType"]; found {
+		err = json.Unmarshal(raw, &a.CustomsContentType)
+		if err != nil {
+			return fmt.Errorf("error reading 'customsContentType': %w", err)
+		}
+		delete(object, "customsContentType")
+	}
+
+	if raw, found := object["exportersContact"]; found {
+		err = json.Unmarshal(raw, &a.ExportersContact)
+		if err != nil {
+			return fmt.Errorf("error reading 'exportersContact': %w", err)
+		}
+		delete(object, "exportersContact")
+	}
+
+	if raw, found := object["exportersReference"]; found {
+		err = json.Unmarshal(raw, &a.ExportersReference)
+		if err != nil {
+			return fmt.Errorf("error reading 'exportersReference': %w", err)
+		}
+		delete(object, "exportersReference")
+	}
+
+	if raw, found := object["importersContact"]; found {
+		err = json.Unmarshal(raw, &a.ImportersContact)
+		if err != nil {
+			return fmt.Errorf("error reading 'importersContact': %w", err)
+		}
+		delete(object, "importersContact")
+	}
+
+	if raw, found := object["importersReference"]; found {
+		err = json.Unmarshal(raw, &a.ImportersReference)
+		if err != nil {
+			return fmt.Errorf("error reading 'importersReference': %w", err)
+		}
+		delete(object, "importersReference")
+	}
+
+	if raw, found := object["invoiceNumber"]; found {
+		err = json.Unmarshal(raw, &a.InvoiceNumber)
+		if err != nil {
+			return fmt.Errorf("error reading 'invoiceNumber': %w", err)
+		}
+		delete(object, "invoiceNumber")
+	}
+
+	if raw, found := object["licenseNumber"]; found {
+		err = json.Unmarshal(raw, &a.LicenseNumber)
+		if err != nil {
+			return fmt.Errorf("error reading 'licenseNumber': %w", err)
+		}
+		delete(object, "licenseNumber")
+	}
+
+	if raw, found := object["restrictionComments"]; found {
+		err = json.Unmarshal(raw, &a.RestrictionComments)
+		if err != nil {
+			return fmt.Errorf("error reading 'restrictionComments': %w", err)
+		}
+		delete(object, "restrictionComments")
+	}
+
+	if raw, found := object["restrictionType"]; found {
+		err = json.Unmarshal(raw, &a.RestrictionType)
+		if err != nil {
+			return fmt.Errorf("error reading 'restrictionType': %w", err)
+		}
+		delete(object, "restrictionType")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for DomesticCustomsForm to handle AdditionalProperties
+func (a DomesticCustomsForm) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.AESITN != nil {
+		object["AESITN"], err = json.Marshal(a.AESITN)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'AESITN': %w", err)
+		}
+	}
+
+	if a.CertificateNumber != nil {
+		object["certificateNumber"], err = json.Marshal(a.CertificateNumber)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'certificateNumber': %w", err)
+		}
+	}
+
+	if a.ContentComments != nil {
+		object["contentComments"], err = json.Marshal(a.ContentComments)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'contentComments': %w", err)
+		}
+	}
+
+	object["contents"], err = json.Marshal(a.Contents)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'contents': %w", err)
+	}
+
+	object["customsContentType"], err = json.Marshal(a.CustomsContentType)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'customsContentType': %w", err)
+	}
+
+	if a.ExportersContact != nil {
+		object["exportersContact"], err = json.Marshal(a.ExportersContact)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'exportersContact': %w", err)
+		}
+	}
+
+	if a.ExportersReference != nil {
+		object["exportersReference"], err = json.Marshal(a.ExportersReference)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'exportersReference': %w", err)
+		}
+	}
+
+	if a.ImportersContact != nil {
+		object["importersContact"], err = json.Marshal(a.ImportersContact)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'importersContact': %w", err)
+		}
+	}
+
+	if a.ImportersReference != nil {
+		object["importersReference"], err = json.Marshal(a.ImportersReference)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'importersReference': %w", err)
+		}
+	}
+
+	if a.InvoiceNumber != nil {
+		object["invoiceNumber"], err = json.Marshal(a.InvoiceNumber)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'invoiceNumber': %w", err)
+		}
+	}
+
+	if a.LicenseNumber != nil {
+		object["licenseNumber"], err = json.Marshal(a.LicenseNumber)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'licenseNumber': %w", err)
+		}
+	}
+
+	if a.RestrictionComments != nil {
+		object["restrictionComments"], err = json.Marshal(a.RestrictionComments)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'restrictionComments': %w", err)
+		}
+	}
+
+	if a.RestrictionType != nil {
+		object["restrictionType"], err = json.Marshal(a.RestrictionType)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'restrictionType': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for DomesticLabelAddress. Returns the specified
+// element and whether it was found
+func (a DomesticLabelAddress) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for DomesticLabelAddress
+func (a *DomesticLabelAddress) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for DomesticLabelAddress to handle AdditionalProperties
+func (a *DomesticLabelAddress) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["ZIPCode"]; found {
+		err = json.Unmarshal(raw, &a.ZIPCode)
+		if err != nil {
+			return fmt.Errorf("error reading 'ZIPCode': %w", err)
+		}
+		delete(object, "ZIPCode")
+	}
+
+	if raw, found := object["ZIPPlus4"]; found {
+		err = json.Unmarshal(raw, &a.ZIPPlus4)
+		if err != nil {
+			return fmt.Errorf("error reading 'ZIPPlus4': %w", err)
+		}
+		delete(object, "ZIPPlus4")
+	}
+
+	if raw, found := object["city"]; found {
+		err = json.Unmarshal(raw, &a.City)
+		if err != nil {
+			return fmt.Errorf("error reading 'city': %w", err)
+		}
+		delete(object, "city")
+	}
+
+	if raw, found := object["cityAbbreviation"]; found {
+		err = json.Unmarshal(raw, &a.CityAbbreviation)
+		if err != nil {
+			return fmt.Errorf("error reading 'cityAbbreviation': %w", err)
+		}
+		delete(object, "cityAbbreviation")
+	}
+
+	if raw, found := object["email"]; found {
+		err = json.Unmarshal(raw, &a.Email)
+		if err != nil {
+			return fmt.Errorf("error reading 'email': %w", err)
+		}
+		delete(object, "email")
+	}
+
+	if raw, found := object["firm"]; found {
+		err = json.Unmarshal(raw, &a.Firm)
+		if err != nil {
+			return fmt.Errorf("error reading 'firm': %w", err)
+		}
+		delete(object, "firm")
+	}
+
+	if raw, found := object["firstName"]; found {
+		err = json.Unmarshal(raw, &a.FirstName)
+		if err != nil {
+			return fmt.Errorf("error reading 'firstName': %w", err)
+		}
+		delete(object, "firstName")
+	}
+
+	if raw, found := object["ignoreBadAddress"]; found {
+		err = json.Unmarshal(raw, &a.IgnoreBadAddress)
+		if err != nil {
+			return fmt.Errorf("error reading 'ignoreBadAddress': %w", err)
+		}
+		delete(object, "ignoreBadAddress")
+	}
+
+	if raw, found := object["lastName"]; found {
+		err = json.Unmarshal(raw, &a.LastName)
+		if err != nil {
+			return fmt.Errorf("error reading 'lastName': %w", err)
+		}
+		delete(object, "lastName")
+	}
+
+	if raw, found := object["phone"]; found {
+		err = json.Unmarshal(raw, &a.Phone)
+		if err != nil {
+			return fmt.Errorf("error reading 'phone': %w", err)
+		}
+		delete(object, "phone")
+	}
+
+	if raw, found := object["secondaryAddress"]; found {
+		err = json.Unmarshal(raw, &a.SecondaryAddress)
+		if err != nil {
+			return fmt.Errorf("error reading 'secondaryAddress': %w", err)
+		}
+		delete(object, "secondaryAddress")
+	}
+
+	if raw, found := object["state"]; found {
+		err = json.Unmarshal(raw, &a.State)
+		if err != nil {
+			return fmt.Errorf("error reading 'state': %w", err)
+		}
+		delete(object, "state")
+	}
+
+	if raw, found := object["streetAddress"]; found {
+		err = json.Unmarshal(raw, &a.StreetAddress)
+		if err != nil {
+			return fmt.Errorf("error reading 'streetAddress': %w", err)
+		}
+		delete(object, "streetAddress")
+	}
+
+	if raw, found := object["streetAddressAbbreviation"]; found {
+		err = json.Unmarshal(raw, &a.StreetAddressAbbreviation)
+		if err != nil {
+			return fmt.Errorf("error reading 'streetAddressAbbreviation': %w", err)
+		}
+		delete(object, "streetAddressAbbreviation")
+	}
+
+	if raw, found := object["urbanization"]; found {
+		err = json.Unmarshal(raw, &a.Urbanization)
+		if err != nil {
+			return fmt.Errorf("error reading 'urbanization': %w", err)
+		}
+		delete(object, "urbanization")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for DomesticLabelAddress to handle AdditionalProperties
+func (a DomesticLabelAddress) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.ZIPCode != nil {
+		object["ZIPCode"], err = json.Marshal(a.ZIPCode)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'ZIPCode': %w", err)
+		}
+	}
+
+	if a.ZIPPlus4 != nil {
+		object["ZIPPlus4"], err = json.Marshal(a.ZIPPlus4)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'ZIPPlus4': %w", err)
+		}
+	}
+
+	if a.City != nil {
+		object["city"], err = json.Marshal(a.City)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'city': %w", err)
+		}
+	}
+
+	if a.CityAbbreviation != nil {
+		object["cityAbbreviation"], err = json.Marshal(a.CityAbbreviation)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'cityAbbreviation': %w", err)
+		}
+	}
+
+	if a.Email != nil {
+		object["email"], err = json.Marshal(a.Email)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'email': %w", err)
+		}
+	}
+
+	if a.Firm != nil {
+		object["firm"], err = json.Marshal(a.Firm)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'firm': %w", err)
+		}
+	}
+
+	if a.FirstName != nil {
+		object["firstName"], err = json.Marshal(a.FirstName)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'firstName': %w", err)
+		}
+	}
+
+	if a.IgnoreBadAddress != nil {
+		object["ignoreBadAddress"], err = json.Marshal(a.IgnoreBadAddress)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'ignoreBadAddress': %w", err)
+		}
+	}
+
+	if a.LastName != nil {
+		object["lastName"], err = json.Marshal(a.LastName)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'lastName': %w", err)
+		}
+	}
+
+	if a.Phone != nil {
+		object["phone"], err = json.Marshal(a.Phone)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'phone': %w", err)
+		}
+	}
+
+	if a.SecondaryAddress != nil {
+		object["secondaryAddress"], err = json.Marshal(a.SecondaryAddress)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'secondaryAddress': %w", err)
+		}
+	}
+
+	if a.State != nil {
+		object["state"], err = json.Marshal(a.State)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'state': %w", err)
+		}
+	}
+
+	if a.StreetAddress != nil {
+		object["streetAddress"], err = json.Marshal(a.StreetAddress)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'streetAddress': %w", err)
+		}
+	}
+
+	if a.StreetAddressAbbreviation != nil {
+		object["streetAddressAbbreviation"], err = json.Marshal(a.StreetAddressAbbreviation)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'streetAddressAbbreviation': %w", err)
+		}
+	}
+
+	if a.Urbanization != nil {
+		object["urbanization"], err = json.Marshal(a.Urbanization)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'urbanization': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for DomesticLabelSenderAddress. Returns the specified
+// element and whether it was found
+func (a DomesticLabelSenderAddress) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for DomesticLabelSenderAddress
+func (a *DomesticLabelSenderAddress) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for DomesticLabelSenderAddress to handle AdditionalProperties
+func (a *DomesticLabelSenderAddress) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["ZIPCode"]; found {
+		err = json.Unmarshal(raw, &a.ZIPCode)
+		if err != nil {
+			return fmt.Errorf("error reading 'ZIPCode': %w", err)
+		}
+		delete(object, "ZIPCode")
+	}
+
+	if raw, found := object["ZIPPlus4"]; found {
+		err = json.Unmarshal(raw, &a.ZIPPlus4)
+		if err != nil {
+			return fmt.Errorf("error reading 'ZIPPlus4': %w", err)
+		}
+		delete(object, "ZIPPlus4")
+	}
+
+	if raw, found := object["city"]; found {
+		err = json.Unmarshal(raw, &a.City)
+		if err != nil {
+			return fmt.Errorf("error reading 'city': %w", err)
+		}
+		delete(object, "city")
+	}
+
+	if raw, found := object["cityAbbreviation"]; found {
+		err = json.Unmarshal(raw, &a.CityAbbreviation)
+		if err != nil {
+			return fmt.Errorf("error reading 'cityAbbreviation': %w", err)
+		}
+		delete(object, "cityAbbreviation")
+	}
+
+	if raw, found := object["email"]; found {
+		err = json.Unmarshal(raw, &a.Email)
+		if err != nil {
+			return fmt.Errorf("error reading 'email': %w", err)
+		}
+		delete(object, "email")
+	}
+
+	if raw, found := object["firm"]; found {
+		err = json.Unmarshal(raw, &a.Firm)
+		if err != nil {
+			return fmt.Errorf("error reading 'firm': %w", err)
+		}
+		delete(object, "firm")
+	}
+
+	if raw, found := object["firstName"]; found {
+		err = json.Unmarshal(raw, &a.FirstName)
+		if err != nil {
+			return fmt.Errorf("error reading 'firstName': %w", err)
+		}
+		delete(object, "firstName")
+	}
+
+	if raw, found := object["ignoreBadAddress"]; found {
+		err = json.Unmarshal(raw, &a.IgnoreBadAddress)
+		if err != nil {
+			return fmt.Errorf("error reading 'ignoreBadAddress': %w", err)
+		}
+		delete(object, "ignoreBadAddress")
+	}
+
+	if raw, found := object["lastName"]; found {
+		err = json.Unmarshal(raw, &a.LastName)
+		if err != nil {
+			return fmt.Errorf("error reading 'lastName': %w", err)
+		}
+		delete(object, "lastName")
+	}
+
+	if raw, found := object["phone"]; found {
+		err = json.Unmarshal(raw, &a.Phone)
+		if err != nil {
+			return fmt.Errorf("error reading 'phone': %w", err)
+		}
+		delete(object, "phone")
+	}
+
+	if raw, found := object["platformUserId"]; found {
+		err = json.Unmarshal(raw, &a.PlatformUserId)
+		if err != nil {
+			return fmt.Errorf("error reading 'platformUserId': %w", err)
+		}
+		delete(object, "platformUserId")
+	}
+
+	if raw, found := object["secondaryAddress"]; found {
+		err = json.Unmarshal(raw, &a.SecondaryAddress)
+		if err != nil {
+			return fmt.Errorf("error reading 'secondaryAddress': %w", err)
+		}
+		delete(object, "secondaryAddress")
+	}
+
+	if raw, found := object["state"]; found {
+		err = json.Unmarshal(raw, &a.State)
+		if err != nil {
+			return fmt.Errorf("error reading 'state': %w", err)
+		}
+		delete(object, "state")
+	}
+
+	if raw, found := object["streetAddress"]; found {
+		err = json.Unmarshal(raw, &a.StreetAddress)
+		if err != nil {
+			return fmt.Errorf("error reading 'streetAddress': %w", err)
+		}
+		delete(object, "streetAddress")
+	}
+
+	if raw, found := object["streetAddressAbbreviation"]; found {
+		err = json.Unmarshal(raw, &a.StreetAddressAbbreviation)
+		if err != nil {
+			return fmt.Errorf("error reading 'streetAddressAbbreviation': %w", err)
+		}
+		delete(object, "streetAddressAbbreviation")
+	}
+
+	if raw, found := object["urbanization"]; found {
+		err = json.Unmarshal(raw, &a.Urbanization)
+		if err != nil {
+			return fmt.Errorf("error reading 'urbanization': %w", err)
+		}
+		delete(object, "urbanization")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for DomesticLabelSenderAddress to handle AdditionalProperties
+func (a DomesticLabelSenderAddress) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.ZIPCode != nil {
+		object["ZIPCode"], err = json.Marshal(a.ZIPCode)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'ZIPCode': %w", err)
+		}
+	}
+
+	if a.ZIPPlus4 != nil {
+		object["ZIPPlus4"], err = json.Marshal(a.ZIPPlus4)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'ZIPPlus4': %w", err)
+		}
+	}
+
+	if a.City != nil {
+		object["city"], err = json.Marshal(a.City)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'city': %w", err)
+		}
+	}
+
+	if a.CityAbbreviation != nil {
+		object["cityAbbreviation"], err = json.Marshal(a.CityAbbreviation)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'cityAbbreviation': %w", err)
+		}
+	}
+
+	if a.Email != nil {
+		object["email"], err = json.Marshal(a.Email)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'email': %w", err)
+		}
+	}
+
+	if a.Firm != nil {
+		object["firm"], err = json.Marshal(a.Firm)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'firm': %w", err)
+		}
+	}
+
+	if a.FirstName != nil {
+		object["firstName"], err = json.Marshal(a.FirstName)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'firstName': %w", err)
+		}
+	}
+
+	if a.IgnoreBadAddress != nil {
+		object["ignoreBadAddress"], err = json.Marshal(a.IgnoreBadAddress)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'ignoreBadAddress': %w", err)
+		}
+	}
+
+	if a.LastName != nil {
+		object["lastName"], err = json.Marshal(a.LastName)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'lastName': %w", err)
+		}
+	}
+
+	if a.Phone != nil {
+		object["phone"], err = json.Marshal(a.Phone)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'phone': %w", err)
+		}
+	}
+
+	if a.PlatformUserId != nil {
+		object["platformUserId"], err = json.Marshal(a.PlatformUserId)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'platformUserId': %w", err)
+		}
+	}
+
+	if a.SecondaryAddress != nil {
+		object["secondaryAddress"], err = json.Marshal(a.SecondaryAddress)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'secondaryAddress': %w", err)
+		}
+	}
+
+	if a.State != nil {
+		object["state"], err = json.Marshal(a.State)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'state': %w", err)
+		}
+	}
+
+	if a.StreetAddress != nil {
+		object["streetAddress"], err = json.Marshal(a.StreetAddress)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'streetAddress': %w", err)
+		}
+	}
+
+	if a.StreetAddressAbbreviation != nil {
+		object["streetAddressAbbreviation"], err = json.Marshal(a.StreetAddressAbbreviation)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'streetAddressAbbreviation': %w", err)
+		}
+	}
+
+	if a.Urbanization != nil {
+		object["urbanization"], err = json.Marshal(a.Urbanization)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'urbanization': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for DomesticLabelToAddress. Returns the specified
+// element and whether it was found
+func (a DomesticLabelToAddress) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for DomesticLabelToAddress
+func (a *DomesticLabelToAddress) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for DomesticLabelToAddress to handle AdditionalProperties
+func (a *DomesticLabelToAddress) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["ZIPCode"]; found {
+		err = json.Unmarshal(raw, &a.ZIPCode)
+		if err != nil {
+			return fmt.Errorf("error reading 'ZIPCode': %w", err)
+		}
+		delete(object, "ZIPCode")
+	}
+
+	if raw, found := object["ZIPPlus4"]; found {
+		err = json.Unmarshal(raw, &a.ZIPPlus4)
+		if err != nil {
+			return fmt.Errorf("error reading 'ZIPPlus4': %w", err)
+		}
+		delete(object, "ZIPPlus4")
+	}
+
+	if raw, found := object["city"]; found {
+		err = json.Unmarshal(raw, &a.City)
+		if err != nil {
+			return fmt.Errorf("error reading 'city': %w", err)
+		}
+		delete(object, "city")
+	}
+
+	if raw, found := object["cityAbbreviation"]; found {
+		err = json.Unmarshal(raw, &a.CityAbbreviation)
+		if err != nil {
+			return fmt.Errorf("error reading 'cityAbbreviation': %w", err)
+		}
+		delete(object, "cityAbbreviation")
+	}
+
+	if raw, found := object["email"]; found {
+		err = json.Unmarshal(raw, &a.Email)
+		if err != nil {
+			return fmt.Errorf("error reading 'email': %w", err)
+		}
+		delete(object, "email")
+	}
+
+	if raw, found := object["facilityId"]; found {
+		err = json.Unmarshal(raw, &a.FacilityId)
+		if err != nil {
+			return fmt.Errorf("error reading 'facilityId': %w", err)
+		}
+		delete(object, "facilityId")
+	}
+
+	if raw, found := object["firm"]; found {
+		err = json.Unmarshal(raw, &a.Firm)
+		if err != nil {
+			return fmt.Errorf("error reading 'firm': %w", err)
+		}
+		delete(object, "firm")
+	}
+
+	if raw, found := object["firstName"]; found {
+		err = json.Unmarshal(raw, &a.FirstName)
+		if err != nil {
+			return fmt.Errorf("error reading 'firstName': %w", err)
+		}
+		delete(object, "firstName")
+	}
+
+	if raw, found := object["holdForPickup"]; found {
+		err = json.Unmarshal(raw, &a.HoldForPickup)
+		if err != nil {
+			return fmt.Errorf("error reading 'holdForPickup': %w", err)
+		}
+		delete(object, "holdForPickup")
+	}
+
+	if raw, found := object["ignoreBadAddress"]; found {
+		err = json.Unmarshal(raw, &a.IgnoreBadAddress)
+		if err != nil {
+			return fmt.Errorf("error reading 'ignoreBadAddress': %w", err)
+		}
+		delete(object, "ignoreBadAddress")
+	}
+
+	if raw, found := object["lastName"]; found {
+		err = json.Unmarshal(raw, &a.LastName)
+		if err != nil {
+			return fmt.Errorf("error reading 'lastName': %w", err)
+		}
+		delete(object, "lastName")
+	}
+
+	if raw, found := object["parcelLockerDelivery"]; found {
+		err = json.Unmarshal(raw, &a.ParcelLockerDelivery)
+		if err != nil {
+			return fmt.Errorf("error reading 'parcelLockerDelivery': %w", err)
+		}
+		delete(object, "parcelLockerDelivery")
+	}
+
+	if raw, found := object["phone"]; found {
+		err = json.Unmarshal(raw, &a.Phone)
+		if err != nil {
+			return fmt.Errorf("error reading 'phone': %w", err)
+		}
+		delete(object, "phone")
+	}
+
+	if raw, found := object["secondaryAddress"]; found {
+		err = json.Unmarshal(raw, &a.SecondaryAddress)
+		if err != nil {
+			return fmt.Errorf("error reading 'secondaryAddress': %w", err)
+		}
+		delete(object, "secondaryAddress")
+	}
+
+	if raw, found := object["state"]; found {
+		err = json.Unmarshal(raw, &a.State)
+		if err != nil {
+			return fmt.Errorf("error reading 'state': %w", err)
+		}
+		delete(object, "state")
+	}
+
+	if raw, found := object["streetAddress"]; found {
+		err = json.Unmarshal(raw, &a.StreetAddress)
+		if err != nil {
+			return fmt.Errorf("error reading 'streetAddress': %w", err)
+		}
+		delete(object, "streetAddress")
+	}
+
+	if raw, found := object["streetAddressAbbreviation"]; found {
+		err = json.Unmarshal(raw, &a.StreetAddressAbbreviation)
+		if err != nil {
+			return fmt.Errorf("error reading 'streetAddressAbbreviation': %w", err)
+		}
+		delete(object, "streetAddressAbbreviation")
+	}
+
+	if raw, found := object["urbanization"]; found {
+		err = json.Unmarshal(raw, &a.Urbanization)
+		if err != nil {
+			return fmt.Errorf("error reading 'urbanization': %w", err)
+		}
+		delete(object, "urbanization")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for DomesticLabelToAddress to handle AdditionalProperties
+func (a DomesticLabelToAddress) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.ZIPCode != nil {
+		object["ZIPCode"], err = json.Marshal(a.ZIPCode)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'ZIPCode': %w", err)
+		}
+	}
+
+	if a.ZIPPlus4 != nil {
+		object["ZIPPlus4"], err = json.Marshal(a.ZIPPlus4)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'ZIPPlus4': %w", err)
+		}
+	}
+
+	if a.City != nil {
+		object["city"], err = json.Marshal(a.City)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'city': %w", err)
+		}
+	}
+
+	if a.CityAbbreviation != nil {
+		object["cityAbbreviation"], err = json.Marshal(a.CityAbbreviation)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'cityAbbreviation': %w", err)
+		}
+	}
+
+	if a.Email != nil {
+		object["email"], err = json.Marshal(a.Email)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'email': %w", err)
+		}
+	}
+
+	if a.FacilityId != nil {
+		object["facilityId"], err = json.Marshal(a.FacilityId)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'facilityId': %w", err)
+		}
+	}
+
+	if a.Firm != nil {
+		object["firm"], err = json.Marshal(a.Firm)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'firm': %w", err)
+		}
+	}
+
+	if a.FirstName != nil {
+		object["firstName"], err = json.Marshal(a.FirstName)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'firstName': %w", err)
+		}
+	}
+
+	if a.HoldForPickup != nil {
+		object["holdForPickup"], err = json.Marshal(a.HoldForPickup)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'holdForPickup': %w", err)
+		}
+	}
+
+	if a.IgnoreBadAddress != nil {
+		object["ignoreBadAddress"], err = json.Marshal(a.IgnoreBadAddress)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'ignoreBadAddress': %w", err)
+		}
+	}
+
+	if a.LastName != nil {
+		object["lastName"], err = json.Marshal(a.LastName)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'lastName': %w", err)
+		}
+	}
+
+	if a.ParcelLockerDelivery != nil {
+		object["parcelLockerDelivery"], err = json.Marshal(a.ParcelLockerDelivery)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'parcelLockerDelivery': %w", err)
+		}
+	}
+
+	if a.Phone != nil {
+		object["phone"], err = json.Marshal(a.Phone)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'phone': %w", err)
+		}
+	}
+
+	if a.SecondaryAddress != nil {
+		object["secondaryAddress"], err = json.Marshal(a.SecondaryAddress)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'secondaryAddress': %w", err)
+		}
+	}
+
+	if a.State != nil {
+		object["state"], err = json.Marshal(a.State)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'state': %w", err)
+		}
+	}
+
+	if a.StreetAddress != nil {
+		object["streetAddress"], err = json.Marshal(a.StreetAddress)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'streetAddress': %w", err)
+		}
+	}
+
+	if a.StreetAddressAbbreviation != nil {
+		object["streetAddressAbbreviation"], err = json.Marshal(a.StreetAddressAbbreviation)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'streetAddressAbbreviation': %w", err)
+		}
+	}
+
+	if a.Urbanization != nil {
+		object["urbanization"], err = json.Marshal(a.Urbanization)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'urbanization': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for DomesticPackageDescription. Returns the specified
+// element and whether it was found
+func (a DomesticPackageDescription) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for DomesticPackageDescription
+func (a *DomesticPackageDescription) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for DomesticPackageDescription to handle AdditionalProperties
+func (a *DomesticPackageDescription) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["carrierRelease"]; found {
+		err = json.Unmarshal(raw, &a.CarrierRelease)
+		if err != nil {
+			return fmt.Errorf("error reading 'carrierRelease': %w", err)
+		}
+		delete(object, "carrierRelease")
+	}
+
+	if raw, found := object["customerReference"]; found {
+		err = json.Unmarshal(raw, &a.CustomerReference)
+		if err != nil {
+			return fmt.Errorf("error reading 'customerReference': %w", err)
+		}
+		delete(object, "customerReference")
+	}
+
+	if raw, found := object["destinationEntryFacilityAddress"]; found {
+		err = json.Unmarshal(raw, &a.DestinationEntryFacilityAddress)
+		if err != nil {
+			return fmt.Errorf("error reading 'destinationEntryFacilityAddress': %w", err)
+		}
+		delete(object, "destinationEntryFacilityAddress")
+	}
+
+	if raw, found := object["destinationEntryFacilityType"]; found {
+		err = json.Unmarshal(raw, &a.DestinationEntryFacilityType)
+		if err != nil {
+			return fmt.Errorf("error reading 'destinationEntryFacilityType': %w", err)
+		}
+		delete(object, "destinationEntryFacilityType")
+	}
+
+	if raw, found := object["dimensionsUOM"]; found {
+		err = json.Unmarshal(raw, &a.DimensionsUOM)
+		if err != nil {
+			return fmt.Errorf("error reading 'dimensionsUOM': %w", err)
+		}
+		delete(object, "dimensionsUOM")
+	}
+
+	if raw, found := object["extraServices"]; found {
+		err = json.Unmarshal(raw, &a.ExtraServices)
+		if err != nil {
+			return fmt.Errorf("error reading 'extraServices': %w", err)
+		}
+		delete(object, "extraServices")
+	}
+
+	if raw, found := object["girth"]; found {
+		err = json.Unmarshal(raw, &a.Girth)
+		if err != nil {
+			return fmt.Errorf("error reading 'girth': %w", err)
+		}
+		delete(object, "girth")
+	}
+
+	if raw, found := object["hasNonstandardCharacteristics"]; found {
+		err = json.Unmarshal(raw, &a.HasNonstandardCharacteristics)
+		if err != nil {
+			return fmt.Errorf("error reading 'hasNonstandardCharacteristics': %w", err)
+		}
+		delete(object, "hasNonstandardCharacteristics")
+	}
+
+	if raw, found := object["height"]; found {
+		err = json.Unmarshal(raw, &a.Height)
+		if err != nil {
+			return fmt.Errorf("error reading 'height': %w", err)
+		}
+		delete(object, "height")
+	}
+
+	if raw, found := object["inductionZIPCode"]; found {
+		err = json.Unmarshal(raw, &a.InductionZIPCode)
+		if err != nil {
+			return fmt.Errorf("error reading 'inductionZIPCode': %w", err)
+		}
+		delete(object, "inductionZIPCode")
+	}
+
+	if raw, found := object["length"]; found {
+		err = json.Unmarshal(raw, &a.Length)
+		if err != nil {
+			return fmt.Errorf("error reading 'length': %w", err)
+		}
+		delete(object, "length")
+	}
+
+	if raw, found := object["logisticsManagerMID"]; found {
+		err = json.Unmarshal(raw, &a.LogisticsManagerMID)
+		if err != nil {
+			return fmt.Errorf("error reading 'logisticsManagerMID': %w", err)
+		}
+		delete(object, "logisticsManagerMID")
+	}
+
+	if raw, found := object["mailClass"]; found {
+		err = json.Unmarshal(raw, &a.MailClass)
+		if err != nil {
+			return fmt.Errorf("error reading 'mailClass': %w", err)
+		}
+		delete(object, "mailClass")
+	}
+
+	if raw, found := object["mailOwnerMID"]; found {
+		err = json.Unmarshal(raw, &a.MailOwnerMID)
+		if err != nil {
+			return fmt.Errorf("error reading 'mailOwnerMID': %w", err)
+		}
+		delete(object, "mailOwnerMID")
+	}
+
+	if raw, found := object["mailingDate"]; found {
+		err = json.Unmarshal(raw, &a.MailingDate)
+		if err != nil {
+			return fmt.Errorf("error reading 'mailingDate': %w", err)
+		}
+		delete(object, "mailingDate")
+	}
+
+	if raw, found := object["nonprofit"]; found {
+		err = json.Unmarshal(raw, &a.Nonprofit)
+		if err != nil {
+			return fmt.Errorf("error reading 'nonprofit': %w", err)
+		}
+		delete(object, "nonprofit")
+	}
+
+	if raw, found := object["packageOptions"]; found {
+		err = json.Unmarshal(raw, &a.PackageOptions)
+		if err != nil {
+			return fmt.Errorf("error reading 'packageOptions': %w", err)
+		}
+		delete(object, "packageOptions")
+	}
+
+	if raw, found := object["physicalSignatureRequired"]; found {
+		err = json.Unmarshal(raw, &a.PhysicalSignatureRequired)
+		if err != nil {
+			return fmt.Errorf("error reading 'physicalSignatureRequired': %w", err)
+		}
+		delete(object, "physicalSignatureRequired")
+	}
+
+	if raw, found := object["processingCategory"]; found {
+		err = json.Unmarshal(raw, &a.ProcessingCategory)
+		if err != nil {
+			return fmt.Errorf("error reading 'processingCategory': %w", err)
+		}
+		delete(object, "processingCategory")
+	}
+
+	if raw, found := object["rateIndicator"]; found {
+		err = json.Unmarshal(raw, &a.RateIndicator)
+		if err != nil {
+			return fmt.Errorf("error reading 'rateIndicator': %w", err)
+		}
+		delete(object, "rateIndicator")
+	}
+
+	if raw, found := object["serialNumberFormat"]; found {
+		err = json.Unmarshal(raw, &a.SerialNumberFormat)
+		if err != nil {
+			return fmt.Errorf("error reading 'serialNumberFormat': %w", err)
+		}
+		delete(object, "serialNumberFormat")
+	}
+
+	if raw, found := object["shipperVisibilityMethod"]; found {
+		err = json.Unmarshal(raw, &a.ShipperVisibilityMethod)
+		if err != nil {
+			return fmt.Errorf("error reading 'shipperVisibilityMethod': %w", err)
+		}
+		delete(object, "shipperVisibilityMethod")
+	}
+
+	if raw, found := object["weight"]; found {
+		err = json.Unmarshal(raw, &a.Weight)
+		if err != nil {
+			return fmt.Errorf("error reading 'weight': %w", err)
+		}
+		delete(object, "weight")
+	}
+
+	if raw, found := object["weightUOM"]; found {
+		err = json.Unmarshal(raw, &a.WeightUOM)
+		if err != nil {
+			return fmt.Errorf("error reading 'weightUOM': %w", err)
+		}
+		delete(object, "weightUOM")
+	}
+
+	if raw, found := object["width"]; found {
+		err = json.Unmarshal(raw, &a.Width)
+		if err != nil {
+			return fmt.Errorf("error reading 'width': %w", err)
+		}
+		delete(object, "width")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for DomesticPackageDescription to handle AdditionalProperties
+func (a DomesticPackageDescription) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.CarrierRelease != nil {
+		object["carrierRelease"], err = json.Marshal(a.CarrierRelease)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'carrierRelease': %w", err)
+		}
+	}
+
+	if a.CustomerReference != nil {
+		object["customerReference"], err = json.Marshal(a.CustomerReference)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'customerReference': %w", err)
+		}
+	}
+
+	if a.DestinationEntryFacilityAddress != nil {
+		object["destinationEntryFacilityAddress"], err = json.Marshal(a.DestinationEntryFacilityAddress)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'destinationEntryFacilityAddress': %w", err)
+		}
+	}
+
+	object["destinationEntryFacilityType"], err = json.Marshal(a.DestinationEntryFacilityType)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'destinationEntryFacilityType': %w", err)
+	}
+
+	if a.DimensionsUOM != nil {
+		object["dimensionsUOM"], err = json.Marshal(a.DimensionsUOM)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'dimensionsUOM': %w", err)
+		}
+	}
+
+	if a.ExtraServices != nil {
+		object["extraServices"], err = json.Marshal(a.ExtraServices)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'extraServices': %w", err)
+		}
+	}
+
+	if a.Girth != nil {
+		object["girth"], err = json.Marshal(a.Girth)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'girth': %w", err)
+		}
+	}
+
+	if a.HasNonstandardCharacteristics != nil {
+		object["hasNonstandardCharacteristics"], err = json.Marshal(a.HasNonstandardCharacteristics)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'hasNonstandardCharacteristics': %w", err)
+		}
+	}
+
+	object["height"], err = json.Marshal(a.Height)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'height': %w", err)
+	}
+
+	if a.InductionZIPCode != nil {
+		object["inductionZIPCode"], err = json.Marshal(a.InductionZIPCode)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'inductionZIPCode': %w", err)
+		}
+	}
+
+	object["length"], err = json.Marshal(a.Length)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'length': %w", err)
+	}
+
+	if a.LogisticsManagerMID != nil {
+		object["logisticsManagerMID"], err = json.Marshal(a.LogisticsManagerMID)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'logisticsManagerMID': %w", err)
+		}
+	}
+
+	object["mailClass"], err = json.Marshal(a.MailClass)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'mailClass': %w", err)
+	}
+
+	if a.MailOwnerMID != nil {
+		object["mailOwnerMID"], err = json.Marshal(a.MailOwnerMID)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'mailOwnerMID': %w", err)
+		}
+	}
+
+	object["mailingDate"], err = json.Marshal(a.MailingDate)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'mailingDate': %w", err)
+	}
+
+	if a.Nonprofit != nil {
+		object["nonprofit"], err = json.Marshal(a.Nonprofit)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'nonprofit': %w", err)
+		}
+	}
+
+	if a.PackageOptions != nil {
+		object["packageOptions"], err = json.Marshal(a.PackageOptions)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'packageOptions': %w", err)
+		}
+	}
+
+	if a.PhysicalSignatureRequired != nil {
+		object["physicalSignatureRequired"], err = json.Marshal(a.PhysicalSignatureRequired)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'physicalSignatureRequired': %w", err)
+		}
+	}
+
+	object["processingCategory"], err = json.Marshal(a.ProcessingCategory)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'processingCategory': %w", err)
+	}
+
+	object["rateIndicator"], err = json.Marshal(a.RateIndicator)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'rateIndicator': %w", err)
+	}
+
+	if a.SerialNumberFormat != nil {
+		object["serialNumberFormat"], err = json.Marshal(a.SerialNumberFormat)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'serialNumberFormat': %w", err)
+		}
+	}
+
+	if a.ShipperVisibilityMethod != nil {
+		object["shipperVisibilityMethod"], err = json.Marshal(a.ShipperVisibilityMethod)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'shipperVisibilityMethod': %w", err)
+		}
+	}
+
+	object["weight"], err = json.Marshal(a.Weight)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'weight': %w", err)
+	}
+
+	if a.WeightUOM != nil {
+		object["weightUOM"], err = json.Marshal(a.WeightUOM)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'weightUOM': %w", err)
+		}
+	}
+
+	object["width"], err = json.Marshal(a.Width)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'width': %w", err)
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for DomesticPackageDescription_PackageOptions. Returns the specified
+// element and whether it was found
+func (a DomesticPackageDescription_PackageOptions) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for DomesticPackageDescription_PackageOptions
+func (a *DomesticPackageDescription_PackageOptions) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for DomesticPackageDescription_PackageOptions to handle AdditionalProperties
+func (a *DomesticPackageDescription_PackageOptions) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["ancillaryServiceEndorsements"]; found {
+		err = json.Unmarshal(raw, &a.AncillaryServiceEndorsements)
+		if err != nil {
+			return fmt.Errorf("error reading 'ancillaryServiceEndorsements': %w", err)
+		}
+		delete(object, "ancillaryServiceEndorsements")
+	}
+
+	if raw, found := object["containers"]; found {
+		err = json.Unmarshal(raw, &a.Containers)
+		if err != nil {
+			return fmt.Errorf("error reading 'containers': %w", err)
+		}
+		delete(object, "containers")
+	}
+
+	if raw, found := object["contentType"]; found {
+		err = json.Unmarshal(raw, &a.ContentType)
+		if err != nil {
+			return fmt.Errorf("error reading 'contentType': %w", err)
+		}
+		delete(object, "contentType")
+	}
+
+	if raw, found := object["generateGXEvent"]; found {
+		err = json.Unmarshal(raw, &a.GenerateGXEvent)
+		if err != nil {
+			return fmt.Errorf("error reading 'generateGXEvent': %w", err)
+		}
+		delete(object, "generateGXEvent")
+	}
+
+	if raw, found := object["immediateManifest"]; found {
+		err = json.Unmarshal(raw, &a.ImmediateManifest)
+		if err != nil {
+			return fmt.Errorf("error reading 'immediateManifest': %w", err)
+		}
+		delete(object, "immediateManifest")
+	}
+
+	if raw, found := object["nonDeliveryOption"]; found {
+		err = json.Unmarshal(raw, &a.NonDeliveryOption)
+		if err != nil {
+			return fmt.Errorf("error reading 'nonDeliveryOption': %w", err)
+		}
+		delete(object, "nonDeliveryOption")
+	}
+
+	if raw, found := object["omas"]; found {
+		err = json.Unmarshal(raw, &a.Omas)
+		if err != nil {
+			return fmt.Errorf("error reading 'omas': %w", err)
+		}
+		delete(object, "omas")
+	}
+
+	if raw, found := object["originalPackage"]; found {
+		err = json.Unmarshal(raw, &a.OriginalPackage)
+		if err != nil {
+			return fmt.Errorf("error reading 'originalPackage': %w", err)
+		}
+		delete(object, "originalPackage")
+	}
+
+	if raw, found := object["packageValue"]; found {
+		err = json.Unmarshal(raw, &a.PackageValue)
+		if err != nil {
+			return fmt.Errorf("error reading 'packageValue': %w", err)
+		}
+		delete(object, "packageValue")
+	}
+
+	if raw, found := object["redirectAddress"]; found {
+		err = json.Unmarshal(raw, &a.RedirectAddress)
+		if err != nil {
+			return fmt.Errorf("error reading 'redirectAddress': %w", err)
+		}
+		delete(object, "redirectAddress")
+	}
+
+	if raw, found := object["returnReceiptTracking"]; found {
+		err = json.Unmarshal(raw, &a.ReturnReceiptTracking)
+		if err != nil {
+			return fmt.Errorf("error reading 'returnReceiptTracking': %w", err)
+		}
+		delete(object, "returnReceiptTracking")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for DomesticPackageDescription_PackageOptions to handle AdditionalProperties
+func (a DomesticPackageDescription_PackageOptions) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.AncillaryServiceEndorsements != nil {
+		object["ancillaryServiceEndorsements"], err = json.Marshal(a.AncillaryServiceEndorsements)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'ancillaryServiceEndorsements': %w", err)
+		}
+	}
+
+	if a.Containers != nil {
+		object["containers"], err = json.Marshal(a.Containers)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'containers': %w", err)
+		}
+	}
+
+	if a.ContentType != nil {
+		object["contentType"], err = json.Marshal(a.ContentType)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'contentType': %w", err)
+		}
+	}
+
+	if a.GenerateGXEvent != nil {
+		object["generateGXEvent"], err = json.Marshal(a.GenerateGXEvent)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'generateGXEvent': %w", err)
+		}
+	}
+
+	if a.ImmediateManifest != nil {
+		object["immediateManifest"], err = json.Marshal(a.ImmediateManifest)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'immediateManifest': %w", err)
+		}
+	}
+
+	if a.NonDeliveryOption != nil {
+		object["nonDeliveryOption"], err = json.Marshal(a.NonDeliveryOption)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'nonDeliveryOption': %w", err)
+		}
+	}
+
+	if a.Omas != nil {
+		object["omas"], err = json.Marshal(a.Omas)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'omas': %w", err)
+		}
+	}
+
+	if a.OriginalPackage != nil {
+		object["originalPackage"], err = json.Marshal(a.OriginalPackage)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'originalPackage': %w", err)
+		}
+	}
+
+	if a.PackageValue != nil {
+		object["packageValue"], err = json.Marshal(a.PackageValue)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'packageValue': %w", err)
+		}
+	}
+
+	if a.RedirectAddress != nil {
+		object["redirectAddress"], err = json.Marshal(a.RedirectAddress)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'redirectAddress': %w", err)
+		}
+	}
+
+	if a.ReturnReceiptTracking != nil {
+		object["returnReceiptTracking"], err = json.Marshal(a.ReturnReceiptTracking)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'returnReceiptTracking': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for DomesticPackageDescriptionWithoutRateIndicator. Returns the specified
+// element and whether it was found
+func (a DomesticPackageDescriptionWithoutRateIndicator) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for DomesticPackageDescriptionWithoutRateIndicator
+func (a *DomesticPackageDescriptionWithoutRateIndicator) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for DomesticPackageDescriptionWithoutRateIndicator to handle AdditionalProperties
+func (a *DomesticPackageDescriptionWithoutRateIndicator) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["carrierRelease"]; found {
+		err = json.Unmarshal(raw, &a.CarrierRelease)
+		if err != nil {
+			return fmt.Errorf("error reading 'carrierRelease': %w", err)
+		}
+		delete(object, "carrierRelease")
+	}
+
+	if raw, found := object["customerReference"]; found {
+		err = json.Unmarshal(raw, &a.CustomerReference)
+		if err != nil {
+			return fmt.Errorf("error reading 'customerReference': %w", err)
+		}
+		delete(object, "customerReference")
+	}
+
+	if raw, found := object["destinationEntryFacilityAddress"]; found {
+		err = json.Unmarshal(raw, &a.DestinationEntryFacilityAddress)
+		if err != nil {
+			return fmt.Errorf("error reading 'destinationEntryFacilityAddress': %w", err)
+		}
+		delete(object, "destinationEntryFacilityAddress")
+	}
+
+	if raw, found := object["destinationEntryFacilityType"]; found {
+		err = json.Unmarshal(raw, &a.DestinationEntryFacilityType)
+		if err != nil {
+			return fmt.Errorf("error reading 'destinationEntryFacilityType': %w", err)
+		}
+		delete(object, "destinationEntryFacilityType")
+	}
+
+	if raw, found := object["dimensionsUOM"]; found {
+		err = json.Unmarshal(raw, &a.DimensionsUOM)
+		if err != nil {
+			return fmt.Errorf("error reading 'dimensionsUOM': %w", err)
+		}
+		delete(object, "dimensionsUOM")
+	}
+
+	if raw, found := object["extraServices"]; found {
+		err = json.Unmarshal(raw, &a.ExtraServices)
+		if err != nil {
+			return fmt.Errorf("error reading 'extraServices': %w", err)
+		}
+		delete(object, "extraServices")
+	}
+
+	if raw, found := object["girth"]; found {
+		err = json.Unmarshal(raw, &a.Girth)
+		if err != nil {
+			return fmt.Errorf("error reading 'girth': %w", err)
+		}
+		delete(object, "girth")
+	}
+
+	if raw, found := object["hasNonstandardCharacteristics"]; found {
+		err = json.Unmarshal(raw, &a.HasNonstandardCharacteristics)
+		if err != nil {
+			return fmt.Errorf("error reading 'hasNonstandardCharacteristics': %w", err)
+		}
+		delete(object, "hasNonstandardCharacteristics")
+	}
+
+	if raw, found := object["height"]; found {
+		err = json.Unmarshal(raw, &a.Height)
+		if err != nil {
+			return fmt.Errorf("error reading 'height': %w", err)
+		}
+		delete(object, "height")
+	}
+
+	if raw, found := object["inductionZIPCode"]; found {
+		err = json.Unmarshal(raw, &a.InductionZIPCode)
+		if err != nil {
+			return fmt.Errorf("error reading 'inductionZIPCode': %w", err)
+		}
+		delete(object, "inductionZIPCode")
+	}
+
+	if raw, found := object["length"]; found {
+		err = json.Unmarshal(raw, &a.Length)
+		if err != nil {
+			return fmt.Errorf("error reading 'length': %w", err)
+		}
+		delete(object, "length")
+	}
+
+	if raw, found := object["logisticsManagerMID"]; found {
+		err = json.Unmarshal(raw, &a.LogisticsManagerMID)
+		if err != nil {
+			return fmt.Errorf("error reading 'logisticsManagerMID': %w", err)
+		}
+		delete(object, "logisticsManagerMID")
+	}
+
+	if raw, found := object["mailClass"]; found {
+		err = json.Unmarshal(raw, &a.MailClass)
+		if err != nil {
+			return fmt.Errorf("error reading 'mailClass': %w", err)
+		}
+		delete(object, "mailClass")
+	}
+
+	if raw, found := object["mailOwnerMID"]; found {
+		err = json.Unmarshal(raw, &a.MailOwnerMID)
+		if err != nil {
+			return fmt.Errorf("error reading 'mailOwnerMID': %w", err)
+		}
+		delete(object, "mailOwnerMID")
+	}
+
+	if raw, found := object["mailingDate"]; found {
+		err = json.Unmarshal(raw, &a.MailingDate)
+		if err != nil {
+			return fmt.Errorf("error reading 'mailingDate': %w", err)
+		}
+		delete(object, "mailingDate")
+	}
+
+	if raw, found := object["nonprofit"]; found {
+		err = json.Unmarshal(raw, &a.Nonprofit)
+		if err != nil {
+			return fmt.Errorf("error reading 'nonprofit': %w", err)
+		}
+		delete(object, "nonprofit")
+	}
+
+	if raw, found := object["packageOptions"]; found {
+		err = json.Unmarshal(raw, &a.PackageOptions)
+		if err != nil {
+			return fmt.Errorf("error reading 'packageOptions': %w", err)
+		}
+		delete(object, "packageOptions")
+	}
+
+	if raw, found := object["packagingType"]; found {
+		err = json.Unmarshal(raw, &a.PackagingType)
+		if err != nil {
+			return fmt.Errorf("error reading 'packagingType': %w", err)
+		}
+		delete(object, "packagingType")
+	}
+
+	if raw, found := object["physicalSignatureRequired"]; found {
+		err = json.Unmarshal(raw, &a.PhysicalSignatureRequired)
+		if err != nil {
+			return fmt.Errorf("error reading 'physicalSignatureRequired': %w", err)
+		}
+		delete(object, "physicalSignatureRequired")
+	}
+
+	if raw, found := object["processingCategory"]; found {
+		err = json.Unmarshal(raw, &a.ProcessingCategory)
+		if err != nil {
+			return fmt.Errorf("error reading 'processingCategory': %w", err)
+		}
+		delete(object, "processingCategory")
+	}
+
+	if raw, found := object["serialNumberFormat"]; found {
+		err = json.Unmarshal(raw, &a.SerialNumberFormat)
+		if err != nil {
+			return fmt.Errorf("error reading 'serialNumberFormat': %w", err)
+		}
+		delete(object, "serialNumberFormat")
+	}
+
+	if raw, found := object["shape"]; found {
+		err = json.Unmarshal(raw, &a.Shape)
+		if err != nil {
+			return fmt.Errorf("error reading 'shape': %w", err)
+		}
+		delete(object, "shape")
+	}
+
+	if raw, found := object["shipperVisibilityMethod"]; found {
+		err = json.Unmarshal(raw, &a.ShipperVisibilityMethod)
+		if err != nil {
+			return fmt.Errorf("error reading 'shipperVisibilityMethod': %w", err)
+		}
+		delete(object, "shipperVisibilityMethod")
+	}
+
+	if raw, found := object["weight"]; found {
+		err = json.Unmarshal(raw, &a.Weight)
+		if err != nil {
+			return fmt.Errorf("error reading 'weight': %w", err)
+		}
+		delete(object, "weight")
+	}
+
+	if raw, found := object["weightUOM"]; found {
+		err = json.Unmarshal(raw, &a.WeightUOM)
+		if err != nil {
+			return fmt.Errorf("error reading 'weightUOM': %w", err)
+		}
+		delete(object, "weightUOM")
+	}
+
+	if raw, found := object["width"]; found {
+		err = json.Unmarshal(raw, &a.Width)
+		if err != nil {
+			return fmt.Errorf("error reading 'width': %w", err)
+		}
+		delete(object, "width")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for DomesticPackageDescriptionWithoutRateIndicator to handle AdditionalProperties
+func (a DomesticPackageDescriptionWithoutRateIndicator) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.CarrierRelease != nil {
+		object["carrierRelease"], err = json.Marshal(a.CarrierRelease)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'carrierRelease': %w", err)
+		}
+	}
+
+	if a.CustomerReference != nil {
+		object["customerReference"], err = json.Marshal(a.CustomerReference)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'customerReference': %w", err)
+		}
+	}
+
+	if a.DestinationEntryFacilityAddress != nil {
+		object["destinationEntryFacilityAddress"], err = json.Marshal(a.DestinationEntryFacilityAddress)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'destinationEntryFacilityAddress': %w", err)
+		}
+	}
+
+	object["destinationEntryFacilityType"], err = json.Marshal(a.DestinationEntryFacilityType)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'destinationEntryFacilityType': %w", err)
+	}
+
+	if a.DimensionsUOM != nil {
+		object["dimensionsUOM"], err = json.Marshal(a.DimensionsUOM)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'dimensionsUOM': %w", err)
+		}
+	}
+
+	if a.ExtraServices != nil {
+		object["extraServices"], err = json.Marshal(a.ExtraServices)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'extraServices': %w", err)
+		}
+	}
+
+	if a.Girth != nil {
+		object["girth"], err = json.Marshal(a.Girth)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'girth': %w", err)
+		}
+	}
+
+	if a.HasNonstandardCharacteristics != nil {
+		object["hasNonstandardCharacteristics"], err = json.Marshal(a.HasNonstandardCharacteristics)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'hasNonstandardCharacteristics': %w", err)
+		}
+	}
+
+	object["height"], err = json.Marshal(a.Height)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'height': %w", err)
+	}
+
+	if a.InductionZIPCode != nil {
+		object["inductionZIPCode"], err = json.Marshal(a.InductionZIPCode)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'inductionZIPCode': %w", err)
+		}
+	}
+
+	object["length"], err = json.Marshal(a.Length)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'length': %w", err)
+	}
+
+	if a.LogisticsManagerMID != nil {
+		object["logisticsManagerMID"], err = json.Marshal(a.LogisticsManagerMID)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'logisticsManagerMID': %w", err)
+		}
+	}
+
+	object["mailClass"], err = json.Marshal(a.MailClass)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'mailClass': %w", err)
+	}
+
+	if a.MailOwnerMID != nil {
+		object["mailOwnerMID"], err = json.Marshal(a.MailOwnerMID)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'mailOwnerMID': %w", err)
+		}
+	}
+
+	object["mailingDate"], err = json.Marshal(a.MailingDate)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'mailingDate': %w", err)
+	}
+
+	if a.Nonprofit != nil {
+		object["nonprofit"], err = json.Marshal(a.Nonprofit)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'nonprofit': %w", err)
+		}
+	}
+
+	if a.PackageOptions != nil {
+		object["packageOptions"], err = json.Marshal(a.PackageOptions)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'packageOptions': %w", err)
+		}
+	}
+
+	object["packagingType"], err = json.Marshal(a.PackagingType)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'packagingType': %w", err)
+	}
+
+	if a.PhysicalSignatureRequired != nil {
+		object["physicalSignatureRequired"], err = json.Marshal(a.PhysicalSignatureRequired)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'physicalSignatureRequired': %w", err)
+		}
+	}
+
+	object["processingCategory"], err = json.Marshal(a.ProcessingCategory)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'processingCategory': %w", err)
+	}
+
+	if a.SerialNumberFormat != nil {
+		object["serialNumberFormat"], err = json.Marshal(a.SerialNumberFormat)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'serialNumberFormat': %w", err)
+		}
+	}
+
+	object["shape"], err = json.Marshal(a.Shape)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'shape': %w", err)
+	}
+
+	if a.ShipperVisibilityMethod != nil {
+		object["shipperVisibilityMethod"], err = json.Marshal(a.ShipperVisibilityMethod)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'shipperVisibilityMethod': %w", err)
+		}
+	}
+
+	object["weight"], err = json.Marshal(a.Weight)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'weight': %w", err)
+	}
+
+	if a.WeightUOM != nil {
+		object["weightUOM"], err = json.Marshal(a.WeightUOM)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'weightUOM': %w", err)
+		}
+	}
+
+	object["width"], err = json.Marshal(a.Width)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'width': %w", err)
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for DomesticPackageDescriptionWithoutRateIndicator_PackageOptions. Returns the specified
+// element and whether it was found
+func (a DomesticPackageDescriptionWithoutRateIndicator_PackageOptions) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for DomesticPackageDescriptionWithoutRateIndicator_PackageOptions
+func (a *DomesticPackageDescriptionWithoutRateIndicator_PackageOptions) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for DomesticPackageDescriptionWithoutRateIndicator_PackageOptions to handle AdditionalProperties
+func (a *DomesticPackageDescriptionWithoutRateIndicator_PackageOptions) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["ancillaryServiceEndorsements"]; found {
+		err = json.Unmarshal(raw, &a.AncillaryServiceEndorsements)
+		if err != nil {
+			return fmt.Errorf("error reading 'ancillaryServiceEndorsements': %w", err)
+		}
+		delete(object, "ancillaryServiceEndorsements")
+	}
+
+	if raw, found := object["containers"]; found {
+		err = json.Unmarshal(raw, &a.Containers)
+		if err != nil {
+			return fmt.Errorf("error reading 'containers': %w", err)
+		}
+		delete(object, "containers")
+	}
+
+	if raw, found := object["contentType"]; found {
+		err = json.Unmarshal(raw, &a.ContentType)
+		if err != nil {
+			return fmt.Errorf("error reading 'contentType': %w", err)
+		}
+		delete(object, "contentType")
+	}
+
+	if raw, found := object["generateGXEvent"]; found {
+		err = json.Unmarshal(raw, &a.GenerateGXEvent)
+		if err != nil {
+			return fmt.Errorf("error reading 'generateGXEvent': %w", err)
+		}
+		delete(object, "generateGXEvent")
+	}
+
+	if raw, found := object["immediateManifest"]; found {
+		err = json.Unmarshal(raw, &a.ImmediateManifest)
+		if err != nil {
+			return fmt.Errorf("error reading 'immediateManifest': %w", err)
+		}
+		delete(object, "immediateManifest")
+	}
+
+	if raw, found := object["nonDeliveryOption"]; found {
+		err = json.Unmarshal(raw, &a.NonDeliveryOption)
+		if err != nil {
+			return fmt.Errorf("error reading 'nonDeliveryOption': %w", err)
+		}
+		delete(object, "nonDeliveryOption")
+	}
+
+	if raw, found := object["omas"]; found {
+		err = json.Unmarshal(raw, &a.Omas)
+		if err != nil {
+			return fmt.Errorf("error reading 'omas': %w", err)
+		}
+		delete(object, "omas")
+	}
+
+	if raw, found := object["originalPackage"]; found {
+		err = json.Unmarshal(raw, &a.OriginalPackage)
+		if err != nil {
+			return fmt.Errorf("error reading 'originalPackage': %w", err)
+		}
+		delete(object, "originalPackage")
+	}
+
+	if raw, found := object["packageValue"]; found {
+		err = json.Unmarshal(raw, &a.PackageValue)
+		if err != nil {
+			return fmt.Errorf("error reading 'packageValue': %w", err)
+		}
+		delete(object, "packageValue")
+	}
+
+	if raw, found := object["redirectAddress"]; found {
+		err = json.Unmarshal(raw, &a.RedirectAddress)
+		if err != nil {
+			return fmt.Errorf("error reading 'redirectAddress': %w", err)
+		}
+		delete(object, "redirectAddress")
+	}
+
+	if raw, found := object["returnReceiptTracking"]; found {
+		err = json.Unmarshal(raw, &a.ReturnReceiptTracking)
+		if err != nil {
+			return fmt.Errorf("error reading 'returnReceiptTracking': %w", err)
+		}
+		delete(object, "returnReceiptTracking")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for DomesticPackageDescriptionWithoutRateIndicator_PackageOptions to handle AdditionalProperties
+func (a DomesticPackageDescriptionWithoutRateIndicator_PackageOptions) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.AncillaryServiceEndorsements != nil {
+		object["ancillaryServiceEndorsements"], err = json.Marshal(a.AncillaryServiceEndorsements)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'ancillaryServiceEndorsements': %w", err)
+		}
+	}
+
+	if a.Containers != nil {
+		object["containers"], err = json.Marshal(a.Containers)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'containers': %w", err)
+		}
+	}
+
+	if a.ContentType != nil {
+		object["contentType"], err = json.Marshal(a.ContentType)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'contentType': %w", err)
+		}
+	}
+
+	if a.GenerateGXEvent != nil {
+		object["generateGXEvent"], err = json.Marshal(a.GenerateGXEvent)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'generateGXEvent': %w", err)
+		}
+	}
+
+	if a.ImmediateManifest != nil {
+		object["immediateManifest"], err = json.Marshal(a.ImmediateManifest)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'immediateManifest': %w", err)
+		}
+	}
+
+	if a.NonDeliveryOption != nil {
+		object["nonDeliveryOption"], err = json.Marshal(a.NonDeliveryOption)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'nonDeliveryOption': %w", err)
+		}
+	}
+
+	if a.Omas != nil {
+		object["omas"], err = json.Marshal(a.Omas)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'omas': %w", err)
+		}
+	}
+
+	if a.OriginalPackage != nil {
+		object["originalPackage"], err = json.Marshal(a.OriginalPackage)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'originalPackage': %w", err)
+		}
+	}
+
+	if a.PackageValue != nil {
+		object["packageValue"], err = json.Marshal(a.PackageValue)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'packageValue': %w", err)
+		}
+	}
+
+	if a.RedirectAddress != nil {
+		object["redirectAddress"], err = json.Marshal(a.RedirectAddress)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'redirectAddress': %w", err)
+		}
+	}
+
+	if a.ReturnReceiptTracking != nil {
+		object["returnReceiptTracking"], err = json.Marshal(a.ReturnReceiptTracking)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'returnReceiptTracking': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for DomesticPackageOptions. Returns the specified
+// element and whether it was found
+func (a DomesticPackageOptions) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for DomesticPackageOptions
+func (a *DomesticPackageOptions) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for DomesticPackageOptions to handle AdditionalProperties
+func (a *DomesticPackageOptions) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["ancillaryServiceEndorsements"]; found {
+		err = json.Unmarshal(raw, &a.AncillaryServiceEndorsements)
+		if err != nil {
+			return fmt.Errorf("error reading 'ancillaryServiceEndorsements': %w", err)
+		}
+		delete(object, "ancillaryServiceEndorsements")
+	}
+
+	if raw, found := object["containers"]; found {
+		err = json.Unmarshal(raw, &a.Containers)
+		if err != nil {
+			return fmt.Errorf("error reading 'containers': %w", err)
+		}
+		delete(object, "containers")
+	}
+
+	if raw, found := object["contentType"]; found {
+		err = json.Unmarshal(raw, &a.ContentType)
+		if err != nil {
+			return fmt.Errorf("error reading 'contentType': %w", err)
+		}
+		delete(object, "contentType")
+	}
+
+	if raw, found := object["generateGXEvent"]; found {
+		err = json.Unmarshal(raw, &a.GenerateGXEvent)
+		if err != nil {
+			return fmt.Errorf("error reading 'generateGXEvent': %w", err)
+		}
+		delete(object, "generateGXEvent")
+	}
+
+	if raw, found := object["nonDeliveryOption"]; found {
+		err = json.Unmarshal(raw, &a.NonDeliveryOption)
+		if err != nil {
+			return fmt.Errorf("error reading 'nonDeliveryOption': %w", err)
+		}
+		delete(object, "nonDeliveryOption")
+	}
+
+	if raw, found := object["omas"]; found {
+		err = json.Unmarshal(raw, &a.Omas)
+		if err != nil {
+			return fmt.Errorf("error reading 'omas': %w", err)
+		}
+		delete(object, "omas")
+	}
+
+	if raw, found := object["packageValue"]; found {
+		err = json.Unmarshal(raw, &a.PackageValue)
+		if err != nil {
+			return fmt.Errorf("error reading 'packageValue': %w", err)
+		}
+		delete(object, "packageValue")
+	}
+
+	if raw, found := object["redirectAddress"]; found {
+		err = json.Unmarshal(raw, &a.RedirectAddress)
+		if err != nil {
+			return fmt.Errorf("error reading 'redirectAddress': %w", err)
+		}
+		delete(object, "redirectAddress")
+	}
+
+	if raw, found := object["returnReceiptTracking"]; found {
+		err = json.Unmarshal(raw, &a.ReturnReceiptTracking)
+		if err != nil {
+			return fmt.Errorf("error reading 'returnReceiptTracking': %w", err)
+		}
+		delete(object, "returnReceiptTracking")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for DomesticPackageOptions to handle AdditionalProperties
+func (a DomesticPackageOptions) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.AncillaryServiceEndorsements != nil {
+		object["ancillaryServiceEndorsements"], err = json.Marshal(a.AncillaryServiceEndorsements)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'ancillaryServiceEndorsements': %w", err)
+		}
+	}
+
+	if a.Containers != nil {
+		object["containers"], err = json.Marshal(a.Containers)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'containers': %w", err)
+		}
+	}
+
+	if a.ContentType != nil {
+		object["contentType"], err = json.Marshal(a.ContentType)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'contentType': %w", err)
+		}
+	}
+
+	if a.GenerateGXEvent != nil {
+		object["generateGXEvent"], err = json.Marshal(a.GenerateGXEvent)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'generateGXEvent': %w", err)
+		}
+	}
+
+	if a.NonDeliveryOption != nil {
+		object["nonDeliveryOption"], err = json.Marshal(a.NonDeliveryOption)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'nonDeliveryOption': %w", err)
+		}
+	}
+
+	if a.Omas != nil {
+		object["omas"], err = json.Marshal(a.Omas)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'omas': %w", err)
+		}
+	}
+
+	if a.PackageValue != nil {
+		object["packageValue"], err = json.Marshal(a.PackageValue)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'packageValue': %w", err)
+		}
+	}
+
+	if a.RedirectAddress != nil {
+		object["redirectAddress"], err = json.Marshal(a.RedirectAddress)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'redirectAddress': %w", err)
+		}
+	}
+
+	if a.ReturnReceiptTracking != nil {
+		object["returnReceiptTracking"], err = json.Marshal(a.ReturnReceiptTracking)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'returnReceiptTracking': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for DomesticPackageReturnOptions. Returns the specified
+// element and whether it was found
+func (a DomesticPackageReturnOptions) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for DomesticPackageReturnOptions
+func (a *DomesticPackageReturnOptions) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for DomesticPackageReturnOptions to handle AdditionalProperties
+func (a *DomesticPackageReturnOptions) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["ancillaryServiceEndorsements"]; found {
+		err = json.Unmarshal(raw, &a.AncillaryServiceEndorsements)
+		if err != nil {
+			return fmt.Errorf("error reading 'ancillaryServiceEndorsements': %w", err)
+		}
+		delete(object, "ancillaryServiceEndorsements")
+	}
+
+	if raw, found := object["containers"]; found {
+		err = json.Unmarshal(raw, &a.Containers)
+		if err != nil {
+			return fmt.Errorf("error reading 'containers': %w", err)
+		}
+		delete(object, "containers")
+	}
+
+	if raw, found := object["contentType"]; found {
+		err = json.Unmarshal(raw, &a.ContentType)
+		if err != nil {
+			return fmt.Errorf("error reading 'contentType': %w", err)
+		}
+		delete(object, "contentType")
+	}
+
+	if raw, found := object["generateGXEvent"]; found {
+		err = json.Unmarshal(raw, &a.GenerateGXEvent)
+		if err != nil {
+			return fmt.Errorf("error reading 'generateGXEvent': %w", err)
+		}
+		delete(object, "generateGXEvent")
+	}
+
+	if raw, found := object["immediateManifest"]; found {
+		err = json.Unmarshal(raw, &a.ImmediateManifest)
+		if err != nil {
+			return fmt.Errorf("error reading 'immediateManifest': %w", err)
+		}
+		delete(object, "immediateManifest")
+	}
+
+	if raw, found := object["nonDeliveryOption"]; found {
+		err = json.Unmarshal(raw, &a.NonDeliveryOption)
+		if err != nil {
+			return fmt.Errorf("error reading 'nonDeliveryOption': %w", err)
+		}
+		delete(object, "nonDeliveryOption")
+	}
+
+	if raw, found := object["omas"]; found {
+		err = json.Unmarshal(raw, &a.Omas)
+		if err != nil {
+			return fmt.Errorf("error reading 'omas': %w", err)
+		}
+		delete(object, "omas")
+	}
+
+	if raw, found := object["packageValue"]; found {
+		err = json.Unmarshal(raw, &a.PackageValue)
+		if err != nil {
+			return fmt.Errorf("error reading 'packageValue': %w", err)
+		}
+		delete(object, "packageValue")
+	}
+
+	if raw, found := object["redirectAddress"]; found {
+		err = json.Unmarshal(raw, &a.RedirectAddress)
+		if err != nil {
+			return fmt.Errorf("error reading 'redirectAddress': %w", err)
+		}
+		delete(object, "redirectAddress")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for DomesticPackageReturnOptions to handle AdditionalProperties
+func (a DomesticPackageReturnOptions) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.AncillaryServiceEndorsements != nil {
+		object["ancillaryServiceEndorsements"], err = json.Marshal(a.AncillaryServiceEndorsements)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'ancillaryServiceEndorsements': %w", err)
+		}
+	}
+
+	if a.Containers != nil {
+		object["containers"], err = json.Marshal(a.Containers)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'containers': %w", err)
+		}
+	}
+
+	if a.ContentType != nil {
+		object["contentType"], err = json.Marshal(a.ContentType)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'contentType': %w", err)
+		}
+	}
+
+	if a.GenerateGXEvent != nil {
+		object["generateGXEvent"], err = json.Marshal(a.GenerateGXEvent)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'generateGXEvent': %w", err)
+		}
+	}
+
+	if a.ImmediateManifest != nil {
+		object["immediateManifest"], err = json.Marshal(a.ImmediateManifest)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'immediateManifest': %w", err)
+		}
+	}
+
+	if a.NonDeliveryOption != nil {
+		object["nonDeliveryOption"], err = json.Marshal(a.NonDeliveryOption)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'nonDeliveryOption': %w", err)
+		}
+	}
+
+	if a.Omas != nil {
+		object["omas"], err = json.Marshal(a.Omas)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'omas': %w", err)
+		}
+	}
+
+	if a.PackageValue != nil {
+		object["packageValue"], err = json.Marshal(a.PackageValue)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'packageValue': %w", err)
+		}
+	}
+
+	if a.RedirectAddress != nil {
+		object["redirectAddress"], err = json.Marshal(a.RedirectAddress)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'redirectAddress': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for DomesticReturnsCustomsForm. Returns the specified
+// element and whether it was found
+func (a DomesticReturnsCustomsForm) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for DomesticReturnsCustomsForm
+func (a *DomesticReturnsCustomsForm) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for DomesticReturnsCustomsForm to handle AdditionalProperties
+func (a *DomesticReturnsCustomsForm) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["AESITN"]; found {
+		err = json.Unmarshal(raw, &a.AESITN)
+		if err != nil {
+			return fmt.Errorf("error reading 'AESITN': %w", err)
+		}
+		delete(object, "AESITN")
+	}
+
+	if raw, found := object["certificateNumber"]; found {
+		err = json.Unmarshal(raw, &a.CertificateNumber)
+		if err != nil {
+			return fmt.Errorf("error reading 'certificateNumber': %w", err)
+		}
+		delete(object, "certificateNumber")
+	}
+
+	if raw, found := object["contentComments"]; found {
+		err = json.Unmarshal(raw, &a.ContentComments)
+		if err != nil {
+			return fmt.Errorf("error reading 'contentComments': %w", err)
+		}
+		delete(object, "contentComments")
+	}
+
+	if raw, found := object["contents"]; found {
+		err = json.Unmarshal(raw, &a.Contents)
+		if err != nil {
+			return fmt.Errorf("error reading 'contents': %w", err)
+		}
+		delete(object, "contents")
+	}
+
+	if raw, found := object["customsContentType"]; found {
+		err = json.Unmarshal(raw, &a.CustomsContentType)
+		if err != nil {
+			return fmt.Errorf("error reading 'customsContentType': %w", err)
+		}
+		delete(object, "customsContentType")
+	}
+
+	if raw, found := object["exportersContact"]; found {
+		err = json.Unmarshal(raw, &a.ExportersContact)
+		if err != nil {
+			return fmt.Errorf("error reading 'exportersContact': %w", err)
+		}
+		delete(object, "exportersContact")
+	}
+
+	if raw, found := object["exportersReference"]; found {
+		err = json.Unmarshal(raw, &a.ExportersReference)
+		if err != nil {
+			return fmt.Errorf("error reading 'exportersReference': %w", err)
+		}
+		delete(object, "exportersReference")
+	}
+
+	if raw, found := object["importersContact"]; found {
+		err = json.Unmarshal(raw, &a.ImportersContact)
+		if err != nil {
+			return fmt.Errorf("error reading 'importersContact': %w", err)
+		}
+		delete(object, "importersContact")
+	}
+
+	if raw, found := object["importersReference"]; found {
+		err = json.Unmarshal(raw, &a.ImportersReference)
+		if err != nil {
+			return fmt.Errorf("error reading 'importersReference': %w", err)
+		}
+		delete(object, "importersReference")
+	}
+
+	if raw, found := object["invoiceNumber"]; found {
+		err = json.Unmarshal(raw, &a.InvoiceNumber)
+		if err != nil {
+			return fmt.Errorf("error reading 'invoiceNumber': %w", err)
+		}
+		delete(object, "invoiceNumber")
+	}
+
+	if raw, found := object["licenseNumber"]; found {
+		err = json.Unmarshal(raw, &a.LicenseNumber)
+		if err != nil {
+			return fmt.Errorf("error reading 'licenseNumber': %w", err)
+		}
+		delete(object, "licenseNumber")
+	}
+
+	if raw, found := object["restrictionComments"]; found {
+		err = json.Unmarshal(raw, &a.RestrictionComments)
+		if err != nil {
+			return fmt.Errorf("error reading 'restrictionComments': %w", err)
+		}
+		delete(object, "restrictionComments")
+	}
+
+	if raw, found := object["restrictionType"]; found {
+		err = json.Unmarshal(raw, &a.RestrictionType)
+		if err != nil {
+			return fmt.Errorf("error reading 'restrictionType': %w", err)
+		}
+		delete(object, "restrictionType")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for DomesticReturnsCustomsForm to handle AdditionalProperties
+func (a DomesticReturnsCustomsForm) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.AESITN != nil {
+		object["AESITN"], err = json.Marshal(a.AESITN)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'AESITN': %w", err)
+		}
+	}
+
+	if a.CertificateNumber != nil {
+		object["certificateNumber"], err = json.Marshal(a.CertificateNumber)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'certificateNumber': %w", err)
+		}
+	}
+
+	if a.ContentComments != nil {
+		object["contentComments"], err = json.Marshal(a.ContentComments)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'contentComments': %w", err)
+		}
+	}
+
+	if a.Contents != nil {
+		object["contents"], err = json.Marshal(a.Contents)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'contents': %w", err)
+		}
+	}
+
+	if a.CustomsContentType != nil {
+		object["customsContentType"], err = json.Marshal(a.CustomsContentType)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'customsContentType': %w", err)
+		}
+	}
+
+	if a.ExportersContact != nil {
+		object["exportersContact"], err = json.Marshal(a.ExportersContact)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'exportersContact': %w", err)
+		}
+	}
+
+	if a.ExportersReference != nil {
+		object["exportersReference"], err = json.Marshal(a.ExportersReference)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'exportersReference': %w", err)
+		}
+	}
+
+	if a.ImportersContact != nil {
+		object["importersContact"], err = json.Marshal(a.ImportersContact)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'importersContact': %w", err)
+		}
+	}
+
+	if a.ImportersReference != nil {
+		object["importersReference"], err = json.Marshal(a.ImportersReference)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'importersReference': %w", err)
+		}
+	}
+
+	if a.InvoiceNumber != nil {
+		object["invoiceNumber"], err = json.Marshal(a.InvoiceNumber)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'invoiceNumber': %w", err)
+		}
+	}
+
+	if a.LicenseNumber != nil {
+		object["licenseNumber"], err = json.Marshal(a.LicenseNumber)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'licenseNumber': %w", err)
+		}
+	}
+
+	if a.RestrictionComments != nil {
+		object["restrictionComments"], err = json.Marshal(a.RestrictionComments)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'restrictionComments': %w", err)
+		}
+	}
+
+	if a.RestrictionType != nil {
+		object["restrictionType"], err = json.Marshal(a.RestrictionType)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'restrictionType': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for ErrorMessage. Returns the specified
+// element and whether it was found
+func (a ErrorMessage) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for ErrorMessage
+func (a *ErrorMessage) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for ErrorMessage to handle AdditionalProperties
+func (a *ErrorMessage) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["apiVersion"]; found {
+		err = json.Unmarshal(raw, &a.ApiVersion)
+		if err != nil {
+			return fmt.Errorf("error reading 'apiVersion': %w", err)
+		}
+		delete(object, "apiVersion")
+	}
+
+	if raw, found := object["error"]; found {
+		err = json.Unmarshal(raw, &a.Error)
+		if err != nil {
+			return fmt.Errorf("error reading 'error': %w", err)
+		}
+		delete(object, "error")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for ErrorMessage to handle AdditionalProperties
+func (a ErrorMessage) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.ApiVersion != nil {
+		object["apiVersion"], err = json.Marshal(a.ApiVersion)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'apiVersion': %w", err)
+		}
+	}
+
+	if a.Error != nil {
+		object["error"], err = json.Marshal(a.Error)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'error': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for ErrorMessage_Error_Errors_Source. Returns the specified
+// element and whether it was found
+func (a ErrorMessage_Error_Errors_Source) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for ErrorMessage_Error_Errors_Source
+func (a *ErrorMessage_Error_Errors_Source) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for ErrorMessage_Error_Errors_Source to handle AdditionalProperties
+func (a *ErrorMessage_Error_Errors_Source) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["example"]; found {
+		err = json.Unmarshal(raw, &a.Example)
+		if err != nil {
+			return fmt.Errorf("error reading 'example': %w", err)
+		}
+		delete(object, "example")
+	}
+
+	if raw, found := object["parameter"]; found {
+		err = json.Unmarshal(raw, &a.Parameter)
+		if err != nil {
+			return fmt.Errorf("error reading 'parameter': %w", err)
+		}
+		delete(object, "parameter")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for ErrorMessage_Error_Errors_Source to handle AdditionalProperties
+func (a ErrorMessage_Error_Errors_Source) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.Example != nil {
+		object["example"], err = json.Marshal(a.Example)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'example': %w", err)
+		}
+	}
+
+	if a.Parameter != nil {
+		object["parameter"], err = json.Marshal(a.Parameter)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'parameter': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for ErrorMessage_Error_Errors_Item. Returns the specified
+// element and whether it was found
+func (a ErrorMessage_Error_Errors_Item) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for ErrorMessage_Error_Errors_Item
+func (a *ErrorMessage_Error_Errors_Item) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for ErrorMessage_Error_Errors_Item to handle AdditionalProperties
+func (a *ErrorMessage_Error_Errors_Item) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["code"]; found {
+		err = json.Unmarshal(raw, &a.Code)
+		if err != nil {
+			return fmt.Errorf("error reading 'code': %w", err)
+		}
+		delete(object, "code")
+	}
+
+	if raw, found := object["detail"]; found {
+		err = json.Unmarshal(raw, &a.Detail)
+		if err != nil {
+			return fmt.Errorf("error reading 'detail': %w", err)
+		}
+		delete(object, "detail")
+	}
+
+	if raw, found := object["source"]; found {
+		err = json.Unmarshal(raw, &a.Source)
+		if err != nil {
+			return fmt.Errorf("error reading 'source': %w", err)
+		}
+		delete(object, "source")
+	}
+
+	if raw, found := object["status"]; found {
+		err = json.Unmarshal(raw, &a.Status)
+		if err != nil {
+			return fmt.Errorf("error reading 'status': %w", err)
+		}
+		delete(object, "status")
+	}
+
+	if raw, found := object["title"]; found {
+		err = json.Unmarshal(raw, &a.Title)
+		if err != nil {
+			return fmt.Errorf("error reading 'title': %w", err)
+		}
+		delete(object, "title")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for ErrorMessage_Error_Errors_Item to handle AdditionalProperties
+func (a ErrorMessage_Error_Errors_Item) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.Code != nil {
+		object["code"], err = json.Marshal(a.Code)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'code': %w", err)
+		}
+	}
+
+	if a.Detail != nil {
+		object["detail"], err = json.Marshal(a.Detail)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'detail': %w", err)
+		}
+	}
+
+	if a.Source != nil {
+		object["source"], err = json.Marshal(a.Source)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'source': %w", err)
+		}
+	}
+
+	if a.Status != nil {
+		object["status"], err = json.Marshal(a.Status)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'status': %w", err)
+		}
+	}
+
+	if a.Title != nil {
+		object["title"], err = json.Marshal(a.Title)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'title': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for ErrorMessage_Error. Returns the specified
+// element and whether it was found
+func (a ErrorMessage_Error) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for ErrorMessage_Error
+func (a *ErrorMessage_Error) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for ErrorMessage_Error to handle AdditionalProperties
+func (a *ErrorMessage_Error) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["code"]; found {
+		err = json.Unmarshal(raw, &a.Code)
+		if err != nil {
+			return fmt.Errorf("error reading 'code': %w", err)
+		}
+		delete(object, "code")
+	}
+
+	if raw, found := object["errors"]; found {
+		err = json.Unmarshal(raw, &a.Errors)
+		if err != nil {
+			return fmt.Errorf("error reading 'errors': %w", err)
+		}
+		delete(object, "errors")
+	}
+
+	if raw, found := object["message"]; found {
+		err = json.Unmarshal(raw, &a.Message)
+		if err != nil {
+			return fmt.Errorf("error reading 'message': %w", err)
+		}
+		delete(object, "message")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for ErrorMessage_Error to handle AdditionalProperties
+func (a ErrorMessage_Error) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.Code != nil {
+		object["code"], err = json.Marshal(a.Code)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'code': %w", err)
+		}
+	}
+
+	if a.Errors != nil {
+		object["errors"], err = json.Marshal(a.Errors)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'errors': %w", err)
+		}
+	}
+
+	if a.Message != nil {
+		object["message"], err = json.Marshal(a.Message)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'message': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for ImageInfo. Returns the specified
+// element and whether it was found
+func (a ImageInfo) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for ImageInfo
+func (a *ImageInfo) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for ImageInfo to handle AdditionalProperties
+func (a *ImageInfo) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["addImageComments"]; found {
+		err = json.Unmarshal(raw, &a.AddImageComments)
+		if err != nil {
+			return fmt.Errorf("error reading 'addImageComments': %w", err)
+		}
+		delete(object, "addImageComments")
+	}
+
+	if raw, found := object["addZPLComments"]; found {
+		err = json.Unmarshal(raw, &a.AddZPLComments)
+		if err != nil {
+			return fmt.Errorf("error reading 'addZPLComments': %w", err)
+		}
+		delete(object, "addZPLComments")
+	}
+
+	if raw, found := object["brandingImageFormat"]; found {
+		err = json.Unmarshal(raw, &a.BrandingImageFormat)
+		if err != nil {
+			return fmt.Errorf("error reading 'brandingImageFormat': %w", err)
+		}
+		delete(object, "brandingImageFormat")
+	}
+
+	if raw, found := object["brandingImageUUIDs"]; found {
+		err = json.Unmarshal(raw, &a.BrandingImageUUIDs)
+		if err != nil {
+			return fmt.Errorf("error reading 'brandingImageUUIDs': %w", err)
+		}
+		delete(object, "brandingImageUUIDs")
+	}
+
+	if raw, found := object["imageType"]; found {
+		err = json.Unmarshal(raw, &a.ImageType)
+		if err != nil {
+			return fmt.Errorf("error reading 'imageType': %w", err)
+		}
+		delete(object, "imageType")
+	}
+
+	if raw, found := object["includeLabelBrokerPDF"]; found {
+		err = json.Unmarshal(raw, &a.IncludeLabelBrokerPDF)
+		if err != nil {
+			return fmt.Errorf("error reading 'includeLabelBrokerPDF': %w", err)
+		}
+		delete(object, "includeLabelBrokerPDF")
+	}
+
+	if raw, found := object["labelType"]; found {
+		err = json.Unmarshal(raw, &a.LabelType)
+		if err != nil {
+			return fmt.Errorf("error reading 'labelType': %w", err)
+		}
+		delete(object, "labelType")
+	}
+
+	if raw, found := object["receiptOption"]; found {
+		err = json.Unmarshal(raw, &a.ReceiptOption)
+		if err != nil {
+			return fmt.Errorf("error reading 'receiptOption': %w", err)
+		}
+		delete(object, "receiptOption")
+	}
+
+	if raw, found := object["shipInfo"]; found {
+		err = json.Unmarshal(raw, &a.ShipInfo)
+		if err != nil {
+			return fmt.Errorf("error reading 'shipInfo': %w", err)
+		}
+		delete(object, "shipInfo")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for ImageInfo to handle AdditionalProperties
+func (a ImageInfo) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.AddImageComments != nil {
+		object["addImageComments"], err = json.Marshal(a.AddImageComments)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'addImageComments': %w", err)
+		}
+	}
+
+	if a.AddZPLComments != nil {
+		object["addZPLComments"], err = json.Marshal(a.AddZPLComments)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'addZPLComments': %w", err)
+		}
+	}
+
+	if a.BrandingImageFormat != nil {
+		object["brandingImageFormat"], err = json.Marshal(a.BrandingImageFormat)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'brandingImageFormat': %w", err)
+		}
+	}
+
+	if a.BrandingImageUUIDs != nil {
+		object["brandingImageUUIDs"], err = json.Marshal(a.BrandingImageUUIDs)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'brandingImageUUIDs': %w", err)
+		}
+	}
+
+	if a.ImageType != nil {
+		object["imageType"], err = json.Marshal(a.ImageType)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'imageType': %w", err)
+		}
+	}
+
+	if a.IncludeLabelBrokerPDF != nil {
+		object["includeLabelBrokerPDF"], err = json.Marshal(a.IncludeLabelBrokerPDF)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'includeLabelBrokerPDF': %w", err)
+		}
+	}
+
+	if a.LabelType != nil {
+		object["labelType"], err = json.Marshal(a.LabelType)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'labelType': %w", err)
+		}
+	}
+
+	if a.ReceiptOption != nil {
+		object["receiptOption"], err = json.Marshal(a.ReceiptOption)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'receiptOption': %w", err)
+		}
+	}
+
+	if a.ShipInfo != nil {
+		object["shipInfo"], err = json.Marshal(a.ShipInfo)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'shipInfo': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for IndiciaImbAddress. Returns the specified
+// element and whether it was found
+func (a IndiciaImbAddress) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for IndiciaImbAddress
+func (a *IndiciaImbAddress) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for IndiciaImbAddress to handle AdditionalProperties
+func (a *IndiciaImbAddress) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["ZIPCode"]; found {
+		err = json.Unmarshal(raw, &a.ZIPCode)
+		if err != nil {
+			return fmt.Errorf("error reading 'ZIPCode': %w", err)
+		}
+		delete(object, "ZIPCode")
+	}
+
+	if raw, found := object["ZIPPlus4"]; found {
+		err = json.Unmarshal(raw, &a.ZIPPlus4)
+		if err != nil {
+			return fmt.Errorf("error reading 'ZIPPlus4': %w", err)
+		}
+		delete(object, "ZIPPlus4")
+	}
+
+	if raw, found := object["city"]; found {
+		err = json.Unmarshal(raw, &a.City)
+		if err != nil {
+			return fmt.Errorf("error reading 'city': %w", err)
+		}
+		delete(object, "city")
+	}
+
+	if raw, found := object["cityAbbreviation"]; found {
+		err = json.Unmarshal(raw, &a.CityAbbreviation)
+		if err != nil {
+			return fmt.Errorf("error reading 'cityAbbreviation': %w", err)
+		}
+		delete(object, "cityAbbreviation")
+	}
+
+	if raw, found := object["firm"]; found {
+		err = json.Unmarshal(raw, &a.Firm)
+		if err != nil {
+			return fmt.Errorf("error reading 'firm': %w", err)
+		}
+		delete(object, "firm")
+	}
+
+	if raw, found := object["firstName"]; found {
+		err = json.Unmarshal(raw, &a.FirstName)
+		if err != nil {
+			return fmt.Errorf("error reading 'firstName': %w", err)
+		}
+		delete(object, "firstName")
+	}
+
+	if raw, found := object["ignoreBadAddress"]; found {
+		err = json.Unmarshal(raw, &a.IgnoreBadAddress)
+		if err != nil {
+			return fmt.Errorf("error reading 'ignoreBadAddress': %w", err)
+		}
+		delete(object, "ignoreBadAddress")
+	}
+
+	if raw, found := object["lastName"]; found {
+		err = json.Unmarshal(raw, &a.LastName)
+		if err != nil {
+			return fmt.Errorf("error reading 'lastName': %w", err)
+		}
+		delete(object, "lastName")
+	}
+
+	if raw, found := object["secondaryAddress"]; found {
+		err = json.Unmarshal(raw, &a.SecondaryAddress)
+		if err != nil {
+			return fmt.Errorf("error reading 'secondaryAddress': %w", err)
+		}
+		delete(object, "secondaryAddress")
+	}
+
+	if raw, found := object["state"]; found {
+		err = json.Unmarshal(raw, &a.State)
+		if err != nil {
+			return fmt.Errorf("error reading 'state': %w", err)
+		}
+		delete(object, "state")
+	}
+
+	if raw, found := object["streetAddress"]; found {
+		err = json.Unmarshal(raw, &a.StreetAddress)
+		if err != nil {
+			return fmt.Errorf("error reading 'streetAddress': %w", err)
+		}
+		delete(object, "streetAddress")
+	}
+
+	if raw, found := object["streetAddressAbbreviation"]; found {
+		err = json.Unmarshal(raw, &a.StreetAddressAbbreviation)
+		if err != nil {
+			return fmt.Errorf("error reading 'streetAddressAbbreviation': %w", err)
+		}
+		delete(object, "streetAddressAbbreviation")
+	}
+
+	if raw, found := object["urbanization"]; found {
+		err = json.Unmarshal(raw, &a.Urbanization)
+		if err != nil {
+			return fmt.Errorf("error reading 'urbanization': %w", err)
+		}
+		delete(object, "urbanization")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for IndiciaImbAddress to handle AdditionalProperties
+func (a IndiciaImbAddress) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.ZIPCode != nil {
+		object["ZIPCode"], err = json.Marshal(a.ZIPCode)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'ZIPCode': %w", err)
+		}
+	}
+
+	if a.ZIPPlus4 != nil {
+		object["ZIPPlus4"], err = json.Marshal(a.ZIPPlus4)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'ZIPPlus4': %w", err)
+		}
+	}
+
+	if a.City != nil {
+		object["city"], err = json.Marshal(a.City)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'city': %w", err)
+		}
+	}
+
+	if a.CityAbbreviation != nil {
+		object["cityAbbreviation"], err = json.Marshal(a.CityAbbreviation)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'cityAbbreviation': %w", err)
+		}
+	}
+
+	if a.Firm != nil {
+		object["firm"], err = json.Marshal(a.Firm)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'firm': %w", err)
+		}
+	}
+
+	if a.FirstName != nil {
+		object["firstName"], err = json.Marshal(a.FirstName)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'firstName': %w", err)
+		}
+	}
+
+	if a.IgnoreBadAddress != nil {
+		object["ignoreBadAddress"], err = json.Marshal(a.IgnoreBadAddress)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'ignoreBadAddress': %w", err)
+		}
+	}
+
+	if a.LastName != nil {
+		object["lastName"], err = json.Marshal(a.LastName)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'lastName': %w", err)
+		}
+	}
+
+	if a.SecondaryAddress != nil {
+		object["secondaryAddress"], err = json.Marshal(a.SecondaryAddress)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'secondaryAddress': %w", err)
+		}
+	}
+
+	if a.State != nil {
+		object["state"], err = json.Marshal(a.State)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'state': %w", err)
+		}
+	}
+
+	if a.StreetAddress != nil {
+		object["streetAddress"], err = json.Marshal(a.StreetAddress)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'streetAddress': %w", err)
+		}
+	}
+
+	if a.StreetAddressAbbreviation != nil {
+		object["streetAddressAbbreviation"], err = json.Marshal(a.StreetAddressAbbreviation)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'streetAddressAbbreviation': %w", err)
+		}
+	}
+
+	if a.Urbanization != nil {
+		object["urbanization"], err = json.Marshal(a.Urbanization)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'urbanization': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for IndiciaImbImageInfo. Returns the specified
+// element and whether it was found
+func (a IndiciaImbImageInfo) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for IndiciaImbImageInfo
+func (a *IndiciaImbImageInfo) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for IndiciaImbImageInfo to handle AdditionalProperties
+func (a *IndiciaImbImageInfo) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["imageType"]; found {
+		err = json.Unmarshal(raw, &a.ImageType)
+		if err != nil {
+			return fmt.Errorf("error reading 'imageType': %w", err)
+		}
+		delete(object, "imageType")
+	}
+
+	if raw, found := object["labelType"]; found {
+		err = json.Unmarshal(raw, &a.LabelType)
+		if err != nil {
+			return fmt.Errorf("error reading 'labelType': %w", err)
+		}
+		delete(object, "labelType")
+	}
+
+	if raw, found := object["receiptOption"]; found {
+		err = json.Unmarshal(raw, &a.ReceiptOption)
+		if err != nil {
+			return fmt.Errorf("error reading 'receiptOption': %w", err)
+		}
+		delete(object, "receiptOption")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for IndiciaImbImageInfo to handle AdditionalProperties
+func (a IndiciaImbImageInfo) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.ImageType != nil {
+		object["imageType"], err = json.Marshal(a.ImageType)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'imageType': %w", err)
+		}
+	}
+
+	if a.LabelType != nil {
+		object["labelType"], err = json.Marshal(a.LabelType)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'labelType': %w", err)
+		}
+	}
+
+	if a.ReceiptOption != nil {
+		object["receiptOption"], err = json.Marshal(a.ReceiptOption)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'receiptOption': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for IndiciaRequest. Returns the specified
+// element and whether it was found
+func (a IndiciaRequest) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for IndiciaRequest
+func (a *IndiciaRequest) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for IndiciaRequest to handle AdditionalProperties
+func (a *IndiciaRequest) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["imageInfo"]; found {
+		err = json.Unmarshal(raw, &a.ImageInfo)
+		if err != nil {
+			return fmt.Errorf("error reading 'imageInfo': %w", err)
+		}
+		delete(object, "imageInfo")
+	}
+
+	if raw, found := object["indiciaDescription"]; found {
+		err = json.Unmarshal(raw, &a.IndiciaDescription)
+		if err != nil {
+			return fmt.Errorf("error reading 'indiciaDescription': %w", err)
+		}
+		delete(object, "indiciaDescription")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for IndiciaRequest to handle AdditionalProperties
+func (a IndiciaRequest) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.ImageInfo != nil {
+		object["imageInfo"], err = json.Marshal(a.ImageInfo)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'imageInfo': %w", err)
+		}
+	}
+
+	object["indiciaDescription"], err = json.Marshal(a.IndiciaDescription)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'indiciaDescription': %w", err)
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for LabelMetadata. Returns the specified
+// element and whether it was found
+func (a LabelMetadata) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for LabelMetadata
+func (a *LabelMetadata) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for LabelMetadata to handle AdditionalProperties
+func (a *LabelMetadata) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["SKU"]; found {
+		err = json.Unmarshal(raw, &a.SKU)
+		if err != nil {
+			return fmt.Errorf("error reading 'SKU': %w", err)
+		}
+		delete(object, "SKU")
+	}
+
+	if raw, found := object["bannerText"]; found {
+		err = json.Unmarshal(raw, &a.BannerText)
+		if err != nil {
+			return fmt.Errorf("error reading 'bannerText': %w", err)
+		}
+		delete(object, "bannerText")
+	}
+
+	if raw, found := object["commitment"]; found {
+		err = json.Unmarshal(raw, &a.Commitment)
+		if err != nil {
+			return fmt.Errorf("error reading 'commitment': %w", err)
+		}
+		delete(object, "commitment")
+	}
+
+	if raw, found := object["constructCode"]; found {
+		err = json.Unmarshal(raw, &a.ConstructCode)
+		if err != nil {
+			return fmt.Errorf("error reading 'constructCode': %w", err)
+		}
+		delete(object, "constructCode")
+	}
+
+	if raw, found := object["dimensionalWeight"]; found {
+		err = json.Unmarshal(raw, &a.DimensionalWeight)
+		if err != nil {
+			return fmt.Errorf("error reading 'dimensionalWeight': %w", err)
+		}
+		delete(object, "dimensionalWeight")
+	}
+
+	if raw, found := object["extraServices"]; found {
+		err = json.Unmarshal(raw, &a.ExtraServices)
+		if err != nil {
+			return fmt.Errorf("error reading 'extraServices': %w", err)
+		}
+		delete(object, "extraServices")
+	}
+
+	if raw, found := object["fees"]; found {
+		err = json.Unmarshal(raw, &a.Fees)
+		if err != nil {
+			return fmt.Errorf("error reading 'fees': %w", err)
+		}
+		delete(object, "fees")
+	}
+
+	if raw, found := object["inductionType"]; found {
+		err = json.Unmarshal(raw, &a.InductionType)
+		if err != nil {
+			return fmt.Errorf("error reading 'inductionType': %w", err)
+		}
+		delete(object, "inductionType")
 	}
 
 	if raw, found := object["labelAddress"]; found {
@@ -153,12 +11799,76 @@ func (a *LabelResponse) UnmarshalJSON(b []byte) error {
 		delete(object, "labelAddress")
 	}
 
-	if raw, found := object["labelImage"]; found {
-		err = json.Unmarshal(raw, &a.LabelImage)
+	if raw, found := object["labelBrokerID"]; found {
+		err = json.Unmarshal(raw, &a.LabelBrokerID)
 		if err != nil {
-			return fmt.Errorf("error reading 'labelImage': %w", err)
+			return fmt.Errorf("error reading 'labelBrokerID': %w", err)
 		}
-		delete(object, "labelImage")
+		delete(object, "labelBrokerID")
+	}
+
+	if raw, found := object["links"]; found {
+		err = json.Unmarshal(raw, &a.Links)
+		if err != nil {
+			return fmt.Errorf("error reading 'links': %w", err)
+		}
+		delete(object, "links")
+	}
+
+	if raw, found := object["mailingDate"]; found {
+		err = json.Unmarshal(raw, &a.MailingDate)
+		if err != nil {
+			return fmt.Errorf("error reading 'mailingDate': %w", err)
+		}
+		delete(object, "mailingDate")
+	}
+
+	if raw, found := object["permitHolderName"]; found {
+		err = json.Unmarshal(raw, &a.PermitHolderName)
+		if err != nil {
+			return fmt.Errorf("error reading 'permitHolderName': %w", err)
+		}
+		delete(object, "permitHolderName")
+	}
+
+	if raw, found := object["postage"]; found {
+		err = json.Unmarshal(raw, &a.Postage)
+		if err != nil {
+			return fmt.Errorf("error reading 'postage': %w", err)
+		}
+		delete(object, "postage")
+	}
+
+	if raw, found := object["retailDistributionCode"]; found {
+		err = json.Unmarshal(raw, &a.RetailDistributionCode)
+		if err != nil {
+			return fmt.Errorf("error reading 'retailDistributionCode': %w", err)
+		}
+		delete(object, "retailDistributionCode")
+	}
+
+	if raw, found := object["returnReceiptTrackingNumber"]; found {
+		err = json.Unmarshal(raw, &a.ReturnReceiptTrackingNumber)
+		if err != nil {
+			return fmt.Errorf("error reading 'returnReceiptTrackingNumber': %w", err)
+		}
+		delete(object, "returnReceiptTrackingNumber")
+	}
+
+	if raw, found := object["routingInformation"]; found {
+		err = json.Unmarshal(raw, &a.RoutingInformation)
+		if err != nil {
+			return fmt.Errorf("error reading 'routingInformation': %w", err)
+		}
+		delete(object, "routingInformation")
+	}
+
+	if raw, found := object["serviceTypeCode"]; found {
+		err = json.Unmarshal(raw, &a.ServiceTypeCode)
+		if err != nil {
+			return fmt.Errorf("error reading 'serviceTypeCode': %w", err)
+		}
+		delete(object, "serviceTypeCode")
 	}
 
 	if raw, found := object["trackingNumber"]; found {
@@ -167,6 +11877,38 @@ func (a *LabelResponse) UnmarshalJSON(b []byte) error {
 			return fmt.Errorf("error reading 'trackingNumber': %w", err)
 		}
 		delete(object, "trackingNumber")
+	}
+
+	if raw, found := object["warnings"]; found {
+		err = json.Unmarshal(raw, &a.Warnings)
+		if err != nil {
+			return fmt.Errorf("error reading 'warnings': %w", err)
+		}
+		delete(object, "warnings")
+	}
+
+	if raw, found := object["weight"]; found {
+		err = json.Unmarshal(raw, &a.Weight)
+		if err != nil {
+			return fmt.Errorf("error reading 'weight': %w", err)
+		}
+		delete(object, "weight")
+	}
+
+	if raw, found := object["weightUOM"]; found {
+		err = json.Unmarshal(raw, &a.WeightUOM)
+		if err != nil {
+			return fmt.Errorf("error reading 'weightUOM': %w", err)
+		}
+		delete(object, "weightUOM")
+	}
+
+	if raw, found := object["zone"]; found {
+		err = json.Unmarshal(raw, &a.Zone)
+		if err != nil {
+			return fmt.Errorf("error reading 'zone': %w", err)
+		}
+		delete(object, "zone")
 	}
 
 	if len(object) != 0 {
@@ -183,15 +11925,64 @@ func (a *LabelResponse) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// Override default JSON handling for LabelResponse to handle AdditionalProperties
-func (a LabelResponse) MarshalJSON() ([]byte, error) {
+// Override default JSON handling for LabelMetadata to handle AdditionalProperties
+func (a LabelMetadata) MarshalJSON() ([]byte, error) {
 	var err error
 	object := make(map[string]json.RawMessage)
 
-	if a.Image != nil {
-		object["image"], err = json.Marshal(a.Image)
+	if a.SKU != nil {
+		object["SKU"], err = json.Marshal(a.SKU)
 		if err != nil {
-			return nil, fmt.Errorf("error marshaling 'image': %w", err)
+			return nil, fmt.Errorf("error marshaling 'SKU': %w", err)
+		}
+	}
+
+	if a.BannerText != nil {
+		object["bannerText"], err = json.Marshal(a.BannerText)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'bannerText': %w", err)
+		}
+	}
+
+	if a.Commitment != nil {
+		object["commitment"], err = json.Marshal(a.Commitment)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'commitment': %w", err)
+		}
+	}
+
+	if a.ConstructCode != nil {
+		object["constructCode"], err = json.Marshal(a.ConstructCode)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'constructCode': %w", err)
+		}
+	}
+
+	if a.DimensionalWeight != nil {
+		object["dimensionalWeight"], err = json.Marshal(a.DimensionalWeight)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'dimensionalWeight': %w", err)
+		}
+	}
+
+	if a.ExtraServices != nil {
+		object["extraServices"], err = json.Marshal(a.ExtraServices)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'extraServices': %w", err)
+		}
+	}
+
+	if a.Fees != nil {
+		object["fees"], err = json.Marshal(a.Fees)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'fees': %w", err)
+		}
+	}
+
+	if a.InductionType != nil {
+		object["inductionType"], err = json.Marshal(a.InductionType)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'inductionType': %w", err)
 		}
 	}
 
@@ -202,10 +11993,66 @@ func (a LabelResponse) MarshalJSON() ([]byte, error) {
 		}
 	}
 
-	if a.LabelImage != nil {
-		object["labelImage"], err = json.Marshal(a.LabelImage)
+	if a.LabelBrokerID != nil {
+		object["labelBrokerID"], err = json.Marshal(a.LabelBrokerID)
 		if err != nil {
-			return nil, fmt.Errorf("error marshaling 'labelImage': %w", err)
+			return nil, fmt.Errorf("error marshaling 'labelBrokerID': %w", err)
+		}
+	}
+
+	if a.Links != nil {
+		object["links"], err = json.Marshal(a.Links)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'links': %w", err)
+		}
+	}
+
+	if a.MailingDate != nil {
+		object["mailingDate"], err = json.Marshal(a.MailingDate)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'mailingDate': %w", err)
+		}
+	}
+
+	if a.PermitHolderName != nil {
+		object["permitHolderName"], err = json.Marshal(a.PermitHolderName)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'permitHolderName': %w", err)
+		}
+	}
+
+	if a.Postage != nil {
+		object["postage"], err = json.Marshal(a.Postage)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'postage': %w", err)
+		}
+	}
+
+	if a.RetailDistributionCode != nil {
+		object["retailDistributionCode"], err = json.Marshal(a.RetailDistributionCode)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'retailDistributionCode': %w", err)
+		}
+	}
+
+	if a.ReturnReceiptTrackingNumber != nil {
+		object["returnReceiptTrackingNumber"], err = json.Marshal(a.ReturnReceiptTrackingNumber)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'returnReceiptTrackingNumber': %w", err)
+		}
+	}
+
+	if a.RoutingInformation != nil {
+		object["routingInformation"], err = json.Marshal(a.RoutingInformation)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'routingInformation': %w", err)
+		}
+	}
+
+	if a.ServiceTypeCode != nil {
+		object["serviceTypeCode"], err = json.Marshal(a.ServiceTypeCode)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'serviceTypeCode': %w", err)
 		}
 	}
 
@@ -213,6 +12060,34 @@ func (a LabelResponse) MarshalJSON() ([]byte, error) {
 		object["trackingNumber"], err = json.Marshal(a.TrackingNumber)
 		if err != nil {
 			return nil, fmt.Errorf("error marshaling 'trackingNumber': %w", err)
+		}
+	}
+
+	if a.Warnings != nil {
+		object["warnings"], err = json.Marshal(a.Warnings)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'warnings': %w", err)
+		}
+	}
+
+	if a.Weight != nil {
+		object["weight"], err = json.Marshal(a.Weight)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'weight': %w", err)
+		}
+	}
+
+	if a.WeightUOM != nil {
+		object["weightUOM"], err = json.Marshal(a.WeightUOM)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'weightUOM': %w", err)
+		}
+	}
+
+	if a.Zone != nil {
+		object["zone"], err = json.Marshal(a.Zone)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'zone': %w", err)
 		}
 	}
 
@@ -225,37 +12100,141 @@ func (a LabelResponse) MarshalJSON() ([]byte, error) {
 	return json.Marshal(object)
 }
 
-// Getter for additional properties for LabelResponse_LabelAddress. Returns the specified
+// Getter for additional properties for LabelRequest_ImageInfo. Returns the specified
 // element and whether it was found
-func (a LabelResponse_LabelAddress) Get(fieldName string) (value interface{}, found bool) {
+func (a LabelRequest_ImageInfo) Get(fieldName string) (value interface{}, found bool) {
 	if a.AdditionalProperties != nil {
 		value, found = a.AdditionalProperties[fieldName]
 	}
 	return
 }
 
-// Setter for additional properties for LabelResponse_LabelAddress
-func (a *LabelResponse_LabelAddress) Set(fieldName string, value interface{}) {
+// Setter for additional properties for LabelRequest_ImageInfo
+func (a *LabelRequest_ImageInfo) Set(fieldName string, value interface{}) {
 	if a.AdditionalProperties == nil {
 		a.AdditionalProperties = make(map[string]interface{})
 	}
 	a.AdditionalProperties[fieldName] = value
 }
 
-// Override default JSON handling for LabelResponse_LabelAddress to handle AdditionalProperties
-func (a *LabelResponse_LabelAddress) UnmarshalJSON(b []byte) error {
+// Override default JSON handling for LabelRequest_ImageInfo to handle AdditionalProperties
+func (a *LabelRequest_ImageInfo) UnmarshalJSON(b []byte) error {
 	object := make(map[string]json.RawMessage)
 	err := json.Unmarshal(b, &object)
 	if err != nil {
 		return err
 	}
 
-	if raw, found := object["trackingNumber"]; found {
-		err = json.Unmarshal(raw, &a.TrackingNumber)
+	if raw, found := object["addImageComments"]; found {
+		err = json.Unmarshal(raw, &a.AddImageComments)
 		if err != nil {
-			return fmt.Errorf("error reading 'trackingNumber': %w", err)
+			return fmt.Errorf("error reading 'addImageComments': %w", err)
 		}
-		delete(object, "trackingNumber")
+		delete(object, "addImageComments")
+	}
+
+	if raw, found := object["addZPLComments"]; found {
+		err = json.Unmarshal(raw, &a.AddZPLComments)
+		if err != nil {
+			return fmt.Errorf("error reading 'addZPLComments': %w", err)
+		}
+		delete(object, "addZPLComments")
+	}
+
+	if raw, found := object["brandingImageFormat"]; found {
+		err = json.Unmarshal(raw, &a.BrandingImageFormat)
+		if err != nil {
+			return fmt.Errorf("error reading 'brandingImageFormat': %w", err)
+		}
+		delete(object, "brandingImageFormat")
+	}
+
+	if raw, found := object["brandingImageUUIDs"]; found {
+		err = json.Unmarshal(raw, &a.BrandingImageUUIDs)
+		if err != nil {
+			return fmt.Errorf("error reading 'brandingImageUUIDs': %w", err)
+		}
+		delete(object, "brandingImageUUIDs")
+	}
+
+	if raw, found := object["imageType"]; found {
+		err = json.Unmarshal(raw, &a.ImageType)
+		if err != nil {
+			return fmt.Errorf("error reading 'imageType': %w", err)
+		}
+		delete(object, "imageType")
+	}
+
+	if raw, found := object["includeLabelBrokerPDF"]; found {
+		err = json.Unmarshal(raw, &a.IncludeLabelBrokerPDF)
+		if err != nil {
+			return fmt.Errorf("error reading 'includeLabelBrokerPDF': %w", err)
+		}
+		delete(object, "includeLabelBrokerPDF")
+	}
+
+	if raw, found := object["labelType"]; found {
+		err = json.Unmarshal(raw, &a.LabelType)
+		if err != nil {
+			return fmt.Errorf("error reading 'labelType': %w", err)
+		}
+		delete(object, "labelType")
+	}
+
+	if raw, found := object["packageNumber"]; found {
+		err = json.Unmarshal(raw, &a.PackageNumber)
+		if err != nil {
+			return fmt.Errorf("error reading 'packageNumber': %w", err)
+		}
+		delete(object, "packageNumber")
+	}
+
+	if raw, found := object["receiptOption"]; found {
+		err = json.Unmarshal(raw, &a.ReceiptOption)
+		if err != nil {
+			return fmt.Errorf("error reading 'receiptOption': %w", err)
+		}
+		delete(object, "receiptOption")
+	}
+
+	if raw, found := object["returnLabel"]; found {
+		err = json.Unmarshal(raw, &a.ReturnLabel)
+		if err != nil {
+			return fmt.Errorf("error reading 'returnLabel': %w", err)
+		}
+		delete(object, "returnLabel")
+	}
+
+	if raw, found := object["shipInfo"]; found {
+		err = json.Unmarshal(raw, &a.ShipInfo)
+		if err != nil {
+			return fmt.Errorf("error reading 'shipInfo': %w", err)
+		}
+		delete(object, "shipInfo")
+	}
+
+	if raw, found := object["suppressMailDate"]; found {
+		err = json.Unmarshal(raw, &a.SuppressMailDate)
+		if err != nil {
+			return fmt.Errorf("error reading 'suppressMailDate': %w", err)
+		}
+		delete(object, "suppressMailDate")
+	}
+
+	if raw, found := object["suppressPostage"]; found {
+		err = json.Unmarshal(raw, &a.SuppressPostage)
+		if err != nil {
+			return fmt.Errorf("error reading 'suppressPostage': %w", err)
+		}
+		delete(object, "suppressPostage")
+	}
+
+	if raw, found := object["totalPackages"]; found {
+		err = json.Unmarshal(raw, &a.TotalPackages)
+		if err != nil {
+			return fmt.Errorf("error reading 'totalPackages': %w", err)
+		}
+		delete(object, "totalPackages")
 	}
 
 	if len(object) != 0 {
@@ -272,15 +12251,106 @@ func (a *LabelResponse_LabelAddress) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// Override default JSON handling for LabelResponse_LabelAddress to handle AdditionalProperties
-func (a LabelResponse_LabelAddress) MarshalJSON() ([]byte, error) {
+// Override default JSON handling for LabelRequest_ImageInfo to handle AdditionalProperties
+func (a LabelRequest_ImageInfo) MarshalJSON() ([]byte, error) {
 	var err error
 	object := make(map[string]json.RawMessage)
 
-	if a.TrackingNumber != nil {
-		object["trackingNumber"], err = json.Marshal(a.TrackingNumber)
+	if a.AddImageComments != nil {
+		object["addImageComments"], err = json.Marshal(a.AddImageComments)
 		if err != nil {
-			return nil, fmt.Errorf("error marshaling 'trackingNumber': %w", err)
+			return nil, fmt.Errorf("error marshaling 'addImageComments': %w", err)
+		}
+	}
+
+	if a.AddZPLComments != nil {
+		object["addZPLComments"], err = json.Marshal(a.AddZPLComments)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'addZPLComments': %w", err)
+		}
+	}
+
+	if a.BrandingImageFormat != nil {
+		object["brandingImageFormat"], err = json.Marshal(a.BrandingImageFormat)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'brandingImageFormat': %w", err)
+		}
+	}
+
+	if a.BrandingImageUUIDs != nil {
+		object["brandingImageUUIDs"], err = json.Marshal(a.BrandingImageUUIDs)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'brandingImageUUIDs': %w", err)
+		}
+	}
+
+	if a.ImageType != nil {
+		object["imageType"], err = json.Marshal(a.ImageType)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'imageType': %w", err)
+		}
+	}
+
+	if a.IncludeLabelBrokerPDF != nil {
+		object["includeLabelBrokerPDF"], err = json.Marshal(a.IncludeLabelBrokerPDF)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'includeLabelBrokerPDF': %w", err)
+		}
+	}
+
+	if a.LabelType != nil {
+		object["labelType"], err = json.Marshal(a.LabelType)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'labelType': %w", err)
+		}
+	}
+
+	if a.PackageNumber != nil {
+		object["packageNumber"], err = json.Marshal(a.PackageNumber)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'packageNumber': %w", err)
+		}
+	}
+
+	if a.ReceiptOption != nil {
+		object["receiptOption"], err = json.Marshal(a.ReceiptOption)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'receiptOption': %w", err)
+		}
+	}
+
+	if a.ReturnLabel != nil {
+		object["returnLabel"], err = json.Marshal(a.ReturnLabel)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'returnLabel': %w", err)
+		}
+	}
+
+	if a.ShipInfo != nil {
+		object["shipInfo"], err = json.Marshal(a.ShipInfo)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'shipInfo': %w", err)
+		}
+	}
+
+	if a.SuppressMailDate != nil {
+		object["suppressMailDate"], err = json.Marshal(a.SuppressMailDate)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'suppressMailDate': %w", err)
+		}
+	}
+
+	if a.SuppressPostage != nil {
+		object["suppressPostage"], err = json.Marshal(a.SuppressPostage)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'suppressPostage': %w", err)
+		}
+	}
+
+	if a.TotalPackages != nil {
+		object["totalPackages"], err = json.Marshal(a.TotalPackages)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'totalPackages': %w", err)
 		}
 	}
 
@@ -291,6 +12361,1911 @@ func (a LabelResponse_LabelAddress) MarshalJSON() ([]byte, error) {
 		}
 	}
 	return json.Marshal(object)
+}
+
+// Getter for additional properties for LabelVendorResponse. Returns the specified
+// element and whether it was found
+func (a LabelVendorResponse) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for LabelVendorResponse
+func (a *LabelVendorResponse) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for LabelVendorResponse to handle AdditionalProperties
+func (a *LabelVendorResponse) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["SKU"]; found {
+		err = json.Unmarshal(raw, &a.SKU)
+		if err != nil {
+			return fmt.Errorf("error reading 'SKU': %w", err)
+		}
+		delete(object, "SKU")
+	}
+
+	if raw, found := object["bannerText"]; found {
+		err = json.Unmarshal(raw, &a.BannerText)
+		if err != nil {
+			return fmt.Errorf("error reading 'bannerText': %w", err)
+		}
+		delete(object, "bannerText")
+	}
+
+	if raw, found := object["commitment"]; found {
+		err = json.Unmarshal(raw, &a.Commitment)
+		if err != nil {
+			return fmt.Errorf("error reading 'commitment': %w", err)
+		}
+		delete(object, "commitment")
+	}
+
+	if raw, found := object["constructCode"]; found {
+		err = json.Unmarshal(raw, &a.ConstructCode)
+		if err != nil {
+			return fmt.Errorf("error reading 'constructCode': %w", err)
+		}
+		delete(object, "constructCode")
+	}
+
+	if raw, found := object["dimensionalWeight"]; found {
+		err = json.Unmarshal(raw, &a.DimensionalWeight)
+		if err != nil {
+			return fmt.Errorf("error reading 'dimensionalWeight': %w", err)
+		}
+		delete(object, "dimensionalWeight")
+	}
+
+	if raw, found := object["extraServices"]; found {
+		err = json.Unmarshal(raw, &a.ExtraServices)
+		if err != nil {
+			return fmt.Errorf("error reading 'extraServices': %w", err)
+		}
+		delete(object, "extraServices")
+	}
+
+	if raw, found := object["fees"]; found {
+		err = json.Unmarshal(raw, &a.Fees)
+		if err != nil {
+			return fmt.Errorf("error reading 'fees': %w", err)
+		}
+		delete(object, "fees")
+	}
+
+	if raw, found := object["inductionType"]; found {
+		err = json.Unmarshal(raw, &a.InductionType)
+		if err != nil {
+			return fmt.Errorf("error reading 'inductionType': %w", err)
+		}
+		delete(object, "inductionType")
+	}
+
+	if raw, found := object["labelAddress"]; found {
+		err = json.Unmarshal(raw, &a.LabelAddress)
+		if err != nil {
+			return fmt.Errorf("error reading 'labelAddress': %w", err)
+		}
+		delete(object, "labelAddress")
+	}
+
+	if raw, found := object["labelBrokerID"]; found {
+		err = json.Unmarshal(raw, &a.LabelBrokerID)
+		if err != nil {
+			return fmt.Errorf("error reading 'labelBrokerID': %w", err)
+		}
+		delete(object, "labelBrokerID")
+	}
+
+	if raw, found := object["labelBrokerQR"]; found {
+		err = json.Unmarshal(raw, &a.LabelBrokerQR)
+		if err != nil {
+			return fmt.Errorf("error reading 'labelBrokerQR': %w", err)
+		}
+		delete(object, "labelBrokerQR")
+	}
+
+	if raw, found := object["labelImage"]; found {
+		err = json.Unmarshal(raw, &a.LabelImage)
+		if err != nil {
+			return fmt.Errorf("error reading 'labelImage': %w", err)
+		}
+		delete(object, "labelImage")
+	}
+
+	if raw, found := object["links"]; found {
+		err = json.Unmarshal(raw, &a.Links)
+		if err != nil {
+			return fmt.Errorf("error reading 'links': %w", err)
+		}
+		delete(object, "links")
+	}
+
+	if raw, found := object["mailingDate"]; found {
+		err = json.Unmarshal(raw, &a.MailingDate)
+		if err != nil {
+			return fmt.Errorf("error reading 'mailingDate': %w", err)
+		}
+		delete(object, "mailingDate")
+	}
+
+	if raw, found := object["permitHolderName"]; found {
+		err = json.Unmarshal(raw, &a.PermitHolderName)
+		if err != nil {
+			return fmt.Errorf("error reading 'permitHolderName': %w", err)
+		}
+		delete(object, "permitHolderName")
+	}
+
+	if raw, found := object["postage"]; found {
+		err = json.Unmarshal(raw, &a.Postage)
+		if err != nil {
+			return fmt.Errorf("error reading 'postage': %w", err)
+		}
+		delete(object, "postage")
+	}
+
+	if raw, found := object["receiptImage"]; found {
+		err = json.Unmarshal(raw, &a.ReceiptImage)
+		if err != nil {
+			return fmt.Errorf("error reading 'receiptImage': %w", err)
+		}
+		delete(object, "receiptImage")
+	}
+
+	if raw, found := object["retailDistributionCode"]; found {
+		err = json.Unmarshal(raw, &a.RetailDistributionCode)
+		if err != nil {
+			return fmt.Errorf("error reading 'retailDistributionCode': %w", err)
+		}
+		delete(object, "retailDistributionCode")
+	}
+
+	if raw, found := object["returnLabel"]; found {
+		err = json.Unmarshal(raw, &a.ReturnLabel)
+		if err != nil {
+			return fmt.Errorf("error reading 'returnLabel': %w", err)
+		}
+		delete(object, "returnLabel")
+	}
+
+	if raw, found := object["returnReceiptTrackingNumber"]; found {
+		err = json.Unmarshal(raw, &a.ReturnReceiptTrackingNumber)
+		if err != nil {
+			return fmt.Errorf("error reading 'returnReceiptTrackingNumber': %w", err)
+		}
+		delete(object, "returnReceiptTrackingNumber")
+	}
+
+	if raw, found := object["routingInformation"]; found {
+		err = json.Unmarshal(raw, &a.RoutingInformation)
+		if err != nil {
+			return fmt.Errorf("error reading 'routingInformation': %w", err)
+		}
+		delete(object, "routingInformation")
+	}
+
+	if raw, found := object["serviceTypeCode"]; found {
+		err = json.Unmarshal(raw, &a.ServiceTypeCode)
+		if err != nil {
+			return fmt.Errorf("error reading 'serviceTypeCode': %w", err)
+		}
+		delete(object, "serviceTypeCode")
+	}
+
+	if raw, found := object["trackingNumber"]; found {
+		err = json.Unmarshal(raw, &a.TrackingNumber)
+		if err != nil {
+			return fmt.Errorf("error reading 'trackingNumber': %w", err)
+		}
+		delete(object, "trackingNumber")
+	}
+
+	if raw, found := object["warnings"]; found {
+		err = json.Unmarshal(raw, &a.Warnings)
+		if err != nil {
+			return fmt.Errorf("error reading 'warnings': %w", err)
+		}
+		delete(object, "warnings")
+	}
+
+	if raw, found := object["weight"]; found {
+		err = json.Unmarshal(raw, &a.Weight)
+		if err != nil {
+			return fmt.Errorf("error reading 'weight': %w", err)
+		}
+		delete(object, "weight")
+	}
+
+	if raw, found := object["weightUOM"]; found {
+		err = json.Unmarshal(raw, &a.WeightUOM)
+		if err != nil {
+			return fmt.Errorf("error reading 'weightUOM': %w", err)
+		}
+		delete(object, "weightUOM")
+	}
+
+	if raw, found := object["zone"]; found {
+		err = json.Unmarshal(raw, &a.Zone)
+		if err != nil {
+			return fmt.Errorf("error reading 'zone': %w", err)
+		}
+		delete(object, "zone")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for LabelVendorResponse to handle AdditionalProperties
+func (a LabelVendorResponse) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.SKU != nil {
+		object["SKU"], err = json.Marshal(a.SKU)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'SKU': %w", err)
+		}
+	}
+
+	if a.BannerText != nil {
+		object["bannerText"], err = json.Marshal(a.BannerText)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'bannerText': %w", err)
+		}
+	}
+
+	if a.Commitment != nil {
+		object["commitment"], err = json.Marshal(a.Commitment)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'commitment': %w", err)
+		}
+	}
+
+	if a.ConstructCode != nil {
+		object["constructCode"], err = json.Marshal(a.ConstructCode)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'constructCode': %w", err)
+		}
+	}
+
+	if a.DimensionalWeight != nil {
+		object["dimensionalWeight"], err = json.Marshal(a.DimensionalWeight)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'dimensionalWeight': %w", err)
+		}
+	}
+
+	if a.ExtraServices != nil {
+		object["extraServices"], err = json.Marshal(a.ExtraServices)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'extraServices': %w", err)
+		}
+	}
+
+	if a.Fees != nil {
+		object["fees"], err = json.Marshal(a.Fees)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'fees': %w", err)
+		}
+	}
+
+	if a.InductionType != nil {
+		object["inductionType"], err = json.Marshal(a.InductionType)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'inductionType': %w", err)
+		}
+	}
+
+	if a.LabelAddress != nil {
+		object["labelAddress"], err = json.Marshal(a.LabelAddress)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'labelAddress': %w", err)
+		}
+	}
+
+	if a.LabelBrokerID != nil {
+		object["labelBrokerID"], err = json.Marshal(a.LabelBrokerID)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'labelBrokerID': %w", err)
+		}
+	}
+
+	if a.LabelBrokerQR != nil {
+		object["labelBrokerQR"], err = json.Marshal(a.LabelBrokerQR)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'labelBrokerQR': %w", err)
+		}
+	}
+
+	if a.LabelImage != nil {
+		object["labelImage"], err = json.Marshal(a.LabelImage)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'labelImage': %w", err)
+		}
+	}
+
+	if a.Links != nil {
+		object["links"], err = json.Marshal(a.Links)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'links': %w", err)
+		}
+	}
+
+	if a.MailingDate != nil {
+		object["mailingDate"], err = json.Marshal(a.MailingDate)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'mailingDate': %w", err)
+		}
+	}
+
+	if a.PermitHolderName != nil {
+		object["permitHolderName"], err = json.Marshal(a.PermitHolderName)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'permitHolderName': %w", err)
+		}
+	}
+
+	if a.Postage != nil {
+		object["postage"], err = json.Marshal(a.Postage)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'postage': %w", err)
+		}
+	}
+
+	if a.ReceiptImage != nil {
+		object["receiptImage"], err = json.Marshal(a.ReceiptImage)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'receiptImage': %w", err)
+		}
+	}
+
+	if a.RetailDistributionCode != nil {
+		object["retailDistributionCode"], err = json.Marshal(a.RetailDistributionCode)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'retailDistributionCode': %w", err)
+		}
+	}
+
+	if a.ReturnLabel != nil {
+		object["returnLabel"], err = json.Marshal(a.ReturnLabel)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'returnLabel': %w", err)
+		}
+	}
+
+	if a.ReturnReceiptTrackingNumber != nil {
+		object["returnReceiptTrackingNumber"], err = json.Marshal(a.ReturnReceiptTrackingNumber)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'returnReceiptTrackingNumber': %w", err)
+		}
+	}
+
+	if a.RoutingInformation != nil {
+		object["routingInformation"], err = json.Marshal(a.RoutingInformation)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'routingInformation': %w", err)
+		}
+	}
+
+	if a.ServiceTypeCode != nil {
+		object["serviceTypeCode"], err = json.Marshal(a.ServiceTypeCode)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'serviceTypeCode': %w", err)
+		}
+	}
+
+	if a.TrackingNumber != nil {
+		object["trackingNumber"], err = json.Marshal(a.TrackingNumber)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'trackingNumber': %w", err)
+		}
+	}
+
+	if a.Warnings != nil {
+		object["warnings"], err = json.Marshal(a.Warnings)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'warnings': %w", err)
+		}
+	}
+
+	if a.Weight != nil {
+		object["weight"], err = json.Marshal(a.Weight)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'weight': %w", err)
+		}
+	}
+
+	if a.WeightUOM != nil {
+		object["weightUOM"], err = json.Marshal(a.WeightUOM)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'weightUOM': %w", err)
+		}
+	}
+
+	if a.Zone != nil {
+		object["zone"], err = json.Marshal(a.Zone)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'zone': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for PackageDescription. Returns the specified
+// element and whether it was found
+func (a PackageDescription) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for PackageDescription
+func (a *PackageDescription) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for PackageDescription to handle AdditionalProperties
+func (a *PackageDescription) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["dimensionsUOM"]; found {
+		err = json.Unmarshal(raw, &a.DimensionsUOM)
+		if err != nil {
+			return fmt.Errorf("error reading 'dimensionsUOM': %w", err)
+		}
+		delete(object, "dimensionsUOM")
+	}
+
+	if raw, found := object["girth"]; found {
+		err = json.Unmarshal(raw, &a.Girth)
+		if err != nil {
+			return fmt.Errorf("error reading 'girth': %w", err)
+		}
+		delete(object, "girth")
+	}
+
+	if raw, found := object["hasNonstandardCharacteristics"]; found {
+		err = json.Unmarshal(raw, &a.HasNonstandardCharacteristics)
+		if err != nil {
+			return fmt.Errorf("error reading 'hasNonstandardCharacteristics': %w", err)
+		}
+		delete(object, "hasNonstandardCharacteristics")
+	}
+
+	if raw, found := object["height"]; found {
+		err = json.Unmarshal(raw, &a.Height)
+		if err != nil {
+			return fmt.Errorf("error reading 'height': %w", err)
+		}
+		delete(object, "height")
+	}
+
+	if raw, found := object["length"]; found {
+		err = json.Unmarshal(raw, &a.Length)
+		if err != nil {
+			return fmt.Errorf("error reading 'length': %w", err)
+		}
+		delete(object, "length")
+	}
+
+	if raw, found := object["weight"]; found {
+		err = json.Unmarshal(raw, &a.Weight)
+		if err != nil {
+			return fmt.Errorf("error reading 'weight': %w", err)
+		}
+		delete(object, "weight")
+	}
+
+	if raw, found := object["weightUOM"]; found {
+		err = json.Unmarshal(raw, &a.WeightUOM)
+		if err != nil {
+			return fmt.Errorf("error reading 'weightUOM': %w", err)
+		}
+		delete(object, "weightUOM")
+	}
+
+	if raw, found := object["width"]; found {
+		err = json.Unmarshal(raw, &a.Width)
+		if err != nil {
+			return fmt.Errorf("error reading 'width': %w", err)
+		}
+		delete(object, "width")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for PackageDescription to handle AdditionalProperties
+func (a PackageDescription) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.DimensionsUOM != nil {
+		object["dimensionsUOM"], err = json.Marshal(a.DimensionsUOM)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'dimensionsUOM': %w", err)
+		}
+	}
+
+	if a.Girth != nil {
+		object["girth"], err = json.Marshal(a.Girth)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'girth': %w", err)
+		}
+	}
+
+	if a.HasNonstandardCharacteristics != nil {
+		object["hasNonstandardCharacteristics"], err = json.Marshal(a.HasNonstandardCharacteristics)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'hasNonstandardCharacteristics': %w", err)
+		}
+	}
+
+	if a.Height != nil {
+		object["height"], err = json.Marshal(a.Height)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'height': %w", err)
+		}
+	}
+
+	if a.Length != nil {
+		object["length"], err = json.Marshal(a.Length)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'length': %w", err)
+		}
+	}
+
+	if a.Weight != nil {
+		object["weight"], err = json.Marshal(a.Weight)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'weight': %w", err)
+		}
+	}
+
+	if a.WeightUOM != nil {
+		object["weightUOM"], err = json.Marshal(a.WeightUOM)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'weightUOM': %w", err)
+		}
+	}
+
+	if a.Width != nil {
+		object["width"], err = json.Marshal(a.Width)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'width': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for PackageOptions. Returns the specified
+// element and whether it was found
+func (a PackageOptions) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for PackageOptions
+func (a *PackageOptions) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for PackageOptions to handle AdditionalProperties
+func (a *PackageOptions) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["nonDeliveryOption"]; found {
+		err = json.Unmarshal(raw, &a.NonDeliveryOption)
+		if err != nil {
+			return fmt.Errorf("error reading 'nonDeliveryOption': %w", err)
+		}
+		delete(object, "nonDeliveryOption")
+	}
+
+	if raw, found := object["omas"]; found {
+		err = json.Unmarshal(raw, &a.Omas)
+		if err != nil {
+			return fmt.Errorf("error reading 'omas': %w", err)
+		}
+		delete(object, "omas")
+	}
+
+	if raw, found := object["packageValue"]; found {
+		err = json.Unmarshal(raw, &a.PackageValue)
+		if err != nil {
+			return fmt.Errorf("error reading 'packageValue': %w", err)
+		}
+		delete(object, "packageValue")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for PackageOptions to handle AdditionalProperties
+func (a PackageOptions) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.NonDeliveryOption != nil {
+		object["nonDeliveryOption"], err = json.Marshal(a.NonDeliveryOption)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'nonDeliveryOption': %w", err)
+		}
+	}
+
+	if a.Omas != nil {
+		object["omas"], err = json.Marshal(a.Omas)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'omas': %w", err)
+		}
+	}
+
+	if a.PackageValue != nil {
+		object["packageValue"], err = json.Marshal(a.PackageValue)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'packageValue': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for ReturnLabelRequest_ImageInfo. Returns the specified
+// element and whether it was found
+func (a ReturnLabelRequest_ImageInfo) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for ReturnLabelRequest_ImageInfo
+func (a *ReturnLabelRequest_ImageInfo) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for ReturnLabelRequest_ImageInfo to handle AdditionalProperties
+func (a *ReturnLabelRequest_ImageInfo) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["addImageComments"]; found {
+		err = json.Unmarshal(raw, &a.AddImageComments)
+		if err != nil {
+			return fmt.Errorf("error reading 'addImageComments': %w", err)
+		}
+		delete(object, "addImageComments")
+	}
+
+	if raw, found := object["addZPLComments"]; found {
+		err = json.Unmarshal(raw, &a.AddZPLComments)
+		if err != nil {
+			return fmt.Errorf("error reading 'addZPLComments': %w", err)
+		}
+		delete(object, "addZPLComments")
+	}
+
+	if raw, found := object["brandingImageFormat"]; found {
+		err = json.Unmarshal(raw, &a.BrandingImageFormat)
+		if err != nil {
+			return fmt.Errorf("error reading 'brandingImageFormat': %w", err)
+		}
+		delete(object, "brandingImageFormat")
+	}
+
+	if raw, found := object["brandingImageUUIDs"]; found {
+		err = json.Unmarshal(raw, &a.BrandingImageUUIDs)
+		if err != nil {
+			return fmt.Errorf("error reading 'brandingImageUUIDs': %w", err)
+		}
+		delete(object, "brandingImageUUIDs")
+	}
+
+	if raw, found := object["imageType"]; found {
+		err = json.Unmarshal(raw, &a.ImageType)
+		if err != nil {
+			return fmt.Errorf("error reading 'imageType': %w", err)
+		}
+		delete(object, "imageType")
+	}
+
+	if raw, found := object["includeLabelBrokerPDF"]; found {
+		err = json.Unmarshal(raw, &a.IncludeLabelBrokerPDF)
+		if err != nil {
+			return fmt.Errorf("error reading 'includeLabelBrokerPDF': %w", err)
+		}
+		delete(object, "includeLabelBrokerPDF")
+	}
+
+	if raw, found := object["labelType"]; found {
+		err = json.Unmarshal(raw, &a.LabelType)
+		if err != nil {
+			return fmt.Errorf("error reading 'labelType': %w", err)
+		}
+		delete(object, "labelType")
+	}
+
+	if raw, found := object["receiptOption"]; found {
+		err = json.Unmarshal(raw, &a.ReceiptOption)
+		if err != nil {
+			return fmt.Errorf("error reading 'receiptOption': %w", err)
+		}
+		delete(object, "receiptOption")
+	}
+
+	if raw, found := object["returnLabel"]; found {
+		err = json.Unmarshal(raw, &a.ReturnLabel)
+		if err != nil {
+			return fmt.Errorf("error reading 'returnLabel': %w", err)
+		}
+		delete(object, "returnLabel")
+	}
+
+	if raw, found := object["shipInfo"]; found {
+		err = json.Unmarshal(raw, &a.ShipInfo)
+		if err != nil {
+			return fmt.Errorf("error reading 'shipInfo': %w", err)
+		}
+		delete(object, "shipInfo")
+	}
+
+	if raw, found := object["suppressMailDate"]; found {
+		err = json.Unmarshal(raw, &a.SuppressMailDate)
+		if err != nil {
+			return fmt.Errorf("error reading 'suppressMailDate': %w", err)
+		}
+		delete(object, "suppressMailDate")
+	}
+
+	if raw, found := object["suppressPostage"]; found {
+		err = json.Unmarshal(raw, &a.SuppressPostage)
+		if err != nil {
+			return fmt.Errorf("error reading 'suppressPostage': %w", err)
+		}
+		delete(object, "suppressPostage")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for ReturnLabelRequest_ImageInfo to handle AdditionalProperties
+func (a ReturnLabelRequest_ImageInfo) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.AddImageComments != nil {
+		object["addImageComments"], err = json.Marshal(a.AddImageComments)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'addImageComments': %w", err)
+		}
+	}
+
+	if a.AddZPLComments != nil {
+		object["addZPLComments"], err = json.Marshal(a.AddZPLComments)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'addZPLComments': %w", err)
+		}
+	}
+
+	if a.BrandingImageFormat != nil {
+		object["brandingImageFormat"], err = json.Marshal(a.BrandingImageFormat)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'brandingImageFormat': %w", err)
+		}
+	}
+
+	if a.BrandingImageUUIDs != nil {
+		object["brandingImageUUIDs"], err = json.Marshal(a.BrandingImageUUIDs)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'brandingImageUUIDs': %w", err)
+		}
+	}
+
+	if a.ImageType != nil {
+		object["imageType"], err = json.Marshal(a.ImageType)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'imageType': %w", err)
+		}
+	}
+
+	if a.IncludeLabelBrokerPDF != nil {
+		object["includeLabelBrokerPDF"], err = json.Marshal(a.IncludeLabelBrokerPDF)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'includeLabelBrokerPDF': %w", err)
+		}
+	}
+
+	if a.LabelType != nil {
+		object["labelType"], err = json.Marshal(a.LabelType)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'labelType': %w", err)
+		}
+	}
+
+	if a.ReceiptOption != nil {
+		object["receiptOption"], err = json.Marshal(a.ReceiptOption)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'receiptOption': %w", err)
+		}
+	}
+
+	if a.ReturnLabel != nil {
+		object["returnLabel"], err = json.Marshal(a.ReturnLabel)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'returnLabel': %w", err)
+		}
+	}
+
+	if a.ShipInfo != nil {
+		object["shipInfo"], err = json.Marshal(a.ShipInfo)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'shipInfo': %w", err)
+		}
+	}
+
+	if a.SuppressMailDate != nil {
+		object["suppressMailDate"], err = json.Marshal(a.SuppressMailDate)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'suppressMailDate': %w", err)
+		}
+	}
+
+	if a.SuppressPostage != nil {
+		object["suppressPostage"], err = json.Marshal(a.SuppressPostage)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'suppressPostage': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for ReturnsPackageDescription. Returns the specified
+// element and whether it was found
+func (a ReturnsPackageDescription) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for ReturnsPackageDescription
+func (a *ReturnsPackageDescription) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for ReturnsPackageDescription to handle AdditionalProperties
+func (a *ReturnsPackageDescription) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["customerReference"]; found {
+		err = json.Unmarshal(raw, &a.CustomerReference)
+		if err != nil {
+			return fmt.Errorf("error reading 'customerReference': %w", err)
+		}
+		delete(object, "customerReference")
+	}
+
+	if raw, found := object["destinationEntryFacilityAddress"]; found {
+		err = json.Unmarshal(raw, &a.DestinationEntryFacilityAddress)
+		if err != nil {
+			return fmt.Errorf("error reading 'destinationEntryFacilityAddress': %w", err)
+		}
+		delete(object, "destinationEntryFacilityAddress")
+	}
+
+	if raw, found := object["dimensionsUOM"]; found {
+		err = json.Unmarshal(raw, &a.DimensionsUOM)
+		if err != nil {
+			return fmt.Errorf("error reading 'dimensionsUOM': %w", err)
+		}
+		delete(object, "dimensionsUOM")
+	}
+
+	if raw, found := object["extraServices"]; found {
+		err = json.Unmarshal(raw, &a.ExtraServices)
+		if err != nil {
+			return fmt.Errorf("error reading 'extraServices': %w", err)
+		}
+		delete(object, "extraServices")
+	}
+
+	if raw, found := object["girth"]; found {
+		err = json.Unmarshal(raw, &a.Girth)
+		if err != nil {
+			return fmt.Errorf("error reading 'girth': %w", err)
+		}
+		delete(object, "girth")
+	}
+
+	if raw, found := object["hasNonstandardCharacteristics"]; found {
+		err = json.Unmarshal(raw, &a.HasNonstandardCharacteristics)
+		if err != nil {
+			return fmt.Errorf("error reading 'hasNonstandardCharacteristics': %w", err)
+		}
+		delete(object, "hasNonstandardCharacteristics")
+	}
+
+	if raw, found := object["height"]; found {
+		err = json.Unmarshal(raw, &a.Height)
+		if err != nil {
+			return fmt.Errorf("error reading 'height': %w", err)
+		}
+		delete(object, "height")
+	}
+
+	if raw, found := object["inductionZIPCode"]; found {
+		err = json.Unmarshal(raw, &a.InductionZIPCode)
+		if err != nil {
+			return fmt.Errorf("error reading 'inductionZIPCode': %w", err)
+		}
+		delete(object, "inductionZIPCode")
+	}
+
+	if raw, found := object["length"]; found {
+		err = json.Unmarshal(raw, &a.Length)
+		if err != nil {
+			return fmt.Errorf("error reading 'length': %w", err)
+		}
+		delete(object, "length")
+	}
+
+	if raw, found := object["mailClass"]; found {
+		err = json.Unmarshal(raw, &a.MailClass)
+		if err != nil {
+			return fmt.Errorf("error reading 'mailClass': %w", err)
+		}
+		delete(object, "mailClass")
+	}
+
+	if raw, found := object["packageOptions"]; found {
+		err = json.Unmarshal(raw, &a.PackageOptions)
+		if err != nil {
+			return fmt.Errorf("error reading 'packageOptions': %w", err)
+		}
+		delete(object, "packageOptions")
+	}
+
+	if raw, found := object["processingCategory"]; found {
+		err = json.Unmarshal(raw, &a.ProcessingCategory)
+		if err != nil {
+			return fmt.Errorf("error reading 'processingCategory': %w", err)
+		}
+		delete(object, "processingCategory")
+	}
+
+	if raw, found := object["rateIndicator"]; found {
+		err = json.Unmarshal(raw, &a.RateIndicator)
+		if err != nil {
+			return fmt.Errorf("error reading 'rateIndicator': %w", err)
+		}
+		delete(object, "rateIndicator")
+	}
+
+	if raw, found := object["shipperVisibilityMethod"]; found {
+		err = json.Unmarshal(raw, &a.ShipperVisibilityMethod)
+		if err != nil {
+			return fmt.Errorf("error reading 'shipperVisibilityMethod': %w", err)
+		}
+		delete(object, "shipperVisibilityMethod")
+	}
+
+	if raw, found := object["weight"]; found {
+		err = json.Unmarshal(raw, &a.Weight)
+		if err != nil {
+			return fmt.Errorf("error reading 'weight': %w", err)
+		}
+		delete(object, "weight")
+	}
+
+	if raw, found := object["weightUOM"]; found {
+		err = json.Unmarshal(raw, &a.WeightUOM)
+		if err != nil {
+			return fmt.Errorf("error reading 'weightUOM': %w", err)
+		}
+		delete(object, "weightUOM")
+	}
+
+	if raw, found := object["width"]; found {
+		err = json.Unmarshal(raw, &a.Width)
+		if err != nil {
+			return fmt.Errorf("error reading 'width': %w", err)
+		}
+		delete(object, "width")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for ReturnsPackageDescription to handle AdditionalProperties
+func (a ReturnsPackageDescription) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.CustomerReference != nil {
+		object["customerReference"], err = json.Marshal(a.CustomerReference)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'customerReference': %w", err)
+		}
+	}
+
+	if a.DestinationEntryFacilityAddress != nil {
+		object["destinationEntryFacilityAddress"], err = json.Marshal(a.DestinationEntryFacilityAddress)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'destinationEntryFacilityAddress': %w", err)
+		}
+	}
+
+	if a.DimensionsUOM != nil {
+		object["dimensionsUOM"], err = json.Marshal(a.DimensionsUOM)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'dimensionsUOM': %w", err)
+		}
+	}
+
+	if a.ExtraServices != nil {
+		object["extraServices"], err = json.Marshal(a.ExtraServices)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'extraServices': %w", err)
+		}
+	}
+
+	if a.Girth != nil {
+		object["girth"], err = json.Marshal(a.Girth)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'girth': %w", err)
+		}
+	}
+
+	if a.HasNonstandardCharacteristics != nil {
+		object["hasNonstandardCharacteristics"], err = json.Marshal(a.HasNonstandardCharacteristics)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'hasNonstandardCharacteristics': %w", err)
+		}
+	}
+
+	object["height"], err = json.Marshal(a.Height)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'height': %w", err)
+	}
+
+	if a.InductionZIPCode != nil {
+		object["inductionZIPCode"], err = json.Marshal(a.InductionZIPCode)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'inductionZIPCode': %w", err)
+		}
+	}
+
+	object["length"], err = json.Marshal(a.Length)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'length': %w", err)
+	}
+
+	object["mailClass"], err = json.Marshal(a.MailClass)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'mailClass': %w", err)
+	}
+
+	if a.PackageOptions != nil {
+		object["packageOptions"], err = json.Marshal(a.PackageOptions)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'packageOptions': %w", err)
+		}
+	}
+
+	object["processingCategory"], err = json.Marshal(a.ProcessingCategory)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'processingCategory': %w", err)
+	}
+
+	object["rateIndicator"], err = json.Marshal(a.RateIndicator)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'rateIndicator': %w", err)
+	}
+
+	if a.ShipperVisibilityMethod != nil {
+		object["shipperVisibilityMethod"], err = json.Marshal(a.ShipperVisibilityMethod)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'shipperVisibilityMethod': %w", err)
+		}
+	}
+
+	object["weight"], err = json.Marshal(a.Weight)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'weight': %w", err)
+	}
+
+	if a.WeightUOM != nil {
+		object["weightUOM"], err = json.Marshal(a.WeightUOM)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'weightUOM': %w", err)
+		}
+	}
+
+	object["width"], err = json.Marshal(a.Width)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'width': %w", err)
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for ReturnsPackageDescriptionWithoutRateIndicator. Returns the specified
+// element and whether it was found
+func (a ReturnsPackageDescriptionWithoutRateIndicator) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for ReturnsPackageDescriptionWithoutRateIndicator
+func (a *ReturnsPackageDescriptionWithoutRateIndicator) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for ReturnsPackageDescriptionWithoutRateIndicator to handle AdditionalProperties
+func (a *ReturnsPackageDescriptionWithoutRateIndicator) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["customerReference"]; found {
+		err = json.Unmarshal(raw, &a.CustomerReference)
+		if err != nil {
+			return fmt.Errorf("error reading 'customerReference': %w", err)
+		}
+		delete(object, "customerReference")
+	}
+
+	if raw, found := object["destinationEntryFacilityAddress"]; found {
+		err = json.Unmarshal(raw, &a.DestinationEntryFacilityAddress)
+		if err != nil {
+			return fmt.Errorf("error reading 'destinationEntryFacilityAddress': %w", err)
+		}
+		delete(object, "destinationEntryFacilityAddress")
+	}
+
+	if raw, found := object["dimensionsUOM"]; found {
+		err = json.Unmarshal(raw, &a.DimensionsUOM)
+		if err != nil {
+			return fmt.Errorf("error reading 'dimensionsUOM': %w", err)
+		}
+		delete(object, "dimensionsUOM")
+	}
+
+	if raw, found := object["extraServices"]; found {
+		err = json.Unmarshal(raw, &a.ExtraServices)
+		if err != nil {
+			return fmt.Errorf("error reading 'extraServices': %w", err)
+		}
+		delete(object, "extraServices")
+	}
+
+	if raw, found := object["girth"]; found {
+		err = json.Unmarshal(raw, &a.Girth)
+		if err != nil {
+			return fmt.Errorf("error reading 'girth': %w", err)
+		}
+		delete(object, "girth")
+	}
+
+	if raw, found := object["hasNonstandardCharacteristics"]; found {
+		err = json.Unmarshal(raw, &a.HasNonstandardCharacteristics)
+		if err != nil {
+			return fmt.Errorf("error reading 'hasNonstandardCharacteristics': %w", err)
+		}
+		delete(object, "hasNonstandardCharacteristics")
+	}
+
+	if raw, found := object["height"]; found {
+		err = json.Unmarshal(raw, &a.Height)
+		if err != nil {
+			return fmt.Errorf("error reading 'height': %w", err)
+		}
+		delete(object, "height")
+	}
+
+	if raw, found := object["inductionZIPCode"]; found {
+		err = json.Unmarshal(raw, &a.InductionZIPCode)
+		if err != nil {
+			return fmt.Errorf("error reading 'inductionZIPCode': %w", err)
+		}
+		delete(object, "inductionZIPCode")
+	}
+
+	if raw, found := object["length"]; found {
+		err = json.Unmarshal(raw, &a.Length)
+		if err != nil {
+			return fmt.Errorf("error reading 'length': %w", err)
+		}
+		delete(object, "length")
+	}
+
+	if raw, found := object["mailClass"]; found {
+		err = json.Unmarshal(raw, &a.MailClass)
+		if err != nil {
+			return fmt.Errorf("error reading 'mailClass': %w", err)
+		}
+		delete(object, "mailClass")
+	}
+
+	if raw, found := object["packageOptions"]; found {
+		err = json.Unmarshal(raw, &a.PackageOptions)
+		if err != nil {
+			return fmt.Errorf("error reading 'packageOptions': %w", err)
+		}
+		delete(object, "packageOptions")
+	}
+
+	if raw, found := object["packagingType"]; found {
+		err = json.Unmarshal(raw, &a.PackagingType)
+		if err != nil {
+			return fmt.Errorf("error reading 'packagingType': %w", err)
+		}
+		delete(object, "packagingType")
+	}
+
+	if raw, found := object["processingCategory"]; found {
+		err = json.Unmarshal(raw, &a.ProcessingCategory)
+		if err != nil {
+			return fmt.Errorf("error reading 'processingCategory': %w", err)
+		}
+		delete(object, "processingCategory")
+	}
+
+	if raw, found := object["shape"]; found {
+		err = json.Unmarshal(raw, &a.Shape)
+		if err != nil {
+			return fmt.Errorf("error reading 'shape': %w", err)
+		}
+		delete(object, "shape")
+	}
+
+	if raw, found := object["shipperVisibilityMethod"]; found {
+		err = json.Unmarshal(raw, &a.ShipperVisibilityMethod)
+		if err != nil {
+			return fmt.Errorf("error reading 'shipperVisibilityMethod': %w", err)
+		}
+		delete(object, "shipperVisibilityMethod")
+	}
+
+	if raw, found := object["weight"]; found {
+		err = json.Unmarshal(raw, &a.Weight)
+		if err != nil {
+			return fmt.Errorf("error reading 'weight': %w", err)
+		}
+		delete(object, "weight")
+	}
+
+	if raw, found := object["weightUOM"]; found {
+		err = json.Unmarshal(raw, &a.WeightUOM)
+		if err != nil {
+			return fmt.Errorf("error reading 'weightUOM': %w", err)
+		}
+		delete(object, "weightUOM")
+	}
+
+	if raw, found := object["width"]; found {
+		err = json.Unmarshal(raw, &a.Width)
+		if err != nil {
+			return fmt.Errorf("error reading 'width': %w", err)
+		}
+		delete(object, "width")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for ReturnsPackageDescriptionWithoutRateIndicator to handle AdditionalProperties
+func (a ReturnsPackageDescriptionWithoutRateIndicator) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.CustomerReference != nil {
+		object["customerReference"], err = json.Marshal(a.CustomerReference)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'customerReference': %w", err)
+		}
+	}
+
+	if a.DestinationEntryFacilityAddress != nil {
+		object["destinationEntryFacilityAddress"], err = json.Marshal(a.DestinationEntryFacilityAddress)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'destinationEntryFacilityAddress': %w", err)
+		}
+	}
+
+	if a.DimensionsUOM != nil {
+		object["dimensionsUOM"], err = json.Marshal(a.DimensionsUOM)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'dimensionsUOM': %w", err)
+		}
+	}
+
+	if a.ExtraServices != nil {
+		object["extraServices"], err = json.Marshal(a.ExtraServices)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'extraServices': %w", err)
+		}
+	}
+
+	if a.Girth != nil {
+		object["girth"], err = json.Marshal(a.Girth)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'girth': %w", err)
+		}
+	}
+
+	if a.HasNonstandardCharacteristics != nil {
+		object["hasNonstandardCharacteristics"], err = json.Marshal(a.HasNonstandardCharacteristics)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'hasNonstandardCharacteristics': %w", err)
+		}
+	}
+
+	object["height"], err = json.Marshal(a.Height)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'height': %w", err)
+	}
+
+	if a.InductionZIPCode != nil {
+		object["inductionZIPCode"], err = json.Marshal(a.InductionZIPCode)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'inductionZIPCode': %w", err)
+		}
+	}
+
+	object["length"], err = json.Marshal(a.Length)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'length': %w", err)
+	}
+
+	object["mailClass"], err = json.Marshal(a.MailClass)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'mailClass': %w", err)
+	}
+
+	if a.PackageOptions != nil {
+		object["packageOptions"], err = json.Marshal(a.PackageOptions)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'packageOptions': %w", err)
+		}
+	}
+
+	object["packagingType"], err = json.Marshal(a.PackagingType)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'packagingType': %w", err)
+	}
+
+	object["processingCategory"], err = json.Marshal(a.ProcessingCategory)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'processingCategory': %w", err)
+	}
+
+	object["shape"], err = json.Marshal(a.Shape)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'shape': %w", err)
+	}
+
+	if a.ShipperVisibilityMethod != nil {
+		object["shipperVisibilityMethod"], err = json.Marshal(a.ShipperVisibilityMethod)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'shipperVisibilityMethod': %w", err)
+		}
+	}
+
+	object["weight"], err = json.Marshal(a.Weight)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'weight': %w", err)
+	}
+
+	if a.WeightUOM != nil {
+		object["weightUOM"], err = json.Marshal(a.WeightUOM)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'weightUOM': %w", err)
+		}
+	}
+
+	object["width"], err = json.Marshal(a.Width)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'width': %w", err)
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for ShippingContents. Returns the specified
+// element and whether it was found
+func (a ShippingContents) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for ShippingContents
+func (a *ShippingContents) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for ShippingContents to handle AdditionalProperties
+func (a *ShippingContents) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["HSTariffNumber"]; found {
+		err = json.Unmarshal(raw, &a.HSTariffNumber)
+		if err != nil {
+			return fmt.Errorf("error reading 'HSTariffNumber': %w", err)
+		}
+		delete(object, "HSTariffNumber")
+	}
+
+	if raw, found := object["countryofOrigin"]; found {
+		err = json.Unmarshal(raw, &a.CountryofOrigin)
+		if err != nil {
+			return fmt.Errorf("error reading 'countryofOrigin': %w", err)
+		}
+		delete(object, "countryofOrigin")
+	}
+
+	if raw, found := object["itemCategory"]; found {
+		err = json.Unmarshal(raw, &a.ItemCategory)
+		if err != nil {
+			return fmt.Errorf("error reading 'itemCategory': %w", err)
+		}
+		delete(object, "itemCategory")
+	}
+
+	if raw, found := object["itemDescription"]; found {
+		err = json.Unmarshal(raw, &a.ItemDescription)
+		if err != nil {
+			return fmt.Errorf("error reading 'itemDescription': %w", err)
+		}
+		delete(object, "itemDescription")
+	}
+
+	if raw, found := object["itemQuantity"]; found {
+		err = json.Unmarshal(raw, &a.ItemQuantity)
+		if err != nil {
+			return fmt.Errorf("error reading 'itemQuantity': %w", err)
+		}
+		delete(object, "itemQuantity")
+	}
+
+	if raw, found := object["itemSubcategory"]; found {
+		err = json.Unmarshal(raw, &a.ItemSubcategory)
+		if err != nil {
+			return fmt.Errorf("error reading 'itemSubcategory': %w", err)
+		}
+		delete(object, "itemSubcategory")
+	}
+
+	if raw, found := object["itemTotalValue"]; found {
+		err = json.Unmarshal(raw, &a.ItemTotalValue)
+		if err != nil {
+			return fmt.Errorf("error reading 'itemTotalValue': %w", err)
+		}
+		delete(object, "itemTotalValue")
+	}
+
+	if raw, found := object["itemTotalWeight"]; found {
+		err = json.Unmarshal(raw, &a.ItemTotalWeight)
+		if err != nil {
+			return fmt.Errorf("error reading 'itemTotalWeight': %w", err)
+		}
+		delete(object, "itemTotalWeight")
+	}
+
+	if raw, found := object["itemValue"]; found {
+		err = json.Unmarshal(raw, &a.ItemValue)
+		if err != nil {
+			return fmt.Errorf("error reading 'itemValue': %w", err)
+		}
+		delete(object, "itemValue")
+	}
+
+	if raw, found := object["itemWeight"]; found {
+		err = json.Unmarshal(raw, &a.ItemWeight)
+		if err != nil {
+			return fmt.Errorf("error reading 'itemWeight': %w", err)
+		}
+		delete(object, "itemWeight")
+	}
+
+	if raw, found := object["weightUOM"]; found {
+		err = json.Unmarshal(raw, &a.WeightUOM)
+		if err != nil {
+			return fmt.Errorf("error reading 'weightUOM': %w", err)
+		}
+		delete(object, "weightUOM")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for ShippingContents to handle AdditionalProperties
+func (a ShippingContents) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.HSTariffNumber != nil {
+		object["HSTariffNumber"], err = json.Marshal(a.HSTariffNumber)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'HSTariffNumber': %w", err)
+		}
+	}
+
+	if a.CountryofOrigin != nil {
+		object["countryofOrigin"], err = json.Marshal(a.CountryofOrigin)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'countryofOrigin': %w", err)
+		}
+	}
+
+	if a.ItemCategory != nil {
+		object["itemCategory"], err = json.Marshal(a.ItemCategory)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'itemCategory': %w", err)
+		}
+	}
+
+	if a.ItemDescription != nil {
+		object["itemDescription"], err = json.Marshal(a.ItemDescription)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'itemDescription': %w", err)
+		}
+	}
+
+	if a.ItemQuantity != nil {
+		object["itemQuantity"], err = json.Marshal(a.ItemQuantity)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'itemQuantity': %w", err)
+		}
+	}
+
+	if a.ItemSubcategory != nil {
+		object["itemSubcategory"], err = json.Marshal(a.ItemSubcategory)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'itemSubcategory': %w", err)
+		}
+	}
+
+	if a.ItemTotalValue != nil {
+		object["itemTotalValue"], err = json.Marshal(a.ItemTotalValue)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'itemTotalValue': %w", err)
+		}
+	}
+
+	if a.ItemTotalWeight != nil {
+		object["itemTotalWeight"], err = json.Marshal(a.ItemTotalWeight)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'itemTotalWeight': %w", err)
+		}
+	}
+
+	if a.ItemValue != nil {
+		object["itemValue"], err = json.Marshal(a.ItemValue)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'itemValue': %w", err)
+		}
+	}
+
+	if a.ItemWeight != nil {
+		object["itemWeight"], err = json.Marshal(a.ItemWeight)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'itemWeight': %w", err)
+		}
+	}
+
+	if a.WeightUOM != nil {
+		object["weightUOM"], err = json.Marshal(a.WeightUOM)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'weightUOM': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// AsDomesticPackageDescription returns the union data inside the LabelRequest_PackageDescription as a DomesticPackageDescription
+func (t LabelRequest_PackageDescription) AsDomesticPackageDescription() (DomesticPackageDescription, error) {
+	var body DomesticPackageDescription
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromDomesticPackageDescription overwrites any union data inside the LabelRequest_PackageDescription as the provided DomesticPackageDescription
+func (t *LabelRequest_PackageDescription) FromDomesticPackageDescription(v DomesticPackageDescription) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeDomesticPackageDescription performs a merge with any union data inside the LabelRequest_PackageDescription, using the provided DomesticPackageDescription
+func (t *LabelRequest_PackageDescription) MergeDomesticPackageDescription(v DomesticPackageDescription) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsDomesticPackageDescriptionWithoutRateIndicator returns the union data inside the LabelRequest_PackageDescription as a DomesticPackageDescriptionWithoutRateIndicator
+func (t LabelRequest_PackageDescription) AsDomesticPackageDescriptionWithoutRateIndicator() (DomesticPackageDescriptionWithoutRateIndicator, error) {
+	var body DomesticPackageDescriptionWithoutRateIndicator
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromDomesticPackageDescriptionWithoutRateIndicator overwrites any union data inside the LabelRequest_PackageDescription as the provided DomesticPackageDescriptionWithoutRateIndicator
+func (t *LabelRequest_PackageDescription) FromDomesticPackageDescriptionWithoutRateIndicator(v DomesticPackageDescriptionWithoutRateIndicator) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeDomesticPackageDescriptionWithoutRateIndicator performs a merge with any union data inside the LabelRequest_PackageDescription, using the provided DomesticPackageDescriptionWithoutRateIndicator
+func (t *LabelRequest_PackageDescription) MergeDomesticPackageDescriptionWithoutRateIndicator(v DomesticPackageDescriptionWithoutRateIndicator) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t LabelRequest_PackageDescription) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *LabelRequest_PackageDescription) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsReturnsPackageDescription returns the union data inside the ReturnLabelRequest_PackageDescription as a ReturnsPackageDescription
+func (t ReturnLabelRequest_PackageDescription) AsReturnsPackageDescription() (ReturnsPackageDescription, error) {
+	var body ReturnsPackageDescription
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromReturnsPackageDescription overwrites any union data inside the ReturnLabelRequest_PackageDescription as the provided ReturnsPackageDescription
+func (t *ReturnLabelRequest_PackageDescription) FromReturnsPackageDescription(v ReturnsPackageDescription) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeReturnsPackageDescription performs a merge with any union data inside the ReturnLabelRequest_PackageDescription, using the provided ReturnsPackageDescription
+func (t *ReturnLabelRequest_PackageDescription) MergeReturnsPackageDescription(v ReturnsPackageDescription) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsReturnsPackageDescriptionWithoutRateIndicator returns the union data inside the ReturnLabelRequest_PackageDescription as a ReturnsPackageDescriptionWithoutRateIndicator
+func (t ReturnLabelRequest_PackageDescription) AsReturnsPackageDescriptionWithoutRateIndicator() (ReturnsPackageDescriptionWithoutRateIndicator, error) {
+	var body ReturnsPackageDescriptionWithoutRateIndicator
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromReturnsPackageDescriptionWithoutRateIndicator overwrites any union data inside the ReturnLabelRequest_PackageDescription as the provided ReturnsPackageDescriptionWithoutRateIndicator
+func (t *ReturnLabelRequest_PackageDescription) FromReturnsPackageDescriptionWithoutRateIndicator(v ReturnsPackageDescriptionWithoutRateIndicator) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeReturnsPackageDescriptionWithoutRateIndicator performs a merge with any union data inside the ReturnLabelRequest_PackageDescription, using the provided ReturnsPackageDescriptionWithoutRateIndicator
+func (t *ReturnLabelRequest_PackageDescription) MergeReturnsPackageDescriptionWithoutRateIndicator(v ReturnsPackageDescriptionWithoutRateIndicator) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ReturnLabelRequest_PackageDescription) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ReturnLabelRequest_PackageDescription) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
 }
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function
@@ -366,20 +14341,72 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
-	// CreateLabelWithBody request with any body
-	CreateLabelWithBody(ctx context.Context, params *CreateLabelParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// GetListLabelBranding request
+	GetListLabelBranding(ctx context.Context, params *GetListLabelBrandingParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	CreateLabel(ctx context.Context, params *CreateLabelParams, body CreateLabelJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// PostLabelBrandingWithBody request with any body
+	PostLabelBrandingWithBody(ctx context.Context, params *PostLabelBrandingParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// CancelLabel request
-	CancelLabel(ctx context.Context, trackingNumber string, params *CancelLabelParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+	PostLabelBranding(ctx context.Context, params *PostLabelBrandingParams, body PostLabelBrandingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetLabel request
-	GetLabel(ctx context.Context, trackingNumber string, params *GetLabelParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// DeleteLabelBranding request
+	DeleteLabelBranding(ctx context.Context, imageUUID LabelBrandingImageUUID, params *DeleteLabelBrandingParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetSingleLabelBranding request
+	GetSingleLabelBranding(ctx context.Context, imageUUID LabelBrandingImageUUID, params *GetSingleLabelBrandingParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PatchLabelBrandingWithBody request with any body
+	PatchLabelBrandingWithBody(ctx context.Context, imageUUID LabelBrandingImageUUID, params *PatchLabelBrandingParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PatchLabelBranding(ctx context.Context, imageUUID LabelBrandingImageUUID, params *PatchLabelBrandingParams, body PatchLabelBrandingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostLabelIndiciaWithBody request with any body
+	PostLabelIndiciaWithBody(ctx context.Context, params *PostLabelIndiciaParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostLabelIndicia(ctx context.Context, params *PostLabelIndiciaParams, body PostLabelIndiciaJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostIndiciaImbWithBody request with any body
+	PostIndiciaImbWithBody(ctx context.Context, params *PostIndiciaImbParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostIndiciaImb(ctx context.Context, params *PostIndiciaImbParams, body PostIndiciaImbJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteIndiciaImb request
+	DeleteIndiciaImb(ctx context.Context, imb IMB, params *DeleteIndiciaImbParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteLabelByIdempotency request
+	DeleteLabelByIdempotency(ctx context.Context, params *DeleteLabelByIdempotencyParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostLabelWithBody request with any body
+	PostLabelWithBody(ctx context.Context, params *PostLabelParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostLabel(ctx context.Context, params *PostLabelParams, body PostLabelJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostLabelReprintByIdempotencyWithBody request with any body
+	PostLabelReprintByIdempotencyWithBody(ctx context.Context, params *PostLabelReprintByIdempotencyParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostLabelReprintByIdempotency(ctx context.Context, params *PostLabelReprintByIdempotencyParams, body PostLabelReprintByIdempotencyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostLabelReprintByTrackingWithBody request with any body
+	PostLabelReprintByTrackingWithBody(ctx context.Context, trackingNumber TrackingNumber, params *PostLabelReprintByTrackingParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostLabelReprintByTracking(ctx context.Context, trackingNumber TrackingNumber, params *PostLabelReprintByTrackingParams, body PostLabelReprintByTrackingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteLabelByTracking request
+	DeleteLabelByTracking(ctx context.Context, trackingNumber TrackingNumber, params *DeleteLabelByTrackingParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PatchLabelEditWithBody request with any body
+	PatchLabelEditWithBody(ctx context.Context, trackingNumber TrackingNumber, params *PatchLabelEditParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PatchLabelEdit(ctx context.Context, trackingNumber TrackingNumber, params *PatchLabelEditParams, body PatchLabelEditJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostReturnLabelWithBody request with any body
+	PostReturnLabelWithBody(ctx context.Context, params *PostReturnLabelParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostReturnLabel(ctx context.Context, params *PostReturnLabelParams, body PostReturnLabelJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
-func (c *Client) CreateLabelWithBody(ctx context.Context, params *CreateLabelParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateLabelRequestWithBody(c.Server, params, contentType, body)
+func (c *Client) GetListLabelBranding(ctx context.Context, params *GetListLabelBrandingParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetListLabelBrandingRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -390,8 +14417,8 @@ func (c *Client) CreateLabelWithBody(ctx context.Context, params *CreateLabelPar
 	return c.Client.Do(req)
 }
 
-func (c *Client) CreateLabel(ctx context.Context, params *CreateLabelParams, body CreateLabelJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateLabelRequest(c.Server, params, body)
+func (c *Client) PostLabelBrandingWithBody(ctx context.Context, params *PostLabelBrandingParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostLabelBrandingRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -402,8 +14429,8 @@ func (c *Client) CreateLabel(ctx context.Context, params *CreateLabelParams, bod
 	return c.Client.Do(req)
 }
 
-func (c *Client) CancelLabel(ctx context.Context, trackingNumber string, params *CancelLabelParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCancelLabelRequest(c.Server, trackingNumber, params)
+func (c *Client) PostLabelBranding(ctx context.Context, params *PostLabelBrandingParams, body PostLabelBrandingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostLabelBrandingRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -414,8 +14441,8 @@ func (c *Client) CancelLabel(ctx context.Context, trackingNumber string, params 
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetLabel(ctx context.Context, trackingNumber string, params *GetLabelParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetLabelRequest(c.Server, trackingNumber, params)
+func (c *Client) DeleteLabelBranding(ctx context.Context, imageUUID LabelBrandingImageUUID, params *DeleteLabelBrandingParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteLabelBrandingRequest(c.Server, imageUUID, params)
 	if err != nil {
 		return nil, err
 	}
@@ -426,19 +14453,248 @@ func (c *Client) GetLabel(ctx context.Context, trackingNumber string, params *Ge
 	return c.Client.Do(req)
 }
 
-// NewCreateLabelRequest calls the generic CreateLabel builder with application/json body
-func NewCreateLabelRequest(server string, params *CreateLabelParams, body CreateLabelJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
+func (c *Client) GetSingleLabelBranding(ctx context.Context, imageUUID LabelBrandingImageUUID, params *GetSingleLabelBrandingParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetSingleLabelBrandingRequest(c.Server, imageUUID, params)
 	if err != nil {
 		return nil, err
 	}
-	bodyReader = bytes.NewReader(buf)
-	return NewCreateLabelRequestWithBody(server, params, "application/json", bodyReader)
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
 }
 
-// NewCreateLabelRequestWithBody generates requests for CreateLabel with any type of body
-func NewCreateLabelRequestWithBody(server string, params *CreateLabelParams, contentType string, body io.Reader) (*http.Request, error) {
+func (c *Client) PatchLabelBrandingWithBody(ctx context.Context, imageUUID LabelBrandingImageUUID, params *PatchLabelBrandingParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchLabelBrandingRequestWithBody(c.Server, imageUUID, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PatchLabelBranding(ctx context.Context, imageUUID LabelBrandingImageUUID, params *PatchLabelBrandingParams, body PatchLabelBrandingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchLabelBrandingRequest(c.Server, imageUUID, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostLabelIndiciaWithBody(ctx context.Context, params *PostLabelIndiciaParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostLabelIndiciaRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostLabelIndicia(ctx context.Context, params *PostLabelIndiciaParams, body PostLabelIndiciaJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostLabelIndiciaRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostIndiciaImbWithBody(ctx context.Context, params *PostIndiciaImbParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostIndiciaImbRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostIndiciaImb(ctx context.Context, params *PostIndiciaImbParams, body PostIndiciaImbJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostIndiciaImbRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteIndiciaImb(ctx context.Context, imb IMB, params *DeleteIndiciaImbParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteIndiciaImbRequest(c.Server, imb, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteLabelByIdempotency(ctx context.Context, params *DeleteLabelByIdempotencyParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteLabelByIdempotencyRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostLabelWithBody(ctx context.Context, params *PostLabelParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostLabelRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostLabel(ctx context.Context, params *PostLabelParams, body PostLabelJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostLabelRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostLabelReprintByIdempotencyWithBody(ctx context.Context, params *PostLabelReprintByIdempotencyParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostLabelReprintByIdempotencyRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostLabelReprintByIdempotency(ctx context.Context, params *PostLabelReprintByIdempotencyParams, body PostLabelReprintByIdempotencyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostLabelReprintByIdempotencyRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostLabelReprintByTrackingWithBody(ctx context.Context, trackingNumber TrackingNumber, params *PostLabelReprintByTrackingParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostLabelReprintByTrackingRequestWithBody(c.Server, trackingNumber, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostLabelReprintByTracking(ctx context.Context, trackingNumber TrackingNumber, params *PostLabelReprintByTrackingParams, body PostLabelReprintByTrackingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostLabelReprintByTrackingRequest(c.Server, trackingNumber, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteLabelByTracking(ctx context.Context, trackingNumber TrackingNumber, params *DeleteLabelByTrackingParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteLabelByTrackingRequest(c.Server, trackingNumber, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PatchLabelEditWithBody(ctx context.Context, trackingNumber TrackingNumber, params *PatchLabelEditParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchLabelEditRequestWithBody(c.Server, trackingNumber, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PatchLabelEdit(ctx context.Context, trackingNumber TrackingNumber, params *PatchLabelEditParams, body PatchLabelEditJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchLabelEditRequest(c.Server, trackingNumber, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostReturnLabelWithBody(ctx context.Context, params *PostReturnLabelParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostReturnLabelRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostReturnLabel(ctx context.Context, params *PostReturnLabelParams, body PostReturnLabelJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostReturnLabelRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// NewGetListLabelBrandingRequest generates requests for GetListLabelBranding
+func NewGetListLabelBrandingRequest(server string, params *GetListLabelBrandingParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -446,7 +14702,128 @@ func NewCreateLabelRequestWithBody(server string, params *CreateLabelParams, con
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/labels/v3/label")
+	operationPath := fmt.Sprintf("/branding")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "limit", runtime.ParamLocationQuery, *params.Limit); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Offset != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "offset", runtime.ParamLocationQuery, *params.Offset); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.OrderBy != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "orderBy", runtime.ParamLocationQuery, *params.OrderBy); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.SortBy != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "sortBy", runtime.ParamLocationQuery, *params.SortBy); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Payment-Authorization-Token", runtime.ParamLocationHeader, params.XPaymentAuthorizationToken)
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Payment-Authorization-Token", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewPostLabelBrandingRequest calls the generic PostLabelBranding builder with application/json body
+func NewPostLabelBrandingRequest(server string, params *PostLabelBrandingParams, body PostLabelBrandingJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostLabelBrandingRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewPostLabelBrandingRequestWithBody generates requests for PostLabelBranding with any type of body
+func NewPostLabelBrandingRequestWithBody(server string, params *PostLabelBrandingParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/branding")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -479,13 +14856,13 @@ func NewCreateLabelRequestWithBody(server string, params *CreateLabelParams, con
 	return req, nil
 }
 
-// NewCancelLabelRequest generates requests for CancelLabel
-func NewCancelLabelRequest(server string, trackingNumber string, params *CancelLabelParams) (*http.Request, error) {
+// NewDeleteLabelBrandingRequest generates requests for DeleteLabelBranding
+func NewDeleteLabelBrandingRequest(server string, imageUUID LabelBrandingImageUUID, params *DeleteLabelBrandingParams) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "trackingNumber", runtime.ParamLocationPath, trackingNumber)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "imageUUID", runtime.ParamLocationPath, imageUUID)
 	if err != nil {
 		return nil, err
 	}
@@ -495,7 +14872,7 @@ func NewCancelLabelRequest(server string, trackingNumber string, params *CancelL
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/labels/v3/label/%s", pathParam0)
+	operationPath := fmt.Sprintf("/branding/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -526,13 +14903,13 @@ func NewCancelLabelRequest(server string, trackingNumber string, params *CancelL
 	return req, nil
 }
 
-// NewGetLabelRequest generates requests for GetLabel
-func NewGetLabelRequest(server string, trackingNumber string, params *GetLabelParams) (*http.Request, error) {
+// NewGetSingleLabelBrandingRequest generates requests for GetSingleLabelBranding
+func NewGetSingleLabelBrandingRequest(server string, imageUUID LabelBrandingImageUUID, params *GetSingleLabelBrandingParams) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "trackingNumber", runtime.ParamLocationPath, trackingNumber)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "imageUUID", runtime.ParamLocationPath, imageUUID)
 	if err != nil {
 		return nil, err
 	}
@@ -542,7 +14919,7 @@ func NewGetLabelRequest(server string, trackingNumber string, params *GetLabelPa
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/labels/v3/label/%s", pathParam0)
+	operationPath := fmt.Sprintf("/branding/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -567,6 +14944,629 @@ func NewGetLabelRequest(server string, trackingNumber string, params *GetLabelPa
 		}
 
 		req.Header.Set("X-Payment-Authorization-Token", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewPatchLabelBrandingRequest calls the generic PatchLabelBranding builder with application/json body
+func NewPatchLabelBrandingRequest(server string, imageUUID LabelBrandingImageUUID, params *PatchLabelBrandingParams, body PatchLabelBrandingJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPatchLabelBrandingRequestWithBody(server, imageUUID, params, "application/json", bodyReader)
+}
+
+// NewPatchLabelBrandingRequestWithBody generates requests for PatchLabelBranding with any type of body
+func NewPatchLabelBrandingRequestWithBody(server string, imageUUID LabelBrandingImageUUID, params *PatchLabelBrandingParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "imageUUID", runtime.ParamLocationPath, imageUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/branding/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Payment-Authorization-Token", runtime.ParamLocationHeader, params.XPaymentAuthorizationToken)
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Payment-Authorization-Token", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewPostLabelIndiciaRequest calls the generic PostLabelIndicia builder with application/json body
+func NewPostLabelIndiciaRequest(server string, params *PostLabelIndiciaParams, body PostLabelIndiciaJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostLabelIndiciaRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewPostLabelIndiciaRequestWithBody generates requests for PostLabelIndicia with any type of body
+func NewPostLabelIndiciaRequestWithBody(server string, params *PostLabelIndiciaParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/indicia")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Payment-Authorization-Token", runtime.ParamLocationHeader, params.XPaymentAuthorizationToken)
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Payment-Authorization-Token", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewPostIndiciaImbRequest calls the generic PostIndiciaImb builder with application/json body
+func NewPostIndiciaImbRequest(server string, params *PostIndiciaImbParams, body PostIndiciaImbJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostIndiciaImbRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewPostIndiciaImbRequestWithBody generates requests for PostIndiciaImb with any type of body
+func NewPostIndiciaImbRequestWithBody(server string, params *PostIndiciaImbParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/indicia/imb")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Payment-Authorization-Token", runtime.ParamLocationHeader, params.XPaymentAuthorizationToken)
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Payment-Authorization-Token", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewDeleteIndiciaImbRequest generates requests for DeleteIndiciaImb
+func NewDeleteIndiciaImbRequest(server string, imb IMB, params *DeleteIndiciaImbParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "imb", runtime.ParamLocationPath, imb)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/indicia/imb/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Payment-Authorization-Token", runtime.ParamLocationHeader, params.XPaymentAuthorizationToken)
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Payment-Authorization-Token", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewDeleteLabelByIdempotencyRequest generates requests for DeleteLabelByIdempotency
+func NewDeleteLabelByIdempotencyRequest(server string, params *DeleteLabelByIdempotencyParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/label")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Payment-Authorization-Token", runtime.ParamLocationHeader, params.XPaymentAuthorizationToken)
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Payment-Authorization-Token", headerParam0)
+
+		if params.XIdempotencyKey != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam1)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewPostLabelRequest calls the generic PostLabel builder with application/json body
+func NewPostLabelRequest(server string, params *PostLabelParams, body PostLabelJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostLabelRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewPostLabelRequestWithBody generates requests for PostLabel with any type of body
+func NewPostLabelRequestWithBody(server string, params *PostLabelParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/label")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Payment-Authorization-Token", runtime.ParamLocationHeader, params.XPaymentAuthorizationToken)
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Payment-Authorization-Token", headerParam0)
+
+		if params.XIdempotencyKey != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam1)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewPostLabelReprintByIdempotencyRequest calls the generic PostLabelReprintByIdempotency builder with application/json body
+func NewPostLabelReprintByIdempotencyRequest(server string, params *PostLabelReprintByIdempotencyParams, body PostLabelReprintByIdempotencyJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostLabelReprintByIdempotencyRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewPostLabelReprintByIdempotencyRequestWithBody generates requests for PostLabelReprintByIdempotency with any type of body
+func NewPostLabelReprintByIdempotencyRequestWithBody(server string, params *PostLabelReprintByIdempotencyParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/label-reprint")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Payment-Authorization-Token", runtime.ParamLocationHeader, params.XPaymentAuthorizationToken)
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Payment-Authorization-Token", headerParam0)
+
+		if params.XIdempotencyKey != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam1)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewPostLabelReprintByTrackingRequest calls the generic PostLabelReprintByTracking builder with application/json body
+func NewPostLabelReprintByTrackingRequest(server string, trackingNumber TrackingNumber, params *PostLabelReprintByTrackingParams, body PostLabelReprintByTrackingJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostLabelReprintByTrackingRequestWithBody(server, trackingNumber, params, "application/json", bodyReader)
+}
+
+// NewPostLabelReprintByTrackingRequestWithBody generates requests for PostLabelReprintByTracking with any type of body
+func NewPostLabelReprintByTrackingRequestWithBody(server string, trackingNumber TrackingNumber, params *PostLabelReprintByTrackingParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "trackingNumber", runtime.ParamLocationPath, trackingNumber)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/label-reprint/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Payment-Authorization-Token", runtime.ParamLocationHeader, params.XPaymentAuthorizationToken)
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Payment-Authorization-Token", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewDeleteLabelByTrackingRequest generates requests for DeleteLabelByTracking
+func NewDeleteLabelByTrackingRequest(server string, trackingNumber TrackingNumber, params *DeleteLabelByTrackingParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "trackingNumber", runtime.ParamLocationPath, trackingNumber)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/label/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Payment-Authorization-Token", runtime.ParamLocationHeader, params.XPaymentAuthorizationToken)
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Payment-Authorization-Token", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewPatchLabelEditRequest calls the generic PatchLabelEdit builder with application/json body
+func NewPatchLabelEditRequest(server string, trackingNumber TrackingNumber, params *PatchLabelEditParams, body PatchLabelEditJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPatchLabelEditRequestWithBody(server, trackingNumber, params, "application/json", bodyReader)
+}
+
+// NewPatchLabelEditRequestWithBody generates requests for PatchLabelEdit with any type of body
+func NewPatchLabelEditRequestWithBody(server string, trackingNumber TrackingNumber, params *PatchLabelEditParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "trackingNumber", runtime.ParamLocationPath, trackingNumber)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/label/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Payment-Authorization-Token", runtime.ParamLocationHeader, params.XPaymentAuthorizationToken)
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Payment-Authorization-Token", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewPostReturnLabelRequest calls the generic PostReturnLabel builder with application/json body
+func NewPostReturnLabelRequest(server string, params *PostReturnLabelParams, body PostReturnLabelJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostReturnLabelRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewPostReturnLabelRequestWithBody generates requests for PostReturnLabel with any type of body
+func NewPostReturnLabelRequestWithBody(server string, params *PostReturnLabelParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/return-label")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Payment-Authorization-Token", runtime.ParamLocationHeader, params.XPaymentAuthorizationToken)
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Payment-Authorization-Token", headerParam0)
+
+		if params.XIdempotencyKey != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam1)
+		}
 
 	}
 
@@ -616,27 +15616,89 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
-	// CreateLabelWithBodyWithResponse request with any body
-	CreateLabelWithBodyWithResponse(ctx context.Context, params *CreateLabelParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateLabelResponse, error)
+	// GetListLabelBrandingWithResponse request
+	GetListLabelBrandingWithResponse(ctx context.Context, params *GetListLabelBrandingParams, reqEditors ...RequestEditorFn) (*GetListLabelBrandingResponse, error)
 
-	CreateLabelWithResponse(ctx context.Context, params *CreateLabelParams, body CreateLabelJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateLabelResponse, error)
+	// PostLabelBrandingWithBodyWithResponse request with any body
+	PostLabelBrandingWithBodyWithResponse(ctx context.Context, params *PostLabelBrandingParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostLabelBrandingResponse, error)
 
-	// CancelLabelWithResponse request
-	CancelLabelWithResponse(ctx context.Context, trackingNumber string, params *CancelLabelParams, reqEditors ...RequestEditorFn) (*CancelLabelResponse, error)
+	PostLabelBrandingWithResponse(ctx context.Context, params *PostLabelBrandingParams, body PostLabelBrandingJSONRequestBody, reqEditors ...RequestEditorFn) (*PostLabelBrandingResponse, error)
 
-	// GetLabelWithResponse request
-	GetLabelWithResponse(ctx context.Context, trackingNumber string, params *GetLabelParams, reqEditors ...RequestEditorFn) (*GetLabelResponse, error)
+	// DeleteLabelBrandingWithResponse request
+	DeleteLabelBrandingWithResponse(ctx context.Context, imageUUID LabelBrandingImageUUID, params *DeleteLabelBrandingParams, reqEditors ...RequestEditorFn) (*DeleteLabelBrandingResponse, error)
+
+	// GetSingleLabelBrandingWithResponse request
+	GetSingleLabelBrandingWithResponse(ctx context.Context, imageUUID LabelBrandingImageUUID, params *GetSingleLabelBrandingParams, reqEditors ...RequestEditorFn) (*GetSingleLabelBrandingResponse, error)
+
+	// PatchLabelBrandingWithBodyWithResponse request with any body
+	PatchLabelBrandingWithBodyWithResponse(ctx context.Context, imageUUID LabelBrandingImageUUID, params *PatchLabelBrandingParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchLabelBrandingResponse, error)
+
+	PatchLabelBrandingWithResponse(ctx context.Context, imageUUID LabelBrandingImageUUID, params *PatchLabelBrandingParams, body PatchLabelBrandingJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchLabelBrandingResponse, error)
+
+	// PostLabelIndiciaWithBodyWithResponse request with any body
+	PostLabelIndiciaWithBodyWithResponse(ctx context.Context, params *PostLabelIndiciaParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostLabelIndiciaResponse, error)
+
+	PostLabelIndiciaWithResponse(ctx context.Context, params *PostLabelIndiciaParams, body PostLabelIndiciaJSONRequestBody, reqEditors ...RequestEditorFn) (*PostLabelIndiciaResponse, error)
+
+	// PostIndiciaImbWithBodyWithResponse request with any body
+	PostIndiciaImbWithBodyWithResponse(ctx context.Context, params *PostIndiciaImbParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostIndiciaImbResponse, error)
+
+	PostIndiciaImbWithResponse(ctx context.Context, params *PostIndiciaImbParams, body PostIndiciaImbJSONRequestBody, reqEditors ...RequestEditorFn) (*PostIndiciaImbResponse, error)
+
+	// DeleteIndiciaImbWithResponse request
+	DeleteIndiciaImbWithResponse(ctx context.Context, imb IMB, params *DeleteIndiciaImbParams, reqEditors ...RequestEditorFn) (*DeleteIndiciaImbResponse, error)
+
+	// DeleteLabelByIdempotencyWithResponse request
+	DeleteLabelByIdempotencyWithResponse(ctx context.Context, params *DeleteLabelByIdempotencyParams, reqEditors ...RequestEditorFn) (*DeleteLabelByIdempotencyResponse, error)
+
+	// PostLabelWithBodyWithResponse request with any body
+	PostLabelWithBodyWithResponse(ctx context.Context, params *PostLabelParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostLabelResponse, error)
+
+	PostLabelWithResponse(ctx context.Context, params *PostLabelParams, body PostLabelJSONRequestBody, reqEditors ...RequestEditorFn) (*PostLabelResponse, error)
+
+	// PostLabelReprintByIdempotencyWithBodyWithResponse request with any body
+	PostLabelReprintByIdempotencyWithBodyWithResponse(ctx context.Context, params *PostLabelReprintByIdempotencyParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostLabelReprintByIdempotencyResponse, error)
+
+	PostLabelReprintByIdempotencyWithResponse(ctx context.Context, params *PostLabelReprintByIdempotencyParams, body PostLabelReprintByIdempotencyJSONRequestBody, reqEditors ...RequestEditorFn) (*PostLabelReprintByIdempotencyResponse, error)
+
+	// PostLabelReprintByTrackingWithBodyWithResponse request with any body
+	PostLabelReprintByTrackingWithBodyWithResponse(ctx context.Context, trackingNumber TrackingNumber, params *PostLabelReprintByTrackingParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostLabelReprintByTrackingResponse, error)
+
+	PostLabelReprintByTrackingWithResponse(ctx context.Context, trackingNumber TrackingNumber, params *PostLabelReprintByTrackingParams, body PostLabelReprintByTrackingJSONRequestBody, reqEditors ...RequestEditorFn) (*PostLabelReprintByTrackingResponse, error)
+
+	// DeleteLabelByTrackingWithResponse request
+	DeleteLabelByTrackingWithResponse(ctx context.Context, trackingNumber TrackingNumber, params *DeleteLabelByTrackingParams, reqEditors ...RequestEditorFn) (*DeleteLabelByTrackingResponse, error)
+
+	// PatchLabelEditWithBodyWithResponse request with any body
+	PatchLabelEditWithBodyWithResponse(ctx context.Context, trackingNumber TrackingNumber, params *PatchLabelEditParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchLabelEditResponse, error)
+
+	PatchLabelEditWithResponse(ctx context.Context, trackingNumber TrackingNumber, params *PatchLabelEditParams, body PatchLabelEditJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchLabelEditResponse, error)
+
+	// PostReturnLabelWithBodyWithResponse request with any body
+	PostReturnLabelWithBodyWithResponse(ctx context.Context, params *PostReturnLabelParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostReturnLabelResponse, error)
+
+	PostReturnLabelWithResponse(ctx context.Context, params *PostReturnLabelParams, body PostReturnLabelJSONRequestBody, reqEditors ...RequestEditorFn) (*PostReturnLabelResponse, error)
 }
 
-type CreateLabelResponse struct {
+type GetListLabelBrandingResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *LabelResponse
-	JSONDefault  *Error
+	JSON200      *LabelBrandingGetListResponse
+	XML200       *LabelBrandingGetListResponse
+	JSON400      *ErrorMessage
+	XML400       *ErrorMessage
+	JSON401      *ErrorMessage
+	XML401       *ErrorMessage
+	JSON403      *ErrorMessage
+	XML403       *ErrorMessage
+	JSON429      *ErrorMessage
+	XML429       *ErrorMessage
+	JSON503      *ErrorMessage
+	XML503       *ErrorMessage
 }
 
 // Status returns HTTPResponse.Status
-func (r CreateLabelResponse) Status() string {
+func (r GetListLabelBrandingResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -644,22 +15706,32 @@ func (r CreateLabelResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r CreateLabelResponse) StatusCode() int {
+func (r GetListLabelBrandingResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type CancelLabelResponse struct {
+type PostLabelBrandingResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *map[string]interface{}
-	JSONDefault  *Error
+	JSON201      *LabelBrandingUploadResponse
+	XML201       *LabelBrandingUploadResponse
+	JSON400      *ErrorMessage
+	XML400       *ErrorMessage
+	JSON401      *ErrorMessage
+	XML401       *ErrorMessage
+	JSON403      *ErrorMessage
+	XML403       *ErrorMessage
+	JSON429      *ErrorMessage
+	XML429       *ErrorMessage
+	JSON503      *ErrorMessage
+	XML503       *ErrorMessage
 }
 
 // Status returns HTTPResponse.Status
-func (r CancelLabelResponse) Status() string {
+func (r PostLabelBrandingResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -667,22 +15739,32 @@ func (r CancelLabelResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r CancelLabelResponse) StatusCode() int {
+func (r PostLabelBrandingResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type GetLabelResponse struct {
+type DeleteLabelBrandingResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *LabelResponse
-	JSONDefault  *Error
+	JSON200      *LabelBrandingDeleteResponse
+	XML200       *LabelBrandingDeleteResponse
+	JSON400      *ErrorMessage
+	XML400       *ErrorMessage
+	JSON401      *ErrorMessage
+	XML401       *ErrorMessage
+	JSON403      *ErrorMessage
+	XML403       *ErrorMessage
+	JSON429      *ErrorMessage
+	XML429       *ErrorMessage
+	JSON503      *ErrorMessage
+	XML503       *ErrorMessage
 }
 
 // Status returns HTTPResponse.Status
-func (r GetLabelResponse) Status() string {
+func (r DeleteLabelBrandingResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -690,141 +15772,2229 @@ func (r GetLabelResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r GetLabelResponse) StatusCode() int {
+func (r DeleteLabelBrandingResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-// CreateLabelWithBodyWithResponse request with arbitrary body returning *CreateLabelResponse
-func (c *ClientWithResponses) CreateLabelWithBodyWithResponse(ctx context.Context, params *CreateLabelParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateLabelResponse, error) {
-	rsp, err := c.CreateLabelWithBody(ctx, params, contentType, body, reqEditors...)
+type GetSingleLabelBrandingResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *LabelBrandingGetImageResponse
+	XML200       *LabelBrandingGetImageResponse
+	JSON400      *ErrorMessage
+	XML400       *ErrorMessage
+	JSON401      *ErrorMessage
+	XML401       *ErrorMessage
+	JSON403      *ErrorMessage
+	XML403       *ErrorMessage
+	JSON429      *ErrorMessage
+	XML429       *ErrorMessage
+	JSON503      *ErrorMessage
+	XML503       *ErrorMessage
+}
+
+// Status returns HTTPResponse.Status
+func (r GetSingleLabelBrandingResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetSingleLabelBrandingResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PatchLabelBrandingResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *LabelBrandingPatchResponse
+	XML200       *LabelBrandingPatchResponse
+	JSON400      *ErrorMessage
+	XML400       *ErrorMessage
+	JSON401      *ErrorMessage
+	XML401       *ErrorMessage
+	JSON403      *ErrorMessage
+	XML403       *ErrorMessage
+	JSON429      *ErrorMessage
+	XML429       *ErrorMessage
+	JSON503      *ErrorMessage
+	XML503       *ErrorMessage
+}
+
+// Status returns HTTPResponse.Status
+func (r PatchLabelBrandingResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PatchLabelBrandingResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PostLabelIndiciaResponse struct {
+	Body                            []byte
+	HTTPResponse                    *http.Response
+	JSON201                         *IndiciaResponse
+	ApplicationvndUspsLabelsJSON201 *IndiciaResponse
+	XML201                          *IndiciaResponse
+	JSON400                         *ErrorMessage
+	XML400                          *ErrorMessage
+	JSON401                         *ErrorMessage
+	XML401                          *ErrorMessage
+	JSON403                         *ErrorMessage
+	XML403                          *ErrorMessage
+	JSON429                         *ErrorMessage
+	XML429                          *ErrorMessage
+	JSON503                         *ErrorMessage
+	XML503                          *ErrorMessage
+}
+
+// Status returns HTTPResponse.Status
+func (r PostLabelIndiciaResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostLabelIndiciaResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PostIndiciaImbResponse struct {
+	Body                            []byte
+	HTTPResponse                    *http.Response
+	JSON201                         *IndiciaImbResponse
+	ApplicationvndUspsLabelsJSON201 *IndiciaImbResponse
+	XML201                          *IndiciaImbResponse
+	JSON400                         *ErrorMessage
+	XML400                          *ErrorMessage
+	JSON401                         *ErrorMessage
+	XML401                          *ErrorMessage
+	JSON403                         *ErrorMessage
+	XML403                          *ErrorMessage
+	JSON429                         *ErrorMessage
+	XML429                          *ErrorMessage
+	JSON503                         *ErrorMessage
+	XML503                          *ErrorMessage
+}
+
+// Status returns HTTPResponse.Status
+func (r PostIndiciaImbResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostIndiciaImbResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteIndiciaImbResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *IMBCancelResponse
+	XML200       *IMBCancelResponse
+	JSON400      *ErrorMessage
+	XML400       *ErrorMessage
+	JSON401      *ErrorMessage
+	XML401       *ErrorMessage
+	JSON403      *ErrorMessage
+	XML403       *ErrorMessage
+	JSON429      *ErrorMessage
+	XML429       *ErrorMessage
+	JSON503      *ErrorMessage
+	XML503       *ErrorMessage
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteIndiciaImbResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteIndiciaImbResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteLabelByIdempotencyResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *CancelResponse
+	XML200       *CancelResponse
+	JSON400      *ErrorMessage
+	XML400       *ErrorMessage
+	JSON401      *ErrorMessage
+	XML401       *ErrorMessage
+	JSON403      *ErrorMessage
+	XML403       *ErrorMessage
+	JSON429      *ErrorMessage
+	XML429       *ErrorMessage
+	JSON503      *ErrorMessage
+	XML503       *ErrorMessage
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteLabelByIdempotencyResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteLabelByIdempotencyResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PostLabelResponse struct {
+	Body                            []byte
+	HTTPResponse                    *http.Response
+	JSON200                         *LabelMultiPartResponse
+	ApplicationvndUspsLabelsJSON200 *LabelVendorResponse
+	XML200                          *LabelMultiPartResponse
+	JSON400                         *ErrorMessage
+	XML400                          *ErrorMessage
+	JSON401                         *ErrorMessage
+	XML401                          *ErrorMessage
+	JSON403                         *ErrorMessage
+	XML403                          *ErrorMessage
+	JSON429                         *ErrorMessage
+	XML429                          *ErrorMessage
+	JSON503                         *ErrorMessage
+	XML503                          *ErrorMessage
+}
+
+// Status returns HTTPResponse.Status
+func (r PostLabelResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostLabelResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PostLabelReprintByIdempotencyResponse struct {
+	Body                            []byte
+	HTTPResponse                    *http.Response
+	JSON200                         *LabelReprintMultiPartResponse
+	ApplicationvndUspsLabelsJSON200 *struct {
+		union json.RawMessage
+	}
+	XML200  *LabelReprintMultiPartResponse
+	JSON400 *ErrorMessage
+	XML400  *ErrorMessage
+	JSON401 *ErrorMessage
+	XML401  *ErrorMessage
+	JSON403 *ErrorMessage
+	XML403  *ErrorMessage
+	JSON429 *ErrorMessage
+	XML429  *ErrorMessage
+	JSON503 *ErrorMessage
+	XML503  *ErrorMessage
+}
+
+// Status returns HTTPResponse.Status
+func (r PostLabelReprintByIdempotencyResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostLabelReprintByIdempotencyResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PostLabelReprintByTrackingResponse struct {
+	Body                            []byte
+	HTTPResponse                    *http.Response
+	JSON200                         *LabelReprintMultiPartResponse
+	ApplicationvndUspsLabelsJSON200 *struct {
+		union json.RawMessage
+	}
+	XML200  *LabelReprintMultiPartResponse
+	JSON400 *ErrorMessage
+	XML400  *ErrorMessage
+	JSON401 *ErrorMessage
+	XML401  *ErrorMessage
+	JSON403 *ErrorMessage
+	XML403  *ErrorMessage
+	JSON429 *ErrorMessage
+	XML429  *ErrorMessage
+	JSON503 *ErrorMessage
+	XML503  *ErrorMessage
+}
+
+// Status returns HTTPResponse.Status
+func (r PostLabelReprintByTrackingResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostLabelReprintByTrackingResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteLabelByTrackingResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *CancelResponse
+	XML200       *CancelResponse
+	JSON400      *ErrorMessage
+	XML400       *ErrorMessage
+	JSON401      *ErrorMessage
+	XML401       *ErrorMessage
+	JSON403      *ErrorMessage
+	XML403       *ErrorMessage
+	JSON429      *ErrorMessage
+	XML429       *ErrorMessage
+	JSON503      *ErrorMessage
+	XML503       *ErrorMessage
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteLabelByTrackingResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteLabelByTrackingResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PatchLabelEditResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *LabelMetadata
+	XML200       *LabelMetadata
+	JSON400      *ErrorMessage
+	XML400       *ErrorMessage
+	JSON401      *ErrorMessage
+	XML401       *ErrorMessage
+	JSON403      *ErrorMessage
+	XML403       *ErrorMessage
+	JSON429      *ErrorMessage
+	XML429       *ErrorMessage
+	JSON503      *ErrorMessage
+	XML503       *ErrorMessage
+}
+
+// Status returns HTTPResponse.Status
+func (r PatchLabelEditResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PatchLabelEditResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PostReturnLabelResponse struct {
+	Body                            []byte
+	HTTPResponse                    *http.Response
+	JSON200                         *ReturnLabelMultiPartResponse
+	ApplicationvndUspsLabelsJSON200 *ReturnLabelVendorResponse
+	XML200                          *ReturnLabelMultiPartResponse
+	JSON400                         *ErrorMessage
+	XML400                          *ErrorMessage
+	JSON401                         *ErrorMessage
+	XML401                          *ErrorMessage
+	JSON403                         *ErrorMessage
+	XML403                          *ErrorMessage
+	JSON429                         *ErrorMessage
+	XML429                          *ErrorMessage
+	JSON503                         *ErrorMessage
+	XML503                          *ErrorMessage
+}
+
+// Status returns HTTPResponse.Status
+func (r PostReturnLabelResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostReturnLabelResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// GetListLabelBrandingWithResponse request returning *GetListLabelBrandingResponse
+func (c *ClientWithResponses) GetListLabelBrandingWithResponse(ctx context.Context, params *GetListLabelBrandingParams, reqEditors ...RequestEditorFn) (*GetListLabelBrandingResponse, error) {
+	rsp, err := c.GetListLabelBranding(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseCreateLabelResponse(rsp)
+	return ParseGetListLabelBrandingResponse(rsp)
 }
 
-func (c *ClientWithResponses) CreateLabelWithResponse(ctx context.Context, params *CreateLabelParams, body CreateLabelJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateLabelResponse, error) {
-	rsp, err := c.CreateLabel(ctx, params, body, reqEditors...)
+// PostLabelBrandingWithBodyWithResponse request with arbitrary body returning *PostLabelBrandingResponse
+func (c *ClientWithResponses) PostLabelBrandingWithBodyWithResponse(ctx context.Context, params *PostLabelBrandingParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostLabelBrandingResponse, error) {
+	rsp, err := c.PostLabelBrandingWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseCreateLabelResponse(rsp)
+	return ParsePostLabelBrandingResponse(rsp)
 }
 
-// CancelLabelWithResponse request returning *CancelLabelResponse
-func (c *ClientWithResponses) CancelLabelWithResponse(ctx context.Context, trackingNumber string, params *CancelLabelParams, reqEditors ...RequestEditorFn) (*CancelLabelResponse, error) {
-	rsp, err := c.CancelLabel(ctx, trackingNumber, params, reqEditors...)
+func (c *ClientWithResponses) PostLabelBrandingWithResponse(ctx context.Context, params *PostLabelBrandingParams, body PostLabelBrandingJSONRequestBody, reqEditors ...RequestEditorFn) (*PostLabelBrandingResponse, error) {
+	rsp, err := c.PostLabelBranding(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseCancelLabelResponse(rsp)
+	return ParsePostLabelBrandingResponse(rsp)
 }
 
-// GetLabelWithResponse request returning *GetLabelResponse
-func (c *ClientWithResponses) GetLabelWithResponse(ctx context.Context, trackingNumber string, params *GetLabelParams, reqEditors ...RequestEditorFn) (*GetLabelResponse, error) {
-	rsp, err := c.GetLabel(ctx, trackingNumber, params, reqEditors...)
+// DeleteLabelBrandingWithResponse request returning *DeleteLabelBrandingResponse
+func (c *ClientWithResponses) DeleteLabelBrandingWithResponse(ctx context.Context, imageUUID LabelBrandingImageUUID, params *DeleteLabelBrandingParams, reqEditors ...RequestEditorFn) (*DeleteLabelBrandingResponse, error) {
+	rsp, err := c.DeleteLabelBranding(ctx, imageUUID, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseGetLabelResponse(rsp)
+	return ParseDeleteLabelBrandingResponse(rsp)
 }
 
-// ParseCreateLabelResponse parses an HTTP response from a CreateLabelWithResponse call
-func ParseCreateLabelResponse(rsp *http.Response) (*CreateLabelResponse, error) {
+// GetSingleLabelBrandingWithResponse request returning *GetSingleLabelBrandingResponse
+func (c *ClientWithResponses) GetSingleLabelBrandingWithResponse(ctx context.Context, imageUUID LabelBrandingImageUUID, params *GetSingleLabelBrandingParams, reqEditors ...RequestEditorFn) (*GetSingleLabelBrandingResponse, error) {
+	rsp, err := c.GetSingleLabelBranding(ctx, imageUUID, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetSingleLabelBrandingResponse(rsp)
+}
+
+// PatchLabelBrandingWithBodyWithResponse request with arbitrary body returning *PatchLabelBrandingResponse
+func (c *ClientWithResponses) PatchLabelBrandingWithBodyWithResponse(ctx context.Context, imageUUID LabelBrandingImageUUID, params *PatchLabelBrandingParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchLabelBrandingResponse, error) {
+	rsp, err := c.PatchLabelBrandingWithBody(ctx, imageUUID, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchLabelBrandingResponse(rsp)
+}
+
+func (c *ClientWithResponses) PatchLabelBrandingWithResponse(ctx context.Context, imageUUID LabelBrandingImageUUID, params *PatchLabelBrandingParams, body PatchLabelBrandingJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchLabelBrandingResponse, error) {
+	rsp, err := c.PatchLabelBranding(ctx, imageUUID, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchLabelBrandingResponse(rsp)
+}
+
+// PostLabelIndiciaWithBodyWithResponse request with arbitrary body returning *PostLabelIndiciaResponse
+func (c *ClientWithResponses) PostLabelIndiciaWithBodyWithResponse(ctx context.Context, params *PostLabelIndiciaParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostLabelIndiciaResponse, error) {
+	rsp, err := c.PostLabelIndiciaWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostLabelIndiciaResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostLabelIndiciaWithResponse(ctx context.Context, params *PostLabelIndiciaParams, body PostLabelIndiciaJSONRequestBody, reqEditors ...RequestEditorFn) (*PostLabelIndiciaResponse, error) {
+	rsp, err := c.PostLabelIndicia(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostLabelIndiciaResponse(rsp)
+}
+
+// PostIndiciaImbWithBodyWithResponse request with arbitrary body returning *PostIndiciaImbResponse
+func (c *ClientWithResponses) PostIndiciaImbWithBodyWithResponse(ctx context.Context, params *PostIndiciaImbParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostIndiciaImbResponse, error) {
+	rsp, err := c.PostIndiciaImbWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostIndiciaImbResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostIndiciaImbWithResponse(ctx context.Context, params *PostIndiciaImbParams, body PostIndiciaImbJSONRequestBody, reqEditors ...RequestEditorFn) (*PostIndiciaImbResponse, error) {
+	rsp, err := c.PostIndiciaImb(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostIndiciaImbResponse(rsp)
+}
+
+// DeleteIndiciaImbWithResponse request returning *DeleteIndiciaImbResponse
+func (c *ClientWithResponses) DeleteIndiciaImbWithResponse(ctx context.Context, imb IMB, params *DeleteIndiciaImbParams, reqEditors ...RequestEditorFn) (*DeleteIndiciaImbResponse, error) {
+	rsp, err := c.DeleteIndiciaImb(ctx, imb, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteIndiciaImbResponse(rsp)
+}
+
+// DeleteLabelByIdempotencyWithResponse request returning *DeleteLabelByIdempotencyResponse
+func (c *ClientWithResponses) DeleteLabelByIdempotencyWithResponse(ctx context.Context, params *DeleteLabelByIdempotencyParams, reqEditors ...RequestEditorFn) (*DeleteLabelByIdempotencyResponse, error) {
+	rsp, err := c.DeleteLabelByIdempotency(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteLabelByIdempotencyResponse(rsp)
+}
+
+// PostLabelWithBodyWithResponse request with arbitrary body returning *PostLabelResponse
+func (c *ClientWithResponses) PostLabelWithBodyWithResponse(ctx context.Context, params *PostLabelParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostLabelResponse, error) {
+	rsp, err := c.PostLabelWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostLabelResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostLabelWithResponse(ctx context.Context, params *PostLabelParams, body PostLabelJSONRequestBody, reqEditors ...RequestEditorFn) (*PostLabelResponse, error) {
+	rsp, err := c.PostLabel(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostLabelResponse(rsp)
+}
+
+// PostLabelReprintByIdempotencyWithBodyWithResponse request with arbitrary body returning *PostLabelReprintByIdempotencyResponse
+func (c *ClientWithResponses) PostLabelReprintByIdempotencyWithBodyWithResponse(ctx context.Context, params *PostLabelReprintByIdempotencyParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostLabelReprintByIdempotencyResponse, error) {
+	rsp, err := c.PostLabelReprintByIdempotencyWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostLabelReprintByIdempotencyResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostLabelReprintByIdempotencyWithResponse(ctx context.Context, params *PostLabelReprintByIdempotencyParams, body PostLabelReprintByIdempotencyJSONRequestBody, reqEditors ...RequestEditorFn) (*PostLabelReprintByIdempotencyResponse, error) {
+	rsp, err := c.PostLabelReprintByIdempotency(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostLabelReprintByIdempotencyResponse(rsp)
+}
+
+// PostLabelReprintByTrackingWithBodyWithResponse request with arbitrary body returning *PostLabelReprintByTrackingResponse
+func (c *ClientWithResponses) PostLabelReprintByTrackingWithBodyWithResponse(ctx context.Context, trackingNumber TrackingNumber, params *PostLabelReprintByTrackingParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostLabelReprintByTrackingResponse, error) {
+	rsp, err := c.PostLabelReprintByTrackingWithBody(ctx, trackingNumber, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostLabelReprintByTrackingResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostLabelReprintByTrackingWithResponse(ctx context.Context, trackingNumber TrackingNumber, params *PostLabelReprintByTrackingParams, body PostLabelReprintByTrackingJSONRequestBody, reqEditors ...RequestEditorFn) (*PostLabelReprintByTrackingResponse, error) {
+	rsp, err := c.PostLabelReprintByTracking(ctx, trackingNumber, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostLabelReprintByTrackingResponse(rsp)
+}
+
+// DeleteLabelByTrackingWithResponse request returning *DeleteLabelByTrackingResponse
+func (c *ClientWithResponses) DeleteLabelByTrackingWithResponse(ctx context.Context, trackingNumber TrackingNumber, params *DeleteLabelByTrackingParams, reqEditors ...RequestEditorFn) (*DeleteLabelByTrackingResponse, error) {
+	rsp, err := c.DeleteLabelByTracking(ctx, trackingNumber, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteLabelByTrackingResponse(rsp)
+}
+
+// PatchLabelEditWithBodyWithResponse request with arbitrary body returning *PatchLabelEditResponse
+func (c *ClientWithResponses) PatchLabelEditWithBodyWithResponse(ctx context.Context, trackingNumber TrackingNumber, params *PatchLabelEditParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchLabelEditResponse, error) {
+	rsp, err := c.PatchLabelEditWithBody(ctx, trackingNumber, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchLabelEditResponse(rsp)
+}
+
+func (c *ClientWithResponses) PatchLabelEditWithResponse(ctx context.Context, trackingNumber TrackingNumber, params *PatchLabelEditParams, body PatchLabelEditJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchLabelEditResponse, error) {
+	rsp, err := c.PatchLabelEdit(ctx, trackingNumber, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchLabelEditResponse(rsp)
+}
+
+// PostReturnLabelWithBodyWithResponse request with arbitrary body returning *PostReturnLabelResponse
+func (c *ClientWithResponses) PostReturnLabelWithBodyWithResponse(ctx context.Context, params *PostReturnLabelParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostReturnLabelResponse, error) {
+	rsp, err := c.PostReturnLabelWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostReturnLabelResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostReturnLabelWithResponse(ctx context.Context, params *PostReturnLabelParams, body PostReturnLabelJSONRequestBody, reqEditors ...RequestEditorFn) (*PostReturnLabelResponse, error) {
+	rsp, err := c.PostReturnLabel(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostReturnLabelResponse(rsp)
+}
+
+// ParseGetListLabelBrandingResponse parses an HTTP response from a GetListLabelBrandingWithResponse call
+func ParseGetListLabelBrandingResponse(rsp *http.Response) (*GetListLabelBrandingResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &CreateLabelResponse{
+	response := &GetListLabelBrandingResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest LabelResponse
+		var dest LabelBrandingGetListResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
 		response.JSON200 = &dest
 
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
-		var dest Error
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorMessage
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
-		response.JSONDefault = &dest
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 200:
+		var dest LabelBrandingGetListResponse
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML503 = &dest
 
 	}
 
 	return response, nil
 }
 
-// ParseCancelLabelResponse parses an HTTP response from a CancelLabelWithResponse call
-func ParseCancelLabelResponse(rsp *http.Response) (*CancelLabelResponse, error) {
+// ParsePostLabelBrandingResponse parses an HTTP response from a PostLabelBrandingWithResponse call
+func ParsePostLabelBrandingResponse(rsp *http.Response) (*PostLabelBrandingResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &CancelLabelResponse{
+	response := &PostLabelBrandingResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest map[string]interface{}
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest LabelBrandingUploadResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
-		response.JSON200 = &dest
+		response.JSON201 = &dest
 
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
-		var dest Error
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorMessage
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
-		response.JSONDefault = &dest
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 201:
+		var dest LabelBrandingUploadResponse
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML503 = &dest
 
 	}
 
 	return response, nil
 }
 
-// ParseGetLabelResponse parses an HTTP response from a GetLabelWithResponse call
-func ParseGetLabelResponse(rsp *http.Response) (*GetLabelResponse, error) {
+// ParseDeleteLabelBrandingResponse parses an HTTP response from a DeleteLabelBrandingWithResponse call
+func ParseDeleteLabelBrandingResponse(rsp *http.Response) (*DeleteLabelBrandingResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &GetLabelResponse{
+	response := &DeleteLabelBrandingResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest LabelResponse
+		var dest LabelBrandingDeleteResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
 		response.JSON200 = &dest
 
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
-		var dest Error
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorMessage
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
-		response.JSONDefault = &dest
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 200:
+		var dest LabelBrandingDeleteResponse
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetSingleLabelBrandingResponse parses an HTTP response from a GetSingleLabelBrandingWithResponse call
+func ParseGetSingleLabelBrandingResponse(rsp *http.Response) (*GetSingleLabelBrandingResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetSingleLabelBrandingResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest LabelBrandingGetImageResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 200:
+		var dest LabelBrandingGetImageResponse
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePatchLabelBrandingResponse parses an HTTP response from a PatchLabelBrandingWithResponse call
+func ParsePatchLabelBrandingResponse(rsp *http.Response) (*PatchLabelBrandingResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PatchLabelBrandingResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest LabelBrandingPatchResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 200:
+		var dest LabelBrandingPatchResponse
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostLabelIndiciaResponse parses an HTTP response from a PostLabelIndiciaWithResponse call
+func ParsePostLabelIndiciaResponse(rsp *http.Response) (*PostLabelIndiciaResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostLabelIndiciaResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.Header.Get("Content-Type") == "application/json" && rsp.StatusCode == 201:
+		var dest IndiciaResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case rsp.Header.Get("Content-Type") == "application/vnd.usps.labels+json" && rsp.StatusCode == 201:
+		var dest IndiciaResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationvndUspsLabelsJSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 201:
+		var dest IndiciaResponse
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML503 = &dest
+
+	case rsp.StatusCode == 201:
+		// Content-type (multipart/form-data) unsupported
+
+	}
+
+	return response, nil
+}
+
+// ParsePostIndiciaImbResponse parses an HTTP response from a PostIndiciaImbWithResponse call
+func ParsePostIndiciaImbResponse(rsp *http.Response) (*PostIndiciaImbResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostIndiciaImbResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.Header.Get("Content-Type") == "application/json" && rsp.StatusCode == 201:
+		var dest IndiciaImbResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case rsp.Header.Get("Content-Type") == "application/vnd.usps.labels+json" && rsp.StatusCode == 201:
+		var dest IndiciaImbResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationvndUspsLabelsJSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 201:
+		var dest IndiciaImbResponse
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML503 = &dest
+
+	case rsp.StatusCode == 201:
+		// Content-type (multipart/form-data) unsupported
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteIndiciaImbResponse parses an HTTP response from a DeleteIndiciaImbWithResponse call
+func ParseDeleteIndiciaImbResponse(rsp *http.Response) (*DeleteIndiciaImbResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteIndiciaImbResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest IMBCancelResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 200:
+		var dest IMBCancelResponse
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteLabelByIdempotencyResponse parses an HTTP response from a DeleteLabelByIdempotencyWithResponse call
+func ParseDeleteLabelByIdempotencyResponse(rsp *http.Response) (*DeleteLabelByIdempotencyResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteLabelByIdempotencyResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest CancelResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 200:
+		var dest CancelResponse
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostLabelResponse parses an HTTP response from a PostLabelWithResponse call
+func ParsePostLabelResponse(rsp *http.Response) (*PostLabelResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostLabelResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.Header.Get("Content-Type") == "application/json" && rsp.StatusCode == 200:
+		var dest LabelMultiPartResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case rsp.Header.Get("Content-Type") == "application/vnd.usps.labels+json" && rsp.StatusCode == 200:
+		var dest LabelVendorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationvndUspsLabelsJSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 200:
+		var dest LabelMultiPartResponse
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML503 = &dest
+
+	case rsp.StatusCode == 200:
+		// Content-type (multipart/form-data) unsupported
+
+	}
+
+	return response, nil
+}
+
+// ParsePostLabelReprintByIdempotencyResponse parses an HTTP response from a PostLabelReprintByIdempotencyWithResponse call
+func ParsePostLabelReprintByIdempotencyResponse(rsp *http.Response) (*PostLabelReprintByIdempotencyResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostLabelReprintByIdempotencyResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.Header.Get("Content-Type") == "application/json" && rsp.StatusCode == 200:
+		var dest LabelReprintMultiPartResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case rsp.Header.Get("Content-Type") == "application/vnd.usps.labels+json" && rsp.StatusCode == 200:
+		var dest struct {
+			union json.RawMessage
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationvndUspsLabelsJSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 200:
+		var dest LabelReprintMultiPartResponse
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML503 = &dest
+
+	case rsp.StatusCode == 200:
+		// Content-type (multipart/form-data) unsupported
+
+	}
+
+	return response, nil
+}
+
+// ParsePostLabelReprintByTrackingResponse parses an HTTP response from a PostLabelReprintByTrackingWithResponse call
+func ParsePostLabelReprintByTrackingResponse(rsp *http.Response) (*PostLabelReprintByTrackingResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostLabelReprintByTrackingResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.Header.Get("Content-Type") == "application/json" && rsp.StatusCode == 200:
+		var dest LabelReprintMultiPartResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case rsp.Header.Get("Content-Type") == "application/vnd.usps.labels+json" && rsp.StatusCode == 200:
+		var dest struct {
+			union json.RawMessage
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationvndUspsLabelsJSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 200:
+		var dest LabelReprintMultiPartResponse
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML503 = &dest
+
+	case rsp.StatusCode == 200:
+		// Content-type (multipart/form-data) unsupported
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteLabelByTrackingResponse parses an HTTP response from a DeleteLabelByTrackingWithResponse call
+func ParseDeleteLabelByTrackingResponse(rsp *http.Response) (*DeleteLabelByTrackingResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteLabelByTrackingResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest CancelResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 200:
+		var dest CancelResponse
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePatchLabelEditResponse parses an HTTP response from a PatchLabelEditWithResponse call
+func ParsePatchLabelEditResponse(rsp *http.Response) (*PatchLabelEditResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PatchLabelEditResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest LabelMetadata
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 200:
+		var dest LabelMetadata
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostReturnLabelResponse parses an HTTP response from a PostReturnLabelWithResponse call
+func ParsePostReturnLabelResponse(rsp *http.Response) (*PostReturnLabelResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostReturnLabelResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.Header.Get("Content-Type") == "application/json" && rsp.StatusCode == 200:
+		var dest ReturnLabelMultiPartResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case rsp.Header.Get("Content-Type") == "application/vnd.usps.labels+json" && rsp.StatusCode == 200:
+		var dest ReturnLabelVendorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationvndUspsLabelsJSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 200:
+		var dest ReturnLabelMultiPartResponse
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML503 = &dest
+
+	case rsp.StatusCode == 200:
+		// Content-type (multipart/form-data) unsupported
 
 	}
 

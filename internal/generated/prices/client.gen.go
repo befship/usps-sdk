@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"io"
 	"net/http"
@@ -17,65 +18,2157 @@ import (
 )
 
 const (
-	BearerAuthScopes = "bearerAuth.Scopes"
+	OAuthScopes = "OAuth.Scopes"
 )
 
-// BaseRatesSearchRequest defines model for BaseRatesSearchRequest.
-type BaseRatesSearchRequest struct {
-	AccountNumber                *string             `json:"accountNumber,omitempty"`
-	AccountType                  *string             `json:"accountType,omitempty"`
-	DestinationEntryFacilityType *string             `json:"destinationEntryFacilityType,omitempty"`
-	DestinationZIPCode           string              `json:"destinationZIPCode"`
-	Height                       *float64            `json:"height,omitempty"`
-	Length                       *float64            `json:"length,omitempty"`
-	MailClass                    string              `json:"mailClass"`
-	MailingDate                  *openapi_types.Date `json:"mailingDate,omitempty"`
-	OriginZIPCode                string              `json:"originZIPCode"`
-	PriceType                    *string             `json:"priceType,omitempty"`
-	ProcessingCategory           *string             `json:"processingCategory,omitempty"`
-	RateIndicator                *string             `json:"rateIndicator,omitempty"`
-	Weight                       float64             `json:"weight"`
-	Width                        *float64            `json:"width,omitempty"`
-}
+// Defines values for BaseRateDetailsDestinationEntryFacilityType.
+const (
+	BaseRateDetailsDestinationEntryFacilityTypeAREADISTRIBUTIONCENTER                          BaseRateDetailsDestinationEntryFacilityType = "AREA_DISTRIBUTION_CENTER"
+	BaseRateDetailsDestinationEntryFacilityTypeAUXILIARYSERVICEFACILITY                        BaseRateDetailsDestinationEntryFacilityType = "AUXILIARY_SERVICE_FACILITY"
+	BaseRateDetailsDestinationEntryFacilityTypeDESTINATIONDELIVERYUNIT                         BaseRateDetailsDestinationEntryFacilityType = "DESTINATION_DELIVERY_UNIT"
+	BaseRateDetailsDestinationEntryFacilityTypeDESTINATIONNETWORKDISTRIBUTIONCENTER            BaseRateDetailsDestinationEntryFacilityType = "DESTINATION_NETWORK_DISTRIBUTION_CENTER"
+	BaseRateDetailsDestinationEntryFacilityTypeDESTINATIONREGIONALPROCESSINGDISTRIBUTIONCENTER BaseRateDetailsDestinationEntryFacilityType = "DESTINATION_REGIONAL_PROCESSING_DISTRIBUTION_CENTER"
+	BaseRateDetailsDestinationEntryFacilityTypeDESTINATIONSECTIONALCENTERFACILITY              BaseRateDetailsDestinationEntryFacilityType = "DESTINATION_SECTIONAL_CENTER_FACILITY"
+	BaseRateDetailsDestinationEntryFacilityTypeDESTINATIONSERVICEHUB                           BaseRateDetailsDestinationEntryFacilityType = "DESTINATION_SERVICE_HUB"
+	BaseRateDetailsDestinationEntryFacilityTypeNONE                                            BaseRateDetailsDestinationEntryFacilityType = "NONE"
+)
 
-// BaseRatesSearchResponse defines model for BaseRatesSearchResponse.
-type BaseRatesSearchResponse struct {
-	MailClass            *string                `json:"mailClass,omitempty"`
-	Price                *float64               `json:"price,omitempty"`
-	TotalBasePrice       *float64               `json:"totalBasePrice,omitempty"`
+// Defines values for BaseRateDetailsPriceType.
+const (
+	BaseRateDetailsPriceTypeCOMMERCIAL     BaseRateDetailsPriceType = "COMMERCIAL"
+	BaseRateDetailsPriceTypeCOMMERCIALBASE BaseRateDetailsPriceType = "COMMERCIAL_BASE"
+	BaseRateDetailsPriceTypeCOMMERCIALPLUS BaseRateDetailsPriceType = "COMMERCIAL_PLUS"
+	BaseRateDetailsPriceTypeCONTRACT       BaseRateDetailsPriceType = "CONTRACT"
+	BaseRateDetailsPriceTypeNSA            BaseRateDetailsPriceType = "NSA"
+	BaseRateDetailsPriceTypeRETAIL         BaseRateDetailsPriceType = "RETAIL"
+)
+
+// Defines values for BaseRateDetailsProcessingCategory.
+const (
+	BaseRateDetailsProcessingCategoryCARDS                 BaseRateDetailsProcessingCategory = "CARDS"
+	BaseRateDetailsProcessingCategoryCATALOGS              BaseRateDetailsProcessingCategory = "CATALOGS"
+	BaseRateDetailsProcessingCategoryFLATS                 BaseRateDetailsProcessingCategory = "FLATS"
+	BaseRateDetailsProcessingCategoryIRREGULAR             BaseRateDetailsProcessingCategory = "IRREGULAR"
+	BaseRateDetailsProcessingCategoryLETTERS               BaseRateDetailsProcessingCategory = "LETTERS"
+	BaseRateDetailsProcessingCategoryMACHINABLE            BaseRateDetailsProcessingCategory = "MACHINABLE"
+	BaseRateDetailsProcessingCategoryNONMACHINABLE         BaseRateDetailsProcessingCategory = "NON_MACHINABLE"
+	BaseRateDetailsProcessingCategoryNONSTANDARD           BaseRateDetailsProcessingCategory = "NONSTANDARD"
+	BaseRateDetailsProcessingCategoryOPENANDDISTRIBUTE     BaseRateDetailsProcessingCategory = "OPEN_AND_DISTRIBUTE"
+	BaseRateDetailsProcessingCategoryRETURNS               BaseRateDetailsProcessingCategory = "RETURNS"
+	BaseRateDetailsProcessingCategorySOFTPACKMACHINABLE    BaseRateDetailsProcessingCategory = "SOFT_PACK_MACHINABLE"
+	BaseRateDetailsProcessingCategorySOFTPACKNONMACHINABLE BaseRateDetailsProcessingCategory = "SOFT_PACK_NON_MACHINABLE"
+)
+
+// Defines values for BaseRatesQueryAccountType.
+const (
+	BaseRatesQueryAccountTypeEPS    BaseRatesQueryAccountType = "EPS"
+	BaseRatesQueryAccountTypeMETER  BaseRatesQueryAccountType = "METER"
+	BaseRatesQueryAccountTypeMID    BaseRatesQueryAccountType = "MID"
+	BaseRatesQueryAccountTypePERMIT BaseRatesQueryAccountType = "PERMIT"
+)
+
+// Defines values for BaseRatesQueryDestinationEntryFacilityType.
+const (
+	BaseRatesQueryDestinationEntryFacilityTypeDESTINATIONDELIVERYUNIT                         BaseRatesQueryDestinationEntryFacilityType = "DESTINATION_DELIVERY_UNIT"
+	BaseRatesQueryDestinationEntryFacilityTypeDESTINATIONNETWORKDISTRIBUTIONCENTER            BaseRatesQueryDestinationEntryFacilityType = "DESTINATION_NETWORK_DISTRIBUTION_CENTER"
+	BaseRatesQueryDestinationEntryFacilityTypeDESTINATIONREGIONALPROCESSINGDISTRIBUTIONCENTER BaseRatesQueryDestinationEntryFacilityType = "DESTINATION_REGIONAL_PROCESSING_DISTRIBUTION_CENTER"
+	BaseRatesQueryDestinationEntryFacilityTypeDESTINATIONSECTIONALCENTERFACILITY              BaseRatesQueryDestinationEntryFacilityType = "DESTINATION_SECTIONAL_CENTER_FACILITY"
+	BaseRatesQueryDestinationEntryFacilityTypeDESTINATIONSERVICEHUB                           BaseRatesQueryDestinationEntryFacilityType = "DESTINATION_SERVICE_HUB"
+	BaseRatesQueryDestinationEntryFacilityTypeNONE                                            BaseRatesQueryDestinationEntryFacilityType = "NONE"
+)
+
+// Defines values for BaseRatesQueryProcessingCategory.
+const (
+	BaseRatesQueryProcessingCategoryFLATS         BaseRatesQueryProcessingCategory = "FLATS"
+	BaseRatesQueryProcessingCategoryIRREGULAR     BaseRatesQueryProcessingCategory = "IRREGULAR"
+	BaseRatesQueryProcessingCategoryLETTERS       BaseRatesQueryProcessingCategory = "LETTERS"
+	BaseRatesQueryProcessingCategoryMACHINABLE    BaseRatesQueryProcessingCategory = "MACHINABLE"
+	BaseRatesQueryProcessingCategoryNONMACHINABLE BaseRatesQueryProcessingCategory = "NON_MACHINABLE"
+	BaseRatesQueryProcessingCategoryNONSTANDARD   BaseRatesQueryProcessingCategory = "NONSTANDARD"
+)
+
+// Defines values for BaseRatesQueryRateIndicator.
+const (
+	BA  BaseRatesQueryRateIndicator = "BA"
+	BB  BaseRatesQueryRateIndicator = "BB"
+	BM  BaseRatesQueryRateIndicator = "BM"
+	C1  BaseRatesQueryRateIndicator = "C1"
+	C2  BaseRatesQueryRateIndicator = "C2"
+	C3  BaseRatesQueryRateIndicator = "C3"
+	C4  BaseRatesQueryRateIndicator = "C4"
+	C5  BaseRatesQueryRateIndicator = "C5"
+	CM  BaseRatesQueryRateIndicator = "CM"
+	CP  BaseRatesQueryRateIndicator = "CP"
+	DC  BaseRatesQueryRateIndicator = "DC"
+	DE  BaseRatesQueryRateIndicator = "DE"
+	DF  BaseRatesQueryRateIndicator = "DF"
+	DN  BaseRatesQueryRateIndicator = "DN"
+	DR  BaseRatesQueryRateIndicator = "DR"
+	E4  BaseRatesQueryRateIndicator = "E4"
+	E6  BaseRatesQueryRateIndicator = "E6"
+	E7  BaseRatesQueryRateIndicator = "E7"
+	FA  BaseRatesQueryRateIndicator = "FA"
+	FB  BaseRatesQueryRateIndicator = "FB"
+	FE  BaseRatesQueryRateIndicator = "FE"
+	FP  BaseRatesQueryRateIndicator = "FP"
+	FS  BaseRatesQueryRateIndicator = "FS"
+	LC  BaseRatesQueryRateIndicator = "LC"
+	LF  BaseRatesQueryRateIndicator = "LF"
+	LL  BaseRatesQueryRateIndicator = "LL"
+	LO  BaseRatesQueryRateIndicator = "LO"
+	LS  BaseRatesQueryRateIndicator = "LS"
+	N3D BaseRatesQueryRateIndicator = "3D"
+	N3N BaseRatesQueryRateIndicator = "3N"
+	N3R BaseRatesQueryRateIndicator = "3R"
+	N5D BaseRatesQueryRateIndicator = "5D"
+	NN  BaseRatesQueryRateIndicator = "NN"
+	NP  BaseRatesQueryRateIndicator = "NP"
+	O1  BaseRatesQueryRateIndicator = "O1"
+	O2  BaseRatesQueryRateIndicator = "O2"
+	O3  BaseRatesQueryRateIndicator = "O3"
+	O4  BaseRatesQueryRateIndicator = "O4"
+	O5  BaseRatesQueryRateIndicator = "O5"
+	O6  BaseRatesQueryRateIndicator = "O6"
+	O7  BaseRatesQueryRateIndicator = "O7"
+	OS  BaseRatesQueryRateIndicator = "OS"
+	P5  BaseRatesQueryRateIndicator = "P5"
+	P6  BaseRatesQueryRateIndicator = "P6"
+	P7  BaseRatesQueryRateIndicator = "P7"
+	P8  BaseRatesQueryRateIndicator = "P8"
+	P9  BaseRatesQueryRateIndicator = "P9"
+	PA  BaseRatesQueryRateIndicator = "PA"
+	PL  BaseRatesQueryRateIndicator = "PL"
+	PM  BaseRatesQueryRateIndicator = "PM"
+	PN  BaseRatesQueryRateIndicator = "PN"
+	PR  BaseRatesQueryRateIndicator = "PR"
+	Q0  BaseRatesQueryRateIndicator = "Q0"
+	Q6  BaseRatesQueryRateIndicator = "Q6"
+	Q7  BaseRatesQueryRateIndicator = "Q7"
+	Q8  BaseRatesQueryRateIndicator = "Q8"
+	Q9  BaseRatesQueryRateIndicator = "Q9"
+	SB  BaseRatesQueryRateIndicator = "SB"
+	SN  BaseRatesQueryRateIndicator = "SN"
+	SP  BaseRatesQueryRateIndicator = "SP"
+	SR  BaseRatesQueryRateIndicator = "SR"
+)
+
+// Defines values for ExtraService.
+const (
+	ExtraServiceN415 ExtraService = 415
+	ExtraServiceN480 ExtraService = 480
+	ExtraServiceN481 ExtraService = 481
+	ExtraServiceN482 ExtraService = 482
+	ExtraServiceN483 ExtraService = 483
+	ExtraServiceN484 ExtraService = 484
+	ExtraServiceN485 ExtraService = 485
+	ExtraServiceN486 ExtraService = 486
+	ExtraServiceN487 ExtraService = 487
+	ExtraServiceN488 ExtraService = 488
+	ExtraServiceN489 ExtraService = 489
+	ExtraServiceN498 ExtraService = 498
+	ExtraServiceN500 ExtraService = 500
+	ExtraServiceN501 ExtraService = 501
+	ExtraServiceN502 ExtraService = 502
+	ExtraServiceN810 ExtraService = 810
+	ExtraServiceN811 ExtraService = 811
+	ExtraServiceN812 ExtraService = 812
+	ExtraServiceN813 ExtraService = 813
+	ExtraServiceN814 ExtraService = 814
+	ExtraServiceN815 ExtraService = 815
+	ExtraServiceN816 ExtraService = 816
+	ExtraServiceN817 ExtraService = 817
+	ExtraServiceN818 ExtraService = 818
+	ExtraServiceN819 ExtraService = 819
+	ExtraServiceN820 ExtraService = 820
+	ExtraServiceN821 ExtraService = 821
+	ExtraServiceN822 ExtraService = 822
+	ExtraServiceN823 ExtraService = 823
+	ExtraServiceN824 ExtraService = 824
+	ExtraServiceN825 ExtraService = 825
+	ExtraServiceN826 ExtraService = 826
+	ExtraServiceN827 ExtraService = 827
+	ExtraServiceN828 ExtraService = 828
+	ExtraServiceN829 ExtraService = 829
+	ExtraServiceN830 ExtraService = 830
+	ExtraServiceN831 ExtraService = 831
+	ExtraServiceN832 ExtraService = 832
+	ExtraServiceN853 ExtraService = 853
+	ExtraServiceN856 ExtraService = 856
+	ExtraServiceN857 ExtraService = 857
+	ExtraServiceN858 ExtraService = 858
+	ExtraServiceN910 ExtraService = 910
+	ExtraServiceN911 ExtraService = 911
+	ExtraServiceN912 ExtraService = 912
+	ExtraServiceN913 ExtraService = 913
+	ExtraServiceN915 ExtraService = 915
+	ExtraServiceN917 ExtraService = 917
+	ExtraServiceN920 ExtraService = 920
+	ExtraServiceN921 ExtraService = 921
+	ExtraServiceN922 ExtraService = 922
+	ExtraServiceN923 ExtraService = 923
+	ExtraServiceN924 ExtraService = 924
+	ExtraServiceN925 ExtraService = 925
+	ExtraServiceN930 ExtraService = 930
+	ExtraServiceN931 ExtraService = 931
+	ExtraServiceN934 ExtraService = 934
+	ExtraServiceN940 ExtraService = 940
+	ExtraServiceN941 ExtraService = 941
+	ExtraServiceN955 ExtraService = 955
+	ExtraServiceN957 ExtraService = 957
+	ExtraServiceN972 ExtraService = 972
+	ExtraServiceN981 ExtraService = 981
+	ExtraServiceN984 ExtraService = 984
+	ExtraServiceN986 ExtraService = 986
+	ExtraServiceN991 ExtraService = 991
+)
+
+// Defines values for ExtraServiceRateDetailsPriceType.
+const (
+	ExtraServiceRateDetailsPriceTypeCOMMERCIAL ExtraServiceRateDetailsPriceType = "COMMERCIAL"
+	ExtraServiceRateDetailsPriceTypeCONTRACT   ExtraServiceRateDetailsPriceType = "CONTRACT"
+	ExtraServiceRateDetailsPriceTypeNSA        ExtraServiceRateDetailsPriceType = "NSA"
+	ExtraServiceRateDetailsPriceTypeRETAIL     ExtraServiceRateDetailsPriceType = "RETAIL"
+)
+
+// Defines values for ExtraServiceRateQueryAccountType.
+const (
+	ExtraServiceRateQueryAccountTypeEPS    ExtraServiceRateQueryAccountType = "EPS"
+	ExtraServiceRateQueryAccountTypeMETER  ExtraServiceRateQueryAccountType = "METER"
+	ExtraServiceRateQueryAccountTypeMID    ExtraServiceRateQueryAccountType = "MID"
+	ExtraServiceRateQueryAccountTypePERMIT ExtraServiceRateQueryAccountType = "PERMIT"
+)
+
+// Defines values for ExtraServiceRateQueryWithSingleExtraServiceAccountType.
+const (
+	ExtraServiceRateQueryWithSingleExtraServiceAccountTypeEPS    ExtraServiceRateQueryWithSingleExtraServiceAccountType = "EPS"
+	ExtraServiceRateQueryWithSingleExtraServiceAccountTypeMETER  ExtraServiceRateQueryWithSingleExtraServiceAccountType = "METER"
+	ExtraServiceRateQueryWithSingleExtraServiceAccountTypePERMIT ExtraServiceRateQueryWithSingleExtraServiceAccountType = "PERMIT"
+)
+
+// Defines values for LetterRateDetailMailClass.
+const (
+	LetterRateDetailMailClassFIRSTCLASSMAIL LetterRateDetailMailClass = "FIRST-CLASS_MAIL"
+)
+
+// Defines values for LetterRateDetailPriceType.
+const (
+	LetterRateDetailPriceTypeRETAIL LetterRateDetailPriceType = "RETAIL"
+)
+
+// Defines values for LetterRatesQueryExtraServices.
+const (
+	LetterRatesQueryExtraServicesN910 LetterRatesQueryExtraServices = 910
+	LetterRatesQueryExtraServicesN911 LetterRatesQueryExtraServices = 911
+	LetterRatesQueryExtraServicesN930 LetterRatesQueryExtraServices = 930
+	LetterRatesQueryExtraServicesN931 LetterRatesQueryExtraServices = 931
+	LetterRatesQueryExtraServicesN934 LetterRatesQueryExtraServices = 934
+	LetterRatesQueryExtraServicesN940 LetterRatesQueryExtraServices = 940
+	LetterRatesQueryExtraServicesN941 LetterRatesQueryExtraServices = 941
+	LetterRatesQueryExtraServicesN955 LetterRatesQueryExtraServices = 955
+	LetterRatesQueryExtraServicesN957 LetterRatesQueryExtraServices = 957
+	LetterRatesQueryExtraServicesN985 LetterRatesQueryExtraServices = 985
+)
+
+// Defines values for LetterRatesQueryProcessingCategory.
+const (
+	LetterRatesQueryProcessingCategoryCARDS   LetterRatesQueryProcessingCategory = "CARDS"
+	LetterRatesQueryProcessingCategoryFLATS   LetterRatesQueryProcessingCategory = "FLATS"
+	LetterRatesQueryProcessingCategoryLETTERS LetterRatesQueryProcessingCategory = "LETTERS"
+)
+
+// Defines values for LettersRateDetailsMailClass.
+const (
+	LettersRateDetailsMailClassFIRSTCLASSMAIL LettersRateDetailsMailClass = "FIRST-CLASS_MAIL"
+)
+
+// Defines values for LettersRateDetailsPriceType.
+const (
+	LettersRateDetailsPriceTypeRETAIL LettersRateDetailsPriceType = "RETAIL"
+)
+
+// Defines values for MailClass.
+const (
+	MailClassBOUNDPRINTEDMATTER               MailClass = "BOUND_PRINTED_MATTER"
+	MailClassFIRSTCLASSPACKAGERETURNSERVICE   MailClass = "FIRST-CLASS_PACKAGE_RETURN_SERVICE"
+	MailClassFIRSTCLASSPACKAGESERVICE         MailClass = "FIRST-CLASS_PACKAGE_SERVICE"
+	MailClassGROUNDRETURNSERVICE              MailClass = "GROUND_RETURN_SERVICE"
+	MailClassLIBRARYMAIL                      MailClass = "LIBRARY_MAIL"
+	MailClassMARKETINGMAILPARCELS             MailClass = "MARKETING_MAIL_PARCELS"
+	MailClassMEDIAMAIL                        MailClass = "MEDIA_MAIL"
+	MailClassPARCELSELECT                     MailClass = "PARCEL_SELECT"
+	MailClassPARCELSELECTLIGHTWEIGHT          MailClass = "PARCEL_SELECT_LIGHTWEIGHT"
+	MailClassPRIORITYMAIL                     MailClass = "PRIORITY_MAIL"
+	MailClassPRIORITYMAILEXPRESS              MailClass = "PRIORITY_MAIL_EXPRESS"
+	MailClassPRIORITYMAILEXPRESSRETURNSERVICE MailClass = "PRIORITY_MAIL_EXPRESS_RETURN_SERVICE"
+	MailClassPRIORITYMAILRETURNSERVICE        MailClass = "PRIORITY_MAIL_RETURN_SERVICE"
+	MailClassUSPSCONNECTLOCAL                 MailClass = "USPS_CONNECT_LOCAL"
+	MailClassUSPSCONNECTMAIL                  MailClass = "USPS_CONNECT_MAIL"
+	MailClassUSPSCONNECTREGIONAL              MailClass = "USPS_CONNECT_REGIONAL"
+	MailClassUSPSGROUNDADVANTAGE              MailClass = "USPS_GROUND_ADVANTAGE"
+	MailClassUSPSGROUNDADVANTAGERETURNSERVICE MailClass = "USPS_GROUND_ADVANTAGE_RETURN_SERVICE"
+	MailClassUSPSRETAILGROUND                 MailClass = "USPS_RETAIL_GROUND"
+)
+
+// Defines values for MailClassOutboundOnly.
+const (
+	MailClassOutboundOnlyALL                      MailClassOutboundOnly = "ALL"
+	MailClassOutboundOnlyBOUNDPRINTEDMATTER       MailClassOutboundOnly = "BOUND_PRINTED_MATTER"
+	MailClassOutboundOnlyFIRSTCLASSPACKAGESERVICE MailClassOutboundOnly = "FIRST-CLASS_PACKAGE_SERVICE"
+	MailClassOutboundOnlyLIBRARYMAIL              MailClassOutboundOnly = "LIBRARY_MAIL"
+	MailClassOutboundOnlyMARKETINGMAILPARCELS     MailClassOutboundOnly = "MARKETING_MAIL_PARCELS"
+	MailClassOutboundOnlyMEDIAMAIL                MailClassOutboundOnly = "MEDIA_MAIL"
+	MailClassOutboundOnlyPARCELSELECT             MailClassOutboundOnly = "PARCEL_SELECT"
+	MailClassOutboundOnlyPARCELSELECTLIGHTWEIGHT  MailClassOutboundOnly = "PARCEL_SELECT_LIGHTWEIGHT"
+	MailClassOutboundOnlyPRIORITYMAIL             MailClassOutboundOnly = "PRIORITY_MAIL"
+	MailClassOutboundOnlyPRIORITYMAILEXPRESS      MailClassOutboundOnly = "PRIORITY_MAIL_EXPRESS"
+	MailClassOutboundOnlyUSPSCONNECTLOCAL         MailClassOutboundOnly = "USPS_CONNECT_LOCAL"
+	MailClassOutboundOnlyUSPSCONNECTMAIL          MailClassOutboundOnly = "USPS_CONNECT_MAIL"
+	MailClassOutboundOnlyUSPSCONNECTREGIONAL      MailClassOutboundOnly = "USPS_CONNECT_REGIONAL"
+	MailClassOutboundOnlyUSPSGROUNDADVANTAGE      MailClassOutboundOnly = "USPS_GROUND_ADVANTAGE"
+	MailClassOutboundOnlyUSPSRETAILGROUND         MailClassOutboundOnly = "USPS_RETAIL_GROUND"
+)
+
+// Defines values for PriceType.
+const (
+	PriceTypeCOMMERCIAL PriceType = "COMMERCIAL"
+	PriceTypeCONTRACT   PriceType = "CONTRACT"
+	PriceTypeNSA        PriceType = "NSA"
+	PriceTypeRETAIL     PriceType = "RETAIL"
+)
+
+// Defines values for RateDetailsDestinationEntryFacilityType.
+const (
+	AREADISTRIBUTIONCENTER                          RateDetailsDestinationEntryFacilityType = "AREA_DISTRIBUTION_CENTER"
+	AUXILIARYSERVICEFACILITY                        RateDetailsDestinationEntryFacilityType = "AUXILIARY_SERVICE_FACILITY"
+	DESTINATIONDELIVERYUNIT                         RateDetailsDestinationEntryFacilityType = "DESTINATION_DELIVERY_UNIT"
+	DESTINATIONNETWORKDISTRIBUTIONCENTER            RateDetailsDestinationEntryFacilityType = "DESTINATION_NETWORK_DISTRIBUTION_CENTER"
+	DESTINATIONREGIONALPROCESSINGDISTRIBUTIONCENTER RateDetailsDestinationEntryFacilityType = "DESTINATION_REGIONAL_PROCESSING_DISTRIBUTION_CENTER"
+	DESTINATIONSECTIONALCENTERFACILITY              RateDetailsDestinationEntryFacilityType = "DESTINATION_SECTIONAL_CENTER_FACILITY"
+	DESTINATIONSERVICEHUB                           RateDetailsDestinationEntryFacilityType = "DESTINATION_SERVICE_HUB"
+	NONE                                            RateDetailsDestinationEntryFacilityType = "NONE"
+)
+
+// Defines values for RateDetailsPriceType.
+const (
+	RateDetailsPriceTypeCOMMERCIAL     RateDetailsPriceType = "COMMERCIAL"
+	RateDetailsPriceTypeCOMMERCIALBASE RateDetailsPriceType = "COMMERCIAL_BASE"
+	RateDetailsPriceTypeCOMMERCIALPLUS RateDetailsPriceType = "COMMERCIAL_PLUS"
+	RateDetailsPriceTypeCONTRACT       RateDetailsPriceType = "CONTRACT"
+	RateDetailsPriceTypeNSA            RateDetailsPriceType = "NSA"
+	RateDetailsPriceTypeRETAIL         RateDetailsPriceType = "RETAIL"
+)
+
+// Defines values for RateDetailsProcessingCategory.
+const (
+	RateDetailsProcessingCategoryCARDS                 RateDetailsProcessingCategory = "CARDS"
+	RateDetailsProcessingCategoryCATALOGS              RateDetailsProcessingCategory = "CATALOGS"
+	RateDetailsProcessingCategoryFLATS                 RateDetailsProcessingCategory = "FLATS"
+	RateDetailsProcessingCategoryIRREGULAR             RateDetailsProcessingCategory = "IRREGULAR"
+	RateDetailsProcessingCategoryLETTERS               RateDetailsProcessingCategory = "LETTERS"
+	RateDetailsProcessingCategoryMACHINABLE            RateDetailsProcessingCategory = "MACHINABLE"
+	RateDetailsProcessingCategoryNONMACHINABLE         RateDetailsProcessingCategory = "NON_MACHINABLE"
+	RateDetailsProcessingCategoryNONSTANDARD           RateDetailsProcessingCategory = "NONSTANDARD"
+	RateDetailsProcessingCategoryOPENANDDISTRIBUTE     RateDetailsProcessingCategory = "OPEN_AND_DISTRIBUTE"
+	RateDetailsProcessingCategoryRETURNS               RateDetailsProcessingCategory = "RETURNS"
+	RateDetailsProcessingCategorySOFTPACKMACHINABLE    RateDetailsProcessingCategory = "SOFT_PACK_MACHINABLE"
+	RateDetailsProcessingCategorySOFTPACKNONMACHINABLE RateDetailsProcessingCategory = "SOFT_PACK_NON_MACHINABLE"
+)
+
+// Defines values for RateListQueryAccountType.
+const (
+	RateListQueryAccountTypeEPS    RateListQueryAccountType = "EPS"
+	RateListQueryAccountTypeMETER  RateListQueryAccountType = "METER"
+	RateListQueryAccountTypePERMIT RateListQueryAccountType = "PERMIT"
+)
+
+// Defines values for TotalRatesExtraServiceRateDetailsPriceType.
+const (
+	COMMERCIAL TotalRatesExtraServiceRateDetailsPriceType = "COMMERCIAL"
+	CONTRACT   TotalRatesExtraServiceRateDetailsPriceType = "CONTRACT"
+	NSA        TotalRatesExtraServiceRateDetailsPriceType = "NSA"
+	RETAIL     TotalRatesExtraServiceRateDetailsPriceType = "RETAIL"
+)
+
+// Defines values for TotalRatesQueryAccountType.
+const (
+	EPS    TotalRatesQueryAccountType = "EPS"
+	METER  TotalRatesQueryAccountType = "METER"
+	PERMIT TotalRatesQueryAccountType = "PERMIT"
+)
+
+// BaseRateDetails defines model for BaseRateDetails.
+type BaseRateDetails struct {
+	// SKU The stock keeping unit for the designated rate.
+	SKU *string `json:"SKU,omitempty"`
+
+	// Description The description of the price.
+	Description *string `json:"description,omitempty"`
+
+	// DestinationEntryFacilityType Destination Entry Facility type for the provided rate, this value can be used in the labels API to ensure the provided rate is applied.
+	//
+	// * `NONE` - None, translates to PTR code `N`
+	// * `AREA_DISTRIBUTION_CENTER` - Area Distribution Center, translates to PTR code `A`
+	// * `AUXILIARY_SERVICE_FACILITY` - Auxiliary Service Facility, translates to PTR code `F`
+	// * `DESTINATION_DELIVERY_UNIT` - Destination Delivery Unit, translates to PTR code `D`
+	// * `DESTINATION_NETWORK_DISTRIBUTION_CENTER` - Destination Network Distribution Center, translates to PTR code `B`
+	// * `DESTINATION_SECTIONAL_CENTER_FACILITY` - Destination Sectional Center Facility, translates to PTR code `S`
+	// * `DESTINATION_SERVICE_HUB` - Destination Service Hub, translates to PTR code `H`
+	// * `DESTINATION_REGIONAL_PROCESSING_DISTRIBUTION_CENTER` - Destination Regional Processing Distribution Center, translates to PTR code `B`
+	//
+	// Note:
+	// * Effective 01/18/2026: `DESTINATION_NETWORK_DISTRIBUTION_CENTER` with `PARCEL_SELECT` is no longer eligible.
+	// * Effective 01/18/2026: (NSA Only) `DESTINATION_REGIONAL_PROCESSING_DISTRIBUTION_CENTER` with `PARCEL_SELECT` is available as an option.
+	DestinationEntryFacilityType *BaseRateDetailsDestinationEntryFacilityType `json:"destinationEntryFacilityType,omitempty"`
+
+	// DimWeight The calculated dimensional weight for the package based on user provided dimensions. The greater of dimWeight and weight will be used to calculated the rate.
+	DimWeight *float64 `json:"dimWeight,omitempty"`
+
+	// EndDate Effective end date of the rate.  If blank the rate doesn't have an end date as of yet.
+	EndDate *string `json:"endDate,omitempty"`
+
+	// Fees The fees associated with the package.
+	Fees *[]struct {
+		// SKU The pricing SKU for the fee.
+		SKU *string `json:"SKU,omitempty"`
+
+		// Name The name of the fee.
+		Name *string `json:"name,omitempty"`
+
+		// Price The price for the fee.
+		Price *float64 `json:"price,omitempty"`
+	} `json:"fees,omitempty"`
+
+	// MailClass The mail class of the price.
+	MailClass *string `json:"mailClass,omitempty"`
+
+	// Price The postage price.
+	Price *float64 `json:"price,omitempty"`
+
+	// PriceType The type of price applied.
+	//  * Valid Options for Domestic Prices include: 'RETAIL','COMMERCIAL',  'CONTRACT' & 'NSA' (deprecated)
+	//  * Valid Options for International Prices include: 'RETAIL', 'COMMERCIAL', 'COMMERCIAL_BASE', 'COMMERCIAL_PLUS', 'CONTRACT' & 'NSA' (deprecated)
+	PriceType *BaseRateDetailsPriceType `json:"priceType,omitempty"`
+
+	// ProcessingCategory Processing category for the provided rate, this value can be used in the labels API to ensure the provided rate is applied.
+	//
+	// * `CARDS` - Cards, translates to PTR code `0`
+	// * `LETTERS` - Letters, translates to PTR code `1`
+	// * `FLATS` - Flats, translates to PTR code `2`
+	// * `MACHINABLE` - Machinable Parcel, translates to PTR code `3`
+	// * `IRREGULAR` - Irregular Parcel, translates to PTR code `4`
+	// * `NON_MACHINABLE` - Non-machinable parcel, translates to PTR code `5`
+	// * `NONSTANDARD` - Nonstandard parcel, translates to PTR code `5`
+	// * `CATALOGS` - Catalogs, translates to PTR code `C`
+	// * `OPEN_AND_DISTRIBUTE` - Open and Distribute, translates to PTR code `O`
+	// * `RETURNS` - Returns, translates to PTR code `R`
+	// * `SOFT_PACK_MACHINABLE` - Soft Pack Machinable, translates to PTR code `S`
+	// * `SOFT_PACK_NON_MACHINABLE` - Soft Package Non-machinable, translates to PTR code `T`
+	//
+	// Note:
+	// * `IRREGULAR` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+	// * `NON_MACHINABLE` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+	ProcessingCategory *BaseRateDetailsProcessingCategory `json:"processingCategory,omitempty"`
+
+	// ProductDefinition A business friendly description for a product that can be displayed to a customer on a shipping portal
+	ProductDefinition *string `json:"productDefinition,omitempty"`
+
+	// ProductName A business friendly name for a product that can be displayed to a customer on a shipping portal
+	ProductName *string `json:"productName,omitempty"`
+
+	// RateIndicator Two-digit rate indicator code for the provided rate, this value can be used in the labels API to ensure the provided rate is applied.
+	RateIndicator *string `json:"rateIndicator,omitempty"`
+
+	// StartDate Effective start date of the rate.
+	StartDate *openapi_types.Date `json:"startDate,omitempty"`
+
+	// Warnings A list of warnings associated with the rate calculation.
+	Warnings *WarningsList `json:"warnings,omitempty"`
+
+	// Weight The calculated weight for the package based on user input.  The greater of dimWeight and weight will be used to calculated the rate.
+	Weight *float64 `json:"weight,omitempty"`
+
+	// Zone Indicates the calculated zone between the provided `originZIPCode` and `destinationZIPCode` for a given `mailClass`, `mailingDate`, and `weight`.
 	Zone                 *string                `json:"zone,omitempty"`
 	AdditionalProperties map[string]interface{} `json:"-"`
 }
 
-// Error defines model for Error.
-type Error map[string]interface{}
+// BaseRateDetailsDestinationEntryFacilityType Destination Entry Facility type for the provided rate, this value can be used in the labels API to ensure the provided rate is applied.
+//
+// * `NONE` - None, translates to PTR code `N`
+// * `AREA_DISTRIBUTION_CENTER` - Area Distribution Center, translates to PTR code `A`
+// * `AUXILIARY_SERVICE_FACILITY` - Auxiliary Service Facility, translates to PTR code `F`
+// * `DESTINATION_DELIVERY_UNIT` - Destination Delivery Unit, translates to PTR code `D`
+// * `DESTINATION_NETWORK_DISTRIBUTION_CENTER` - Destination Network Distribution Center, translates to PTR code `B`
+// * `DESTINATION_SECTIONAL_CENTER_FACILITY` - Destination Sectional Center Facility, translates to PTR code `S`
+// * `DESTINATION_SERVICE_HUB` - Destination Service Hub, translates to PTR code `H`
+// * `DESTINATION_REGIONAL_PROCESSING_DISTRIBUTION_CENTER` - Destination Regional Processing Distribution Center, translates to PTR code `B`
+//
+// Note:
+// * Effective 01/18/2026: `DESTINATION_NETWORK_DISTRIBUTION_CENTER` with `PARCEL_SELECT` is no longer eligible.
+// * Effective 01/18/2026: (NSA Only) `DESTINATION_REGIONAL_PROCESSING_DISTRIBUTION_CENTER` with `PARCEL_SELECT` is available as an option.
+type BaseRateDetailsDestinationEntryFacilityType string
 
-// SearchBaseRatesJSONRequestBody defines body for SearchBaseRates for application/json ContentType.
-type SearchBaseRatesJSONRequestBody = BaseRatesSearchRequest
+// BaseRateDetailsPriceType The type of price applied.
+//   - Valid Options for Domestic Prices include: 'RETAIL','COMMERCIAL',  'CONTRACT' & 'NSA' (deprecated)
+//   - Valid Options for International Prices include: 'RETAIL', 'COMMERCIAL', 'COMMERCIAL_BASE', 'COMMERCIAL_PLUS', 'CONTRACT' & 'NSA' (deprecated)
+type BaseRateDetailsPriceType string
 
-// Getter for additional properties for BaseRatesSearchResponse. Returns the specified
+// BaseRateDetailsProcessingCategory Processing category for the provided rate, this value can be used in the labels API to ensure the provided rate is applied.
+//
+// * `CARDS` - Cards, translates to PTR code `0`
+// * `LETTERS` - Letters, translates to PTR code `1`
+// * `FLATS` - Flats, translates to PTR code `2`
+// * `MACHINABLE` - Machinable Parcel, translates to PTR code `3`
+// * `IRREGULAR` - Irregular Parcel, translates to PTR code `4`
+// * `NON_MACHINABLE` - Non-machinable parcel, translates to PTR code `5`
+// * `NONSTANDARD` - Nonstandard parcel, translates to PTR code `5`
+// * `CATALOGS` - Catalogs, translates to PTR code `C`
+// * `OPEN_AND_DISTRIBUTE` - Open and Distribute, translates to PTR code `O`
+// * `RETURNS` - Returns, translates to PTR code `R`
+// * `SOFT_PACK_MACHINABLE` - Soft Pack Machinable, translates to PTR code `S`
+// * `SOFT_PACK_NON_MACHINABLE` - Soft Package Non-machinable, translates to PTR code `T`
+//
+// Note:
+// * `IRREGULAR` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+// * `NON_MACHINABLE` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+type BaseRateDetailsProcessingCategory string
+
+// BaseRateOption The prices that match the search criteria.
+type BaseRateOption struct {
+	// Rates List of base rate details associated with the shipment.
+	Rates *[]BaseRateDetails `json:"rates,omitempty"`
+
+	// TotalBasePrice The total price, including the rate, fees and pound postage.
+	TotalBasePrice *float64 `json:"totalBasePrice,omitempty"`
+}
+
+// BaseRatesQuery Package rate ingredients used to calculate base prices.
+type BaseRatesQuery struct {
+	// AccountNumber The Enterprise Payment Account, Permit number, PC Postage meter number, or Mailer ID associated with a contract.
+	AccountNumber *string `json:"accountNumber,omitempty"`
+
+	// AccountType The type of payment account linked to a contract rate.
+	//
+	// Note:
+	// - `METER` pricing is only available to PC Postage providers.
+	// - `MID` pricing is only available for return mail classes.
+	AccountType *BaseRatesQueryAccountType `json:"accountType,omitempty"`
+
+	// DestinationEntryFacilityType Types of Facilities:
+	// * `NONE` - Translate to Destination Rate Indicator N
+	// * `DESTINATION_NETWORK_DISTRIBUTION_CENTER` - Translate to Destination Rate Indicator B
+	// * `DESTINATION_SECTIONAL_CENTER_FACILITY` - Translate to Destination Rate Indicator S
+	// * `DESTINATION_DELIVERY_UNIT` - Translate to Destination Rate Indicator D
+	// * `DESTINATION_SERVICE_HUB` - Translate to Destination Rate Indicator H
+	// * `DESTINATION_REGIONAL_PROCESSING_DISTRIBUTION_CENTER` - Translate to Destination Rate Indicator B
+	//
+	// Note:
+	// * Effective 01/18/2026: `DESTINATION_NETWORK_DISTRIBUTION_CENTER` with `PARCEL_SELECT` is no longer eligible.
+	// * Effective 01/18/2026: (NSA Only) `DESTINATION_REGIONAL_PROCESSING_DISTRIBUTION_CENTER` with `PARCEL_SELECT` is available as an option.
+	DestinationEntryFacilityType BaseRatesQueryDestinationEntryFacilityType `json:"destinationEntryFacilityType"`
+
+	// DestinationZIPCode This is destination ZIP Code&#8482; for the package.
+	DestinationZIPCode string `json:"destinationZIPCode"`
+
+	// HasNonstandardCharacteristics Package is nonstandard. Nonstandard packages include cylindrical tubes and rolls, certain high-density items, cartons containing more than 24 ounces of liquids in one or more glass containers, cartons containing 1 gallon or more of liquid in metal or plastic containers, and items in [201.7.6.2](https://pe.usps.com/text/dmm300/201.htm#7.6.2).
+	HasNonstandardCharacteristics *bool `json:"hasNonstandardCharacteristics,omitempty"`
+
+	// Height This is the package height in inches.
+	Height Height `json:"height"`
+
+	// Length This is the package length in inches.  The maximum dimension is always length.
+	Length Length `json:"length"`
+
+	// MailClass The mail service requested.
+	//
+	// Note:
+	// - `PARCEL_SELECT_LIGHTWEIGHT` is deprecated and will convert to `PARCEL_SELECT`.
+	// - `FIRST-CLASS_PACKAGE_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE`.
+	// - `FIRST-CLASS_PACKAGE_RETURN_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE_RETURN_SERVICE`.
+	// - `GROUND_RETURN_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE_RETURN_SERVICE`.
+	// - `USPS_RETAIL_GROUND` is no longer supported and will return a 400 if used.
+	// - Certain mail classes, such as `MEDIA_MAIL`, `BOUND_PRINTED_MATTER`, and `LIBRARY_MAIL`, have eligibility rules on what can be mailed using that service.  For more details on these mail classes, please visit [What are Package Services?](https://faq.usps.com/s/article/What-are-Package-Services).
+	MailClass MailClass `json:"mailClass"`
+
+	// MailingDate The date the package or letter/flat/card will be mailed.
+	//
+	// The mailing date may be today plus 0 to 7 days in advance.
+	//
+	// Enter the date in the full-date notation as defined by [RFC 3339, section 5.6](https://datatracker.ietf.org/doc/html/rfc3339#section-5.6).
+	MailingDate *MailingDate `json:"mailingDate,omitempty"`
+
+	// OriginZIPCode This is the originating ZIP Code&#8482; for the package.
+	OriginZIPCode string `json:"originZIPCode"`
+
+	// PriceType The type of price applied.
+	//
+	// Notes:
+	//  * The `priceType` of `NSA` is deprecated.  `CONTRACT` should be used for non-published pricing.
+	//  * If an `accountNumber` is provided, it overrides the requested `priceType` and the response will return `CONTRACT` rates (if they exist for that account).
+	//  * When priceType is `CONTRACT`, `accountType` and `accountNumber` are required to return the correct pricing.  If `accountType` and `accountNumber` are not provided, published `COMMERCIAL` rates may be returned instead.
+	PriceType PriceType `json:"priceType"`
+
+	// ProcessingCategory USPS categorizes parcels into one of two mail processing categories: MACHINABLE or NONSTANDARD.
+	// These categories are based on the physical dimensions of the piece, regardless of the placement (orientation) of the delivery address on the piece.
+	// For more information see [Domestic Mail Manual (DMM)](https://pe.usps.com/DMM300/201.htm).
+	//
+	// Machinable letter-size mail is:
+	//
+	// * Not less than 5 inches long, 3-1/2 inches high, and 0.007-inch thick. For pieces more than 4-1/4 inches high or 6 inches long, or both, the minimum thickness is 0.009.(Pieces not meeting the 0.009 thickness are non-machinable letters under 2.1.)
+	// * Not more than 11-1/2 inches long, or more than 6-1/8 inches high, or greater than 1/4-inch thick.
+	// * Rectangular, with four square corners and parallel opposite sides. Letter-size, card-type mailpieces made of cardstock may have finished corners that do not exceed a radius of 0.125 inch (1/8 inch) unless prepared as Customized Market Mail under 243.9.0. See Exhibit 1.1.1.
+	// * Within an aspect ratio (length divided by height) of 1.3 to 2.5, inclusive.
+	// * Subject to additional dimensional restrictions in 3.0, depending on mailpiece design.
+	//
+	// Flat-size mail must have the following characteristics:
+	//
+	// * Be more than 11-1/2 inches long, or more than 6-1/8 inches high, or more than 1/4 inch thick, other than automation flats under 6.0 or as allowed for USPS&#174; Marketing Mail pieces with simplified addresses under 5.2.2. Mailpieces other than automation flats or USPS&#174; Marketing Mail pieces with simplified addresses that are 1/4 inch thick or less must be at least 3-1/2 inches high and at least 5 inches long and be at least 0.007 inch thick.
+	// * Be not more than 15 inches long or more than 12 inches high or more than 3/4 inch thick, except for:
+	// * Periodicals non-machinable flat-size pieces mailed as specified in 207.26.0. They must not be more than 1–1/4 inches thick.
+	// * Polywrapped flats, with selvage that extends beyond the contents, up to a maximum length of 15-3/4 inches or a maximum height of 12-1/2 inches. The enclosed contents must not be longer than 15 inches or higher than 12 inches.
+	// * Co-mailed polywrapped flats mailed as specified in Customer Support Ruling PS-346, with selvage that extends beyond the contents, up to a maximum height of 12-7/8 inches. The enclosed contents must not be higher than 12 inches.
+	// * Be rectangular with four square corners or with finished corners that do not exceed a radius of 0.125 inch (1/8 inch) unless prepared as Customized Market Mail under 9.0.
+	// * Be categorized as a catalog.
+	// * Other size or weight standards may apply to mail addressed to certain APOs and FPOs, and mail sent by the Department of State to U.S. government personnel abroad.
+	//
+	// Note:
+	// * `IRREGULAR` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+	// * `NON_MACHINABLE` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+	ProcessingCategory BaseRatesQueryProcessingCategory `json:"processingCategory"`
+
+	// RateIndicator Rate ingredient to determine pricing categorization for calculating the price
+	//
+	// Note:
+	//   * Effective 07/12/2026:  Rate indicators `Q6`, `Q7`, `Q8`, `Q9`, and `Q0` are no longer supported.  The dimensions for Cubic Soft Pack tiers `P5`, `P6`, `P7`, `P8`, and `P9` will be updated to include the dimensions for Tiers 6-10.  For updated tiers and more information, please view the [Postal Bulletin](https://about.usps.com/postal-bulletin/2026/pb22705/html/updt_001.htm).
+	//
+	// Rate indicator list:
+	// * 3D - 3-Digit
+	// * 3N - 3-Digit Dimensional Rectangular
+	// * 3R - 3-Digit Dimensional Nonrectangular
+	// * 5D - 5-Digit
+	// * BA - Basic
+	// * BB - Mixed NDC
+	// * BM - NDC
+	// * C1 - Cubic Pricing Tier 1
+	// * C2 - Cubic Pricing Tier 2
+	// * C3 - Cubic Pricing Tier 3
+	// * C4 - Cubic Pricing Tier 4
+	// * C5 - Cubic Pricing Tier 5
+	// * CP - Cubic Parcel
+	// * CM - USPS Connect Local&#174; Mail
+	// * DC - NDC
+	// * DE - SCF
+	// * DF - 5-Digit
+	// * DN - Dimensional Nonrectangular
+	// * DR - Dimensional Rectangular
+	// * E4 - Priority Mail Express Flat Rate Envelope - Post Office To Addressee
+	// * E6 - Priority Mail Express Legal Flat Rate Envelope
+	// * E7 - Priority Mail Express Legal Flat Rate Envelope Sunday / Holiday
+	// * FA - Legal Flat Rate Envelope
+	// * FB - Medium Flat Rate Box/Large Flat Rate Bag
+	// * FE - Flat Rate Envelope
+	// * FP - Padded Flat Rate Envelope
+	// * FS - Small Flat Rate Box
+	// * LC - USPS Connect&#174; Local Single Piece
+	// * LF - USPS Connect&#174; Local Flat Rate Box
+	// * LL - USPS Connect&#174; Local Large Flat Rate Bag
+	// * LO - USPS Connect&#174; Local Oversized
+	// * LS - USPS Connect&#174; Local Small Flat Rate Bag
+	// * NN - Non-Presorted Nonprofit
+	// * NP - Non-Presorted
+	// * O1 - Full Tray Box
+	// * O2 - Half Tray Box
+	// * O3 - EMM Tray Box
+	// * O4 - Flat Tub Tray Box
+	// * O5 - Surface Transported Pallet
+	// * O6 - Full Pallet Box
+	// * O7 - Half Pallet Box
+	// * OS - Oversized
+	// * PN - Presorted Nonprofit
+	// * P5 - Cubic Soft Pack Tier 1
+	// * P6 - Cubic Soft Pack Tier 2
+	// * P7 - Cubic Soft Pack Tier 3
+	// * P8 - Cubic Soft Pack Tier 4
+	// * P9 - Cubic Soft Pack Tier 5
+	// * Q6 - Cubic Soft Pack Tier 6
+	// * Q7 - Cubic Soft Pack Tier 7
+	// * Q8 - Cubic Soft Pack Tier 8
+	// * Q9 - Cubic Soft Pack Tier 9
+	// * Q0 - Cubic Soft Pack Tier 10
+	// * PA - Priority Mail Express Single Piece
+	// * PL - Large Flat Rate Box
+	// * PM - Large Flat Rate Box APO/FPO/DPO
+	// * PR - Presorted
+	// * SB - Small Flat Rate Bag
+	// * SN - SCF Dimensional Nonrectangular
+	// * SP - Single Piece
+	// * SR - SCF Dimensional Rectangular
+	RateIndicator BaseRatesQueryRateIndicator `json:"rateIndicator"`
+
+	// Weight This is the calculated weight for the package based on user input.  The greater of dimWeight and weight will be used to calculated the rate. Weight unit of measurement is in pounds.
+	Weight WeightPounds `json:"weight"`
+
+	// Width This is the package width in inches.  The second longest dimension is always width.
+	Width Width `json:"width"`
+}
+
+// BaseRatesQueryAccountType The type of payment account linked to a contract rate.
+//
+// Note:
+// - `METER` pricing is only available to PC Postage providers.
+// - `MID` pricing is only available for return mail classes.
+type BaseRatesQueryAccountType string
+
+// BaseRatesQueryDestinationEntryFacilityType Types of Facilities:
+// * `NONE` - Translate to Destination Rate Indicator N
+// * `DESTINATION_NETWORK_DISTRIBUTION_CENTER` - Translate to Destination Rate Indicator B
+// * `DESTINATION_SECTIONAL_CENTER_FACILITY` - Translate to Destination Rate Indicator S
+// * `DESTINATION_DELIVERY_UNIT` - Translate to Destination Rate Indicator D
+// * `DESTINATION_SERVICE_HUB` - Translate to Destination Rate Indicator H
+// * `DESTINATION_REGIONAL_PROCESSING_DISTRIBUTION_CENTER` - Translate to Destination Rate Indicator B
+//
+// Note:
+// * Effective 01/18/2026: `DESTINATION_NETWORK_DISTRIBUTION_CENTER` with `PARCEL_SELECT` is no longer eligible.
+// * Effective 01/18/2026: (NSA Only) `DESTINATION_REGIONAL_PROCESSING_DISTRIBUTION_CENTER` with `PARCEL_SELECT` is available as an option.
+type BaseRatesQueryDestinationEntryFacilityType string
+
+// BaseRatesQueryProcessingCategory USPS categorizes parcels into one of two mail processing categories: MACHINABLE or NONSTANDARD.
+// These categories are based on the physical dimensions of the piece, regardless of the placement (orientation) of the delivery address on the piece.
+// For more information see [Domestic Mail Manual (DMM)](https://pe.usps.com/DMM300/201.htm).
+//
+// Machinable letter-size mail is:
+//
+// * Not less than 5 inches long, 3-1/2 inches high, and 0.007-inch thick. For pieces more than 4-1/4 inches high or 6 inches long, or both, the minimum thickness is 0.009.(Pieces not meeting the 0.009 thickness are non-machinable letters under 2.1.)
+// * Not more than 11-1/2 inches long, or more than 6-1/8 inches high, or greater than 1/4-inch thick.
+// * Rectangular, with four square corners and parallel opposite sides. Letter-size, card-type mailpieces made of cardstock may have finished corners that do not exceed a radius of 0.125 inch (1/8 inch) unless prepared as Customized Market Mail under 243.9.0. See Exhibit 1.1.1.
+// * Within an aspect ratio (length divided by height) of 1.3 to 2.5, inclusive.
+// * Subject to additional dimensional restrictions in 3.0, depending on mailpiece design.
+//
+// Flat-size mail must have the following characteristics:
+//
+// * Be more than 11-1/2 inches long, or more than 6-1/8 inches high, or more than 1/4 inch thick, other than automation flats under 6.0 or as allowed for USPS&#174; Marketing Mail pieces with simplified addresses under 5.2.2. Mailpieces other than automation flats or USPS&#174; Marketing Mail pieces with simplified addresses that are 1/4 inch thick or less must be at least 3-1/2 inches high and at least 5 inches long and be at least 0.007 inch thick.
+// * Be not more than 15 inches long or more than 12 inches high or more than 3/4 inch thick, except for:
+// * Periodicals non-machinable flat-size pieces mailed as specified in 207.26.0. They must not be more than 1–1/4 inches thick.
+// * Polywrapped flats, with selvage that extends beyond the contents, up to a maximum length of 15-3/4 inches or a maximum height of 12-1/2 inches. The enclosed contents must not be longer than 15 inches or higher than 12 inches.
+// * Co-mailed polywrapped flats mailed as specified in Customer Support Ruling PS-346, with selvage that extends beyond the contents, up to a maximum height of 12-7/8 inches. The enclosed contents must not be higher than 12 inches.
+// * Be rectangular with four square corners or with finished corners that do not exceed a radius of 0.125 inch (1/8 inch) unless prepared as Customized Market Mail under 9.0.
+// * Be categorized as a catalog.
+// * Other size or weight standards may apply to mail addressed to certain APOs and FPOs, and mail sent by the Department of State to U.S. government personnel abroad.
+//
+// Note:
+// * `IRREGULAR` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+// * `NON_MACHINABLE` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+type BaseRatesQueryProcessingCategory string
+
+// BaseRatesQueryRateIndicator Rate ingredient to determine pricing categorization for calculating the price
+//
+// Note:
+//   - Effective 07/12/2026:  Rate indicators `Q6`, `Q7`, `Q8`, `Q9`, and `Q0` are no longer supported.  The dimensions for Cubic Soft Pack tiers `P5`, `P6`, `P7`, `P8`, and `P9` will be updated to include the dimensions for Tiers 6-10.  For updated tiers and more information, please view the [Postal Bulletin](https://about.usps.com/postal-bulletin/2026/pb22705/html/updt_001.htm).
+//
+// Rate indicator list:
+// * 3D - 3-Digit
+// * 3N - 3-Digit Dimensional Rectangular
+// * 3R - 3-Digit Dimensional Nonrectangular
+// * 5D - 5-Digit
+// * BA - Basic
+// * BB - Mixed NDC
+// * BM - NDC
+// * C1 - Cubic Pricing Tier 1
+// * C2 - Cubic Pricing Tier 2
+// * C3 - Cubic Pricing Tier 3
+// * C4 - Cubic Pricing Tier 4
+// * C5 - Cubic Pricing Tier 5
+// * CP - Cubic Parcel
+// * CM - USPS Connect Local&#174; Mail
+// * DC - NDC
+// * DE - SCF
+// * DF - 5-Digit
+// * DN - Dimensional Nonrectangular
+// * DR - Dimensional Rectangular
+// * E4 - Priority Mail Express Flat Rate Envelope - Post Office To Addressee
+// * E6 - Priority Mail Express Legal Flat Rate Envelope
+// * E7 - Priority Mail Express Legal Flat Rate Envelope Sunday / Holiday
+// * FA - Legal Flat Rate Envelope
+// * FB - Medium Flat Rate Box/Large Flat Rate Bag
+// * FE - Flat Rate Envelope
+// * FP - Padded Flat Rate Envelope
+// * FS - Small Flat Rate Box
+// * LC - USPS Connect&#174; Local Single Piece
+// * LF - USPS Connect&#174; Local Flat Rate Box
+// * LL - USPS Connect&#174; Local Large Flat Rate Bag
+// * LO - USPS Connect&#174; Local Oversized
+// * LS - USPS Connect&#174; Local Small Flat Rate Bag
+// * NN - Non-Presorted Nonprofit
+// * NP - Non-Presorted
+// * O1 - Full Tray Box
+// * O2 - Half Tray Box
+// * O3 - EMM Tray Box
+// * O4 - Flat Tub Tray Box
+// * O5 - Surface Transported Pallet
+// * O6 - Full Pallet Box
+// * O7 - Half Pallet Box
+// * OS - Oversized
+// * PN - Presorted Nonprofit
+// * P5 - Cubic Soft Pack Tier 1
+// * P6 - Cubic Soft Pack Tier 2
+// * P7 - Cubic Soft Pack Tier 3
+// * P8 - Cubic Soft Pack Tier 4
+// * P9 - Cubic Soft Pack Tier 5
+// * Q6 - Cubic Soft Pack Tier 6
+// * Q7 - Cubic Soft Pack Tier 7
+// * Q8 - Cubic Soft Pack Tier 8
+// * Q9 - Cubic Soft Pack Tier 9
+// * Q0 - Cubic Soft Pack Tier 10
+// * PA - Priority Mail Express Single Piece
+// * PL - Large Flat Rate Box
+// * PM - Large Flat Rate Box APO/FPO/DPO
+// * PR - Presorted
+// * SB - Small Flat Rate Bag
+// * SN - SCF Dimensional Nonrectangular
+// * SP - Single Piece
+// * SR - SCF Dimensional Rectangular
+type BaseRatesQueryRateIndicator string
+
+// BaseRatesQueryResult A list of rate options based on the search criteria.
+type BaseRatesQueryResult struct {
+	// RateOptions The prices that match the search criteria.
+	RateOptions *RateOptions `json:"rateOptions,omitempty"`
+}
+
+// DestinationZIPCode The destination ZIP code for the package.
+type DestinationZIPCode = string
+
+// ErrorMessage Standard error message response.
+type ErrorMessage struct {
+	// ApiVersion The version of the API that was used and that raised the error.
+	ApiVersion *string `json:"apiVersion,omitempty"`
+
+	// Error The high-level error that has occurred as indicated by the status code.
+	Error                *ErrorMessage_Error    `json:"error,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// ErrorMessage_Error_Errors_Source The element that is suspected of originating the error.  Helps to pinpoint the problem.
+type ErrorMessage_Error_Errors_Source struct {
+	// Example An example of a valid value for the input parameter.
+	Example *string `json:"example,omitempty"`
+
+	// Parameter The input in the request which caused an error.
+	Parameter            *string                `json:"parameter,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// ErrorMessage_Error_Errors_Item defines model for ErrorMessage.Error.Errors.Item.
+type ErrorMessage_Error_Errors_Item struct {
+	// Code An internal subordinate code used for error diagnosis.
+	Code *string `json:"code,omitempty"`
+
+	// Detail A human-readable description of the error that occurred.
+	Detail *string `json:"detail,omitempty"`
+
+	// Source The element that is suspected of originating the error.  Helps to pinpoint the problem.
+	Source *ErrorMessage_Error_Errors_Source `json:"source,omitempty"`
+
+	// Status The status code response returned to the client.
+	Status *string `json:"status,omitempty"`
+
+	// Title A human-readable title that identifies the error.
+	Title                *string                `json:"title,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// ErrorMessage_Error The high-level error that has occurred as indicated by the status code.
+type ErrorMessage_Error struct {
+	// Code The error status code that has been returned in response to the request.
+	Code *string `json:"code,omitempty"`
+
+	// Errors Additional information regarding the error that was received.
+	Errors *[]ErrorMessage_Error_Errors_Item `json:"errors,omitempty"`
+
+	// Message A human-readable message describing the error.
+	Message              *string                `json:"message,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// ExtraService Extra Service Code requested.
+// * 415 - USPS Label Delivery
+// * 480 - Tracking Plus 6 Months
+// * 481 - Tracking Plus 1 Year
+// * 482 - Tracking Plus 3 Years
+// * 483 - Tracking Plus 5 Years
+// * 484 - Tracking Plus 7 Years
+// * 485 - Tracking Plus 10 Years
+// * 486 - Tracking Plus Signature 3 Years
+// * 487 - Tracking Plus Signature 5 Years
+// * 488 - Tracking Plus Signature 7 Years
+// * 489 - Tracking Plus Signature 10 Years
+// * 498 - PO Box Locker – Stocking Fee (NSA Only)
+// * 500 - PO Box Locker – Self-Service Pickup Fee (NSA Only)
+// * 501 - PO Box Locker – Clerk-Assisted Pickup Fee (NSA Only)
+// * 502 - PO Box Locker – Local Delivery Fee (NSA Only)
+// * 810 - HAZMAT Air Eligible Ethanol Package
+// * 811 - HAZMAT Class 1 - Toy Propellant/Safety Fuse Package
+// * 812 - HAZMAT Class 3 – Flammable Liquid Package
+// * 813 - HAZMAT Class 7 - Radioactive Materials Package
+// * 814 - HAZMAT Class 8 - Corrosive Materials Package
+// * 815 - HAZMAT Class 8 - Nonspillable Wet Battery Package
+// * 816 - HAZMAT Class 9 - Lithium Battery Marked - Ground Only Package
+// * 817 - HAZMAT Class 9 - Lithium Battery - Returns Package
+// * 818 - HAZMAT Class 9 - Lithium batteries, marked package
+// * 819 - HAZMAT Class 9 - Dry Ice Package
+// * 820 - HAZMAT Class 9 - Lithium batteries, unmarked package
+// * 821 - HAZMAT Class 9 - Magnetized Materials Package
+// * 822 - HAZMAT Division 4.1 – Flammable Solids or Safety Matches Package
+// * 823 - HAZMAT Division 5.1 - Oxidizers Package
+// * 824 - HAZMAT Division 5.2 - Organic Peroxides Package
+// * 825 - HAZMAT Division 6.1 – Toxic Materials Package
+// * 826 - HAZMAT Division 6.2 – Infectious Substances Package
+// * 827 - HAZMAT Excepted Quantity Provision Package
+// * 828 - HAZMAT Ground Only
+// * 829 - HAZMAT ID8000 Consumer Commodity Package
+// * 830 - HAZMAT Lighters Package
+// * 831 - HAZMAT LTD QTY Ground Package
+// * 832 - HAZMAT Small Quantity Provision Package
+// * 853 - Perishable Material
+// * 856 - Live Animals Transportation Fee
+// * 857 - Hazardous Material
+// * 858 - Cremated Remains
+// * 910 - Certified Mail
+// * 911 - Certified Mail Restricted Delivery
+// * 912 - Certified Mail Adult Signature Required
+// * 913 - Certified Mail Adult Signature Restricted Delivery
+// * 915 - Collect on Delivery (COD)
+// * 917 - COD Restricted Delivery
+// * 920 - USPS Tracking
+// * 921 - Signature Confirmation
+// * 922 - Adult Signature Required 21 or Over
+// * 923 - Adult Signature Restricted Delivery 21 or Over
+// * 924 - Signature Confirmation Restricted Delivery
+// * 925 - Priority Mail Express Merchandise Insurance
+// * 930 - Insurance <= $500
+// * 931 - Insurance > $500
+// * 934 - Insurance Restricted Delivery
+// * 940 - Registered Mail
+// * 941 - Registered Mail Restricted Delivery
+// * 955 - Return Receipt
+// * 957 - Return Receipt Electronic
+// * 972 - Live Animal and Perishable Handling Fee
+// * 981 - Signature Requested (PRIORITY_MAIL_EXPRESS only)
+// * 984 - Parcel Locker Delivery
+// * 986 - PO to Addressee (PRIORITY_MAIL_EXPRESS only)
+// * 991 - Sunday Delivery
+//
+// <b>Note:</b> Entering a single extra service will be removed in the next major revision.
+type ExtraService int
+
+// ExtraServiceRateDetails The extra service rate details that match the search criteria.
+type ExtraServiceRateDetails = []struct {
+	// SKU The stock keeping unit for the designated rate.
+	SKU *string `json:"SKU,omitempty"`
+
+	// ExtraService Number associated with the extra service
+	ExtraService *string `json:"extraService,omitempty"`
+
+	// Name Name of the extra service.
+	Name *string `json:"name,omitempty"`
+
+	// Price The postage rate.
+	Price *float64 `json:"price,omitempty"`
+
+	// PriceType The type of price applied (Retail, Commercial, Contract, NSA (deprecated)).
+	PriceType *ExtraServiceRateDetailsPriceType `json:"priceType,omitempty"`
+
+	// Warnings A list of warnings associated with the rate calculation.
+	Warnings *WarningsList `json:"warnings,omitempty"`
+}
+
+// ExtraServiceRateDetailsPriceType The type of price applied (Retail, Commercial, Contract, NSA (deprecated)).
+type ExtraServiceRateDetailsPriceType string
+
+// ExtraServiceRateQuery Search parameters for an extra service price.
+type ExtraServiceRateQuery struct {
+	// AccountNumber The Enterprise Payment Account, Permit number, PC Postage meter number, or Mailer ID associated with a contract.
+	AccountNumber *string `json:"accountNumber,omitempty"`
+
+	// AccountType The type of payment account linked to a contract rate.
+	//
+	// Note:
+	// - `METER` pricing is only available to PC Postage providers.
+	// - `MID` pricing is only available for return mail classes.
+	AccountType *ExtraServiceRateQueryAccountType `json:"accountType,omitempty"`
+
+	// DestinationZIPCode The destination ZIP code for the package.
+	DestinationZIPCode *string `json:"destinationZIPCode,omitempty"`
+
+	// ExtraServices Extra Service Codes requested.
+	// * 415 - USPS Label Delivery
+	// * 480 - Tracking Plus 6 Months
+	// * 481 - Tracking Plus 1 Year
+	// * 482 - Tracking Plus 3 Years
+	// * 483 - Tracking Plus 5 Years
+	// * 484 - Tracking Plus 7 Years
+	// * 485 - Tracking Plus 10 Years
+	// * 486 - Tracking Plus Signature 3 Years
+	// * 487 - Tracking Plus Signature 5 Years
+	// * 488 - Tracking Plus Signature 7 Years
+	// * 489 - Tracking Plus Signature 10 Years
+	// * 498 - PO Box Locker – Stocking Fee (NSA Only)
+	// * 500 - PO Box Locker – Self-Service Pickup Fee (NSA Only)
+	// * 501 - PO Box Locker – Clerk-Assisted Pickup Fee (NSA Only)
+	// * 502 - PO Box Locker – Local Delivery Fee (NSA Only)
+	// * 810 - HAZMAT Air Eligible Ethanol Package
+	// * 811 - HAZMAT Class 1 - Toy Propellant/Safety Fuse Package
+	// * 812 - HAZMAT Class 3 – Flammable Liquid Package
+	// * 813 - HAZMAT Class 7 - Radioactive Materials Package
+	// * 814 - HAZMAT Class 8 - Corrosive Materials Package
+	// * 815 - HAZMAT Class 8 - Nonspillable Wet Battery Package
+	// * 816 - HAZMAT Class 9 - Lithium Battery Marked - Ground Only Package
+	// * 817 - HAZMAT Class 9 - Lithium Battery - Returns Package
+	// * 818 - HAZMAT Class 9 - Lithium batteries, marked package
+	// * 819 - HAZMAT Class 9 - Dry Ice Package
+	// * 820 - HAZMAT Class 9 - Lithium batteries, unmarked package
+	// * 821 - HAZMAT Class 9 - Magnetized Materials Package
+	// * 822 - HAZMAT Division 4.1 – Flammable Solids or Safety Matches Package
+	// * 823 - HAZMAT Division 5.1 - Oxidizers Package
+	// * 824 - HAZMAT Division 5.2 - Organic Peroxides Package
+	// * 825 - HAZMAT Division 6.1 – Toxic Materials Package
+	// * 826 - HAZMAT Division 6.2 – Infectious Substances Package
+	// * 827 - HAZMAT Excepted Quantity Provision Package
+	// * 828 - HAZMAT Ground Only
+	// * 829 - HAZMAT ID8000 Consumer Commodity Package
+	// * 830 - HAZMAT Lighters Package
+	// * 831 - HAZMAT LTD QTY Ground Package
+	// * 832 - HAZMAT Small Quantity Provision Package
+	// * 853 - Perishable Material
+	// * 856 - Live Animals Transportation Fee
+	// * 857 - Hazardous Material
+	// * 858 - Cremated Remains
+	// * 910 - Certified Mail
+	// * 911 - Certified Mail Restricted Delivery
+	// * 912 - Certified Mail Adult Signature Required
+	// * 913 - Certified Mail Adult Signature Restricted Delivery
+	// * 915 - Collect on Delivery (COD)
+	// * 917 - COD Restricted Delivery
+	// * 920 - USPS Tracking
+	// * 921 - Signature Confirmation
+	// * 922 - Adult Signature Required 21 or Over
+	// * 923 - Adult Signature Restricted Delivery 21 or Over
+	// * 924 - Signature Confirmation Restricted Delivery
+	// * 925 - Priority Mail Express Merchandise Insurance
+	// * 930 - Insurance <= $500
+	// * 931 - Insurance > $500
+	// * 934 - Insurance Restricted Delivery
+	// * 940 - Registered Mail
+	// * 941 - Registered Mail Restricted Delivery
+	// * 955 - Return Receipt
+	// * 957 - Return Receipt Electronic
+	// * 972 - Live Animal and Perishable Handling Fee
+	// * 981 - Signature Requested (PRIORITY_MAIL_EXPRESS only)
+	// * 984 - Parcel Locker Delivery
+	// * 986 - PO to Addressee (PRIORITY_MAIL_EXPRESS only)
+	// * 991 - Sunday Delivery
+	//
+	// <b>Note:</b> Entering a single extra service will be removed in the next major revision.
+	ExtraServices *ExtraServices `json:"extraServices,omitempty"`
+
+	// ItemValue The value of the item. Required for Insurance and Collect On Delivery.  The price for Insurance, Registered Mail, and Collect On Delivery extra services will vary based on this value.
+	ItemValue *float64 `json:"itemValue,omitempty"`
+
+	// MailClass The mail service requested.
+	//
+	// Note:
+	// - `PARCEL_SELECT_LIGHTWEIGHT` is deprecated and will convert to `PARCEL_SELECT`.
+	// - `FIRST-CLASS_PACKAGE_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE`.
+	// - `FIRST-CLASS_PACKAGE_RETURN_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE_RETURN_SERVICE`.
+	// - `GROUND_RETURN_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE_RETURN_SERVICE`.
+	// - `USPS_RETAIL_GROUND` is no longer supported and will return a 400 if used.
+	// - Certain mail classes, such as `MEDIA_MAIL`, `BOUND_PRINTED_MATTER`, and `LIBRARY_MAIL`, have eligibility rules on what can be mailed using that service.  For more details on these mail classes, please visit [What are Package Services?](https://faq.usps.com/s/article/What-are-Package-Services).
+	MailClass MailClass `json:"mailClass"`
+
+	// MailingDate The date the package or letter/flat/card will be mailed.
+	//
+	// The mailing date may be today plus 0 to 7 days in advance.
+	//
+	// Enter the date in the full-date notation as defined by [RFC 3339, section 5.6](https://datatracker.ietf.org/doc/html/rfc3339#section-5.6).
+	MailingDate *MailingDate `json:"mailingDate,omitempty"`
+
+	// OriginZIPCode The originating ZIP code for the package.
+	OriginZIPCode *string `json:"originZIPCode,omitempty"`
+
+	// PriceType The type of price applied.
+	//
+	// Notes:
+	//  * The `priceType` of `NSA` is deprecated.  `CONTRACT` should be used for non-published pricing.
+	//  * If an `accountNumber` is provided, it overrides the requested `priceType` and the response will return `CONTRACT` rates (if they exist for that account).
+	//  * When priceType is `CONTRACT`, `accountType` and `accountNumber` are required to return the correct pricing.  If `accountType` and `accountNumber` are not provided, published `COMMERCIAL` rates may be returned instead.
+	PriceType PriceType `json:"priceType"`
+
+	// Weight This is the calculated weight for the package based on user input.  The greater of dimWeight and weight will be used to calculated the rate. Weight unit of measurement is in pounds.
+	Weight *WeightPounds `json:"weight,omitempty"`
+}
+
+// ExtraServiceRateQueryAccountType The type of payment account linked to a contract rate.
+//
+// Note:
+// - `METER` pricing is only available to PC Postage providers.
+// - `MID` pricing is only available for return mail classes.
+type ExtraServiceRateQueryAccountType string
+
+// ExtraServiceRateQueryWithSingleExtraService Search parameters for an extra service price.
+type ExtraServiceRateQueryWithSingleExtraService struct {
+	// AccountNumber The Enterprise Payment Account, Permit number or PC Postage meter number associated with a contract.
+	AccountNumber *string `json:"accountNumber,omitempty"`
+
+	// AccountType The type of payment account linked to a contract rate.
+	AccountType *ExtraServiceRateQueryWithSingleExtraServiceAccountType `json:"accountType,omitempty"`
+
+	// DestinationZIPCode The destination ZIP code for the package.
+	DestinationZIPCode *string `json:"destinationZIPCode,omitempty"`
+
+	// ExtraServices Extra Service Code requested.
+	// * 415 - USPS Label Delivery
+	// * 480 - Tracking Plus 6 Months
+	// * 481 - Tracking Plus 1 Year
+	// * 482 - Tracking Plus 3 Years
+	// * 483 - Tracking Plus 5 Years
+	// * 484 - Tracking Plus 7 Years
+	// * 485 - Tracking Plus 10 Years
+	// * 486 - Tracking Plus Signature 3 Years
+	// * 487 - Tracking Plus Signature 5 Years
+	// * 488 - Tracking Plus Signature 7 Years
+	// * 489 - Tracking Plus Signature 10 Years
+	// * 498 - PO Box Locker – Stocking Fee (NSA Only)
+	// * 500 - PO Box Locker – Self-Service Pickup Fee (NSA Only)
+	// * 501 - PO Box Locker – Clerk-Assisted Pickup Fee (NSA Only)
+	// * 502 - PO Box Locker – Local Delivery Fee (NSA Only)
+	// * 810 - HAZMAT Air Eligible Ethanol Package
+	// * 811 - HAZMAT Class 1 - Toy Propellant/Safety Fuse Package
+	// * 812 - HAZMAT Class 3 – Flammable Liquid Package
+	// * 813 - HAZMAT Class 7 - Radioactive Materials Package
+	// * 814 - HAZMAT Class 8 - Corrosive Materials Package
+	// * 815 - HAZMAT Class 8 - Nonspillable Wet Battery Package
+	// * 816 - HAZMAT Class 9 - Lithium Battery Marked - Ground Only Package
+	// * 817 - HAZMAT Class 9 - Lithium Battery - Returns Package
+	// * 818 - HAZMAT Class 9 - Lithium batteries, marked package
+	// * 819 - HAZMAT Class 9 - Dry Ice Package
+	// * 820 - HAZMAT Class 9 - Lithium batteries, unmarked package
+	// * 821 - HAZMAT Class 9 - Magnetized Materials Package
+	// * 822 - HAZMAT Division 4.1 – Flammable Solids or Safety Matches Package
+	// * 823 - HAZMAT Division 5.1 - Oxidizers Package
+	// * 824 - HAZMAT Division 5.2 - Organic Peroxides Package
+	// * 825 - HAZMAT Division 6.1 – Toxic Materials Package
+	// * 826 - HAZMAT Division 6.2 – Infectious Substances Package
+	// * 827 - HAZMAT Excepted Quantity Provision Package
+	// * 828 - HAZMAT Ground Only
+	// * 829 - HAZMAT ID8000 Consumer Commodity Package
+	// * 830 - HAZMAT Lighters Package
+	// * 831 - HAZMAT LTD QTY Ground Package
+	// * 832 - HAZMAT Small Quantity Provision Package
+	// * 853 - Perishable Material
+	// * 856 - Live Animals Transportation Fee
+	// * 857 - Hazardous Material
+	// * 858 - Cremated Remains
+	// * 910 - Certified Mail
+	// * 911 - Certified Mail Restricted Delivery
+	// * 912 - Certified Mail Adult Signature Required
+	// * 913 - Certified Mail Adult Signature Restricted Delivery
+	// * 915 - Collect on Delivery (COD)
+	// * 917 - COD Restricted Delivery
+	// * 920 - USPS Tracking
+	// * 921 - Signature Confirmation
+	// * 922 - Adult Signature Required 21 or Over
+	// * 923 - Adult Signature Restricted Delivery 21 or Over
+	// * 924 - Signature Confirmation Restricted Delivery
+	// * 925 - Priority Mail Express Merchandise Insurance
+	// * 930 - Insurance <= $500
+	// * 931 - Insurance > $500
+	// * 934 - Insurance Restricted Delivery
+	// * 940 - Registered Mail
+	// * 941 - Registered Mail Restricted Delivery
+	// * 955 - Return Receipt
+	// * 957 - Return Receipt Electronic
+	// * 972 - Live Animal and Perishable Handling Fee
+	// * 981 - Signature Requested (PRIORITY_MAIL_EXPRESS only)
+	// * 984 - Parcel Locker Delivery
+	// * 986 - PO to Addressee (PRIORITY_MAIL_EXPRESS only)
+	// * 991 - Sunday Delivery
+	//
+	// <b>Note:</b> Entering a single extra service will be removed in the next major revision.
+	ExtraServices *ExtraService `json:"extraServices,omitempty"`
+
+	// ItemValue The value of the item. Required for Insurance and Collect On Delivery.  The price for Insurance, Registered Mail, and Collect On Delivery extra services will vary based on this value.
+	ItemValue *float64 `json:"itemValue,omitempty"`
+
+	// MailClass The mail service requested.
+	//
+	// Note:
+	// - `PARCEL_SELECT_LIGHTWEIGHT` is deprecated and will convert to `PARCEL_SELECT`.
+	// - `FIRST-CLASS_PACKAGE_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE`.
+	// - `FIRST-CLASS_PACKAGE_RETURN_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE_RETURN_SERVICE`.
+	// - `GROUND_RETURN_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE_RETURN_SERVICE`.
+	// - `USPS_RETAIL_GROUND` is no longer supported and will return a 400 if used.
+	// - Certain mail classes, such as `MEDIA_MAIL`, `BOUND_PRINTED_MATTER`, and `LIBRARY_MAIL`, have eligibility rules on what can be mailed using that service.  For more details on these mail classes, please visit [What are Package Services?](https://faq.usps.com/s/article/What-are-Package-Services).
+	MailClass MailClass `json:"mailClass"`
+
+	// MailingDate The date the package or letter/flat/card will be mailed.
+	//
+	// The mailing date may be today plus 0 to 7 days in advance.
+	//
+	// Enter the date in the full-date notation as defined by [RFC 3339, section 5.6](https://datatracker.ietf.org/doc/html/rfc3339#section-5.6).
+	MailingDate *MailingDate `json:"mailingDate,omitempty"`
+
+	// OriginZIPCode The originating ZIP code for the package.
+	OriginZIPCode *string `json:"originZIPCode,omitempty"`
+
+	// PriceType The type of price applied.
+	//
+	// Notes:
+	//  * The `priceType` of `NSA` is deprecated.  `CONTRACT` should be used for non-published pricing.
+	//  * If an `accountNumber` is provided, it overrides the requested `priceType` and the response will return `CONTRACT` rates (if they exist for that account).
+	//  * When priceType is `CONTRACT`, `accountType` and `accountNumber` are required to return the correct pricing.  If `accountType` and `accountNumber` are not provided, published `COMMERCIAL` rates may be returned instead.
+	PriceType PriceType `json:"priceType"`
+
+	// Weight This is the calculated weight for the package based on user input.  The greater of dimWeight and weight will be used to calculated the rate. Weight unit of measurement is in pounds.
+	Weight *WeightPounds `json:"weight,omitempty"`
+}
+
+// ExtraServiceRateQueryWithSingleExtraServiceAccountType The type of payment account linked to a contract rate.
+type ExtraServiceRateQueryWithSingleExtraServiceAccountType string
+
+// ExtraServices Extra Service Codes requested.
+// * 415 - USPS Label Delivery
+// * 480 - Tracking Plus 6 Months
+// * 481 - Tracking Plus 1 Year
+// * 482 - Tracking Plus 3 Years
+// * 483 - Tracking Plus 5 Years
+// * 484 - Tracking Plus 7 Years
+// * 485 - Tracking Plus 10 Years
+// * 486 - Tracking Plus Signature 3 Years
+// * 487 - Tracking Plus Signature 5 Years
+// * 488 - Tracking Plus Signature 7 Years
+// * 489 - Tracking Plus Signature 10 Years
+// * 498 - PO Box Locker – Stocking Fee (NSA Only)
+// * 500 - PO Box Locker – Self-Service Pickup Fee (NSA Only)
+// * 501 - PO Box Locker – Clerk-Assisted Pickup Fee (NSA Only)
+// * 502 - PO Box Locker – Local Delivery Fee (NSA Only)
+// * 810 - HAZMAT Air Eligible Ethanol Package
+// * 811 - HAZMAT Class 1 - Toy Propellant/Safety Fuse Package
+// * 812 - HAZMAT Class 3 – Flammable Liquid Package
+// * 813 - HAZMAT Class 7 - Radioactive Materials Package
+// * 814 - HAZMAT Class 8 - Corrosive Materials Package
+// * 815 - HAZMAT Class 8 - Nonspillable Wet Battery Package
+// * 816 - HAZMAT Class 9 - Lithium Battery Marked - Ground Only Package
+// * 817 - HAZMAT Class 9 - Lithium Battery - Returns Package
+// * 818 - HAZMAT Class 9 - Lithium batteries, marked package
+// * 819 - HAZMAT Class 9 - Dry Ice Package
+// * 820 - HAZMAT Class 9 - Lithium batteries, unmarked package
+// * 821 - HAZMAT Class 9 - Magnetized Materials Package
+// * 822 - HAZMAT Division 4.1 – Flammable Solids or Safety Matches Package
+// * 823 - HAZMAT Division 5.1 - Oxidizers Package
+// * 824 - HAZMAT Division 5.2 - Organic Peroxides Package
+// * 825 - HAZMAT Division 6.1 – Toxic Materials Package
+// * 826 - HAZMAT Division 6.2 – Infectious Substances Package
+// * 827 - HAZMAT Excepted Quantity Provision Package
+// * 828 - HAZMAT Ground Only
+// * 829 - HAZMAT ID8000 Consumer Commodity Package
+// * 830 - HAZMAT Lighters Package
+// * 831 - HAZMAT LTD QTY Ground Package
+// * 832 - HAZMAT Small Quantity Provision Package
+// * 853 - Perishable Material
+// * 856 - Live Animals Transportation Fee
+// * 857 - Hazardous Material
+// * 858 - Cremated Remains
+// * 910 - Certified Mail
+// * 911 - Certified Mail Restricted Delivery
+// * 912 - Certified Mail Adult Signature Required
+// * 913 - Certified Mail Adult Signature Restricted Delivery
+// * 915 - Collect on Delivery (COD)
+// * 917 - COD Restricted Delivery
+// * 920 - USPS Tracking
+// * 921 - Signature Confirmation
+// * 922 - Adult Signature Required 21 or Over
+// * 923 - Adult Signature Restricted Delivery 21 or Over
+// * 924 - Signature Confirmation Restricted Delivery
+// * 925 - Priority Mail Express Merchandise Insurance
+// * 930 - Insurance <= $500
+// * 931 - Insurance > $500
+// * 934 - Insurance Restricted Delivery
+// * 940 - Registered Mail
+// * 941 - Registered Mail Restricted Delivery
+// * 955 - Return Receipt
+// * 957 - Return Receipt Electronic
+// * 972 - Live Animal and Perishable Handling Fee
+// * 981 - Signature Requested (PRIORITY_MAIL_EXPRESS only)
+// * 984 - Parcel Locker Delivery
+// * 986 - PO to Addressee (PRIORITY_MAIL_EXPRESS only)
+// * 991 - Sunday Delivery
+//
+// <b>Note:</b> Entering a single extra service will be removed in the next major revision.
+type ExtraServices = []ExtraService
+
+// Height This is the package height in inches.
+type Height = float64
+
+// Length This is the package length in inches.  The maximum dimension is always length.
+type Length = float64
+
+// LetterRateDetail Informative details about the price.
+type LetterRateDetail struct {
+	// SKU The stock keeping unit for the designated rate.
+	SKU *string `json:"SKU,omitempty"`
+
+	// Description The description of the price.
+	Description *string `json:"description,omitempty"`
+
+	// EndDate Effective end date of the rate.  If blank the rate doesn't have an end date as of yet.
+	EndDate *string `json:"endDate,omitempty"`
+
+	// ExtraServices The extra service rate details that match the search criteria.
+	ExtraServices *ExtraServiceRateDetails `json:"extraServices,omitempty"`
+
+	// Fees The fees associated with the package.
+	Fees *[]struct {
+		// SKU The pricing SKU for the fee.
+		SKU *string `json:"SKU,omitempty"`
+
+		// Name The name of the fee.
+		Name *string `json:"name,omitempty"`
+
+		// Price The price for the fee.
+		Price *float64 `json:"price,omitempty"`
+	} `json:"fees,omitempty"`
+
+	// MailClass The mail class of the price.
+	MailClass *LetterRateDetailMailClass `json:"mailClass,omitempty"`
+
+	// Price The postage price.
+	Price *float64 `json:"price,omitempty"`
+
+	// PriceType The type of price type applied (Retail).
+	PriceType *LetterRateDetailPriceType `json:"priceType,omitempty"`
+
+	// StartDate Effective start date of the rate.
+	StartDate *openapi_types.Date `json:"startDate,omitempty"`
+
+	// Weight The calculated weight for the package based on user input.  The greater of dimWeight and weight will be used to calculated the rate.
+	Weight               *float64               `json:"weight,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// LetterRateDetailMailClass The mail class of the price.
+type LetterRateDetailMailClass string
+
+// LetterRateDetailPriceType The type of price type applied (Retail).
+type LetterRateDetailPriceType string
+
+// LetterRatesOption The prices that match the search criteria.
+type LetterRatesOption struct {
+	// Rates List of letter rate details associated with the shipment.
+	Rates *[]LettersRateDetails `json:"rates,omitempty"`
+
+	// TotalBasePrice The total price, including the rate and fees.
+	TotalBasePrice *float64 `json:"totalBasePrice,omitempty"`
+}
+
+// LetterRatesQuery Letter rate ingredients for calculating base prices.
+type LetterRatesQuery struct {
+	// ExtraServices Extra Service Code requested.
+	// * 910 - Certified Mail
+	// * 911 - Certified Mail Restricted Delivery
+	// * 930 - Insurance <=$500
+	// * 931 - Insurance > $500
+	// * 934 - Insurance Restricted Delivery
+	// * 940 - Registered Mail
+	// * 941 - Registered Mail Restricted Delivery
+	// * 955 - Return Receipt
+	// * 957 - Return Receipt Electronic
+	// * 985 - Hold for Pickup
+	ExtraServices *[]LetterRatesQueryExtraServices `json:"extraServices,omitempty"`
+
+	// Height The letter/flat/card height measured in inches.  The height is the dimension perpendicular to the length.
+	Height float64 `json:"height"`
+
+	// ItemValue The value of the item. Required for Insurance.  The price for Insurance and Registered Mail extra services will vary based on this value.
+	ItemValue *float64 `json:"itemValue,omitempty"`
+
+	// Length The letter/flat/card length measured in inches.  For  `LETTERS` and `CARDS` the length is the dimension parallel to the delivery address as read. For  `FLATS` the length is the longest dimension.
+	Length float64 `json:"length"`
+
+	// MailingDate The date the package or letter/flat/card will be mailed.
+	//
+	// The mailing date may be today plus 0 to 7 days in advance.
+	//
+	// Enter the date in the full-date notation as defined by [RFC 3339, section 5.6](https://datatracker.ietf.org/doc/html/rfc3339#section-5.6).
+	MailingDate *MailingDate `json:"mailingDate,omitempty"`
+
+	// NonMachinableIndicators Set of boolean indicators used to determine whether a letter/flat/card qualifies as nonmachinable.
+	NonMachinableIndicators *struct {
+		// HasClosureDevices Does the letter/flat/card have clasps, strings, buttons, or similar closure devices.
+		HasClosureDevices *bool `json:"hasClosureDevices,omitempty"`
+
+		// HasLooseItems Does the letter/flat/card contain items such as pens, pencils, keys, or coins that cause the thickness of the mailpiece to be uneven; or loose keys or coins or similar objects not affixed to the contents within the mailpiece. Loose items may cause a letter to be nonmailable when mailed in paper envelopes; (see [DMM 601.3.3](https://pe.usps.com/text/dmm300/601.htm#ep1196660)).
+		HasLooseItems *bool `json:"hasLooseItems,omitempty"`
+
+		// IsBooklet Is the letter/flat/card a booklet that is not prepared according to [DMM 201.3.16](https://pe.usps.com/text/dmm300/201.htm#ep1092751).
+		IsBooklet *bool `json:"isBooklet,omitempty"`
+
+		// IsPolybagged Is the letter/flat/card polybagged, polywrapped, enclosed in any plastic material, or has an exterior surface made of a material that is not paper. Windows in envelopes made of paper do not make mailpieces nonmachinable. Attachments allowable under applicable eligibility standards do not make mailpieces nonmachinable.
+		IsPolybagged *bool `json:"isPolybagged,omitempty"`
+
+		// IsRigid Is the letter/flat/card too rigid (does not bend easily when subjected to a transport belt tension of 40 pounds around an 11-inch diameter turn).
+		IsRigid *bool `json:"isRigid,omitempty"`
+
+		// IsSelfMailer Is the letter/flat/card a self-mailer that is not prepared according to [DMM 201.3.14](https://pe.usps.com/text/dmm300/201.htm#ep1079302).
+		IsSelfMailer *bool `json:"isSelfMailer,omitempty"`
+	} `json:"nonMachinableIndicators,omitempty"`
+
+	// ProcessingCategory * LETTERS
+	//
+	//   To be eligible for mailing at the price for letters, a piece must be:
+	//     * Rectangular
+	//     * At least 3-1/2 inches high x 5 inches long x 0.007 inch thick.
+	//     * No more than 6-1/8 inches high x 11-1/2 inches long x 1/4 inch thick.
+	//
+	//   For additional information on letters, please refer to the [Postal Explorer](https://pe.usps.com/businessmail101?ViewName=Letters).
+	//
+	// * FLATS
+	//
+	//   The Postal Service uses the word "flats" to refer to large envelopes, newsletters, and magazines. The words large envelopes and flats are used interchangeably. Whatever you call them, flats must:
+	//
+	//     * Have one dimension that is greater than 6-1/8 inches high OR 11-½ inches long OR ¼ inch thick.
+	//     * Be no more than 12 inches high x 15 inches long x ¾ inch thick.
+	//
+	//   For additional information on flats, please refer to the [Postal Explorer](https://pe.usps.com/businessmail101?ViewName=Flats).
+	//
+	// * CARDS
+	//
+	//   To be eligible for mailing at the price for postcards, a piece must be:
+	//     * Rectangular
+	//     * At least 3-1/2 inches high x 5 inches long x 0.007 inch thick.
+	//     * No more than 4-1/4 inches high x 6 inches long x 0.016 inch thick.
+	//
+	//   For additional information on postcards, please refer to the [Postal Explorer](https://pe.usps.com/businessmail101?ViewName=Cards).
+	ProcessingCategory LetterRatesQueryProcessingCategory `json:"processingCategory"`
+
+	// Thickness The letter/flat/card thickness measured in inches. The minimum dimension is always the thickness.
+	Thickness float64 `json:"thickness"`
+
+	// Weight This is the calculated weight for the package based on user input.  The greater of dimWeight and weight will be used to calculated the rate. Weight unit of measurement is in ounces.
+	Weight WeightOunces `json:"weight"`
+}
+
+// LetterRatesQueryExtraServices defines model for LetterRatesQuery.ExtraServices.
+type LetterRatesQueryExtraServices int
+
+// LetterRatesQueryProcessingCategory * LETTERS
+//
+//	To be eligible for mailing at the price for letters, a piece must be:
+//	  * Rectangular
+//	  * At least 3-1/2 inches high x 5 inches long x 0.007 inch thick.
+//	  * No more than 6-1/8 inches high x 11-1/2 inches long x 1/4 inch thick.
+//
+//	For additional information on letters, please refer to the [Postal Explorer](https://pe.usps.com/businessmail101?ViewName=Letters).
+//
+// * FLATS
+//
+//	The Postal Service uses the word "flats" to refer to large envelopes, newsletters, and magazines. The words large envelopes and flats are used interchangeably. Whatever you call them, flats must:
+//
+//	  * Have one dimension that is greater than 6-1/8 inches high OR 11-½ inches long OR ¼ inch thick.
+//	  * Be no more than 12 inches high x 15 inches long x ¾ inch thick.
+//
+//	For additional information on flats, please refer to the [Postal Explorer](https://pe.usps.com/businessmail101?ViewName=Flats).
+//
+// * CARDS
+//
+//	To be eligible for mailing at the price for postcards, a piece must be:
+//	  * Rectangular
+//	  * At least 3-1/2 inches high x 5 inches long x 0.007 inch thick.
+//	  * No more than 4-1/4 inches high x 6 inches long x 0.016 inch thick.
+//
+//	For additional information on postcards, please refer to the [Postal Explorer](https://pe.usps.com/businessmail101?ViewName=Cards).
+type LetterRatesQueryProcessingCategory string
+
+// LettersRateDetails defines model for LettersRateDetails.
+type LettersRateDetails struct {
+	// SKU The stock keeping unit for the designated rate.
+	SKU *string `json:"SKU,omitempty"`
+
+	// Description The description of the price.
+	Description *string `json:"description,omitempty"`
+
+	// EndDate Effective end date of the rate.  If blank the rate doesn't have an end date as of yet.
+	EndDate *string `json:"endDate,omitempty"`
+
+	// ExtraServices The extra service rate details that match the search criteria.
+	ExtraServices *ExtraServiceRateDetails `json:"extraServices,omitempty"`
+
+	// Fees The fees associated with the package.
+	Fees *[]struct {
+		// SKU The pricing SKU for the fee.
+		SKU *string `json:"SKU,omitempty"`
+
+		// Name The name of the fee.
+		Name *string `json:"name,omitempty"`
+
+		// Price The price for the fee.
+		Price *float64 `json:"price,omitempty"`
+	} `json:"fees,omitempty"`
+
+	// MailClass The mail class of the price.
+	MailClass *LettersRateDetailsMailClass `json:"mailClass,omitempty"`
+
+	// Price The postage price.
+	Price *float64 `json:"price,omitempty"`
+
+	// PriceType The type of price type applied (Retail).
+	PriceType *LettersRateDetailsPriceType `json:"priceType,omitempty"`
+
+	// StartDate Effective start date of the rate.
+	StartDate *openapi_types.Date `json:"startDate,omitempty"`
+
+	// Warnings List of warnings
+	Warnings *[]string `json:"warnings,omitempty"`
+
+	// Weight The calculated weight for the package based on user input.  The greater of dimWeight and weight will be used to calculated the rate.
+	Weight               *float64               `json:"weight,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// LettersRateDetailsMailClass The mail class of the price.
+type LettersRateDetailsMailClass string
+
+// LettersRateDetailsPriceType The type of price type applied (Retail).
+type LettersRateDetailsPriceType string
+
+// MailClass The mail service requested.
+//
+// Note:
+// - `PARCEL_SELECT_LIGHTWEIGHT` is deprecated and will convert to `PARCEL_SELECT`.
+// - `FIRST-CLASS_PACKAGE_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE`.
+// - `FIRST-CLASS_PACKAGE_RETURN_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE_RETURN_SERVICE`.
+// - `GROUND_RETURN_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE_RETURN_SERVICE`.
+// - `USPS_RETAIL_GROUND` is no longer supported and will return a 400 if used.
+// - Certain mail classes, such as `MEDIA_MAIL`, `BOUND_PRINTED_MATTER`, and `LIBRARY_MAIL`, have eligibility rules on what can be mailed using that service.  For more details on these mail classes, please visit [What are Package Services?](https://faq.usps.com/s/article/What-are-Package-Services).
+type MailClass string
+
+// MailClassOutboundOnly The mail service requested.
+//
+//	Note:
+//	- A single mail class option is deprecated and will be removed in the next major revision.  This attribute will be replaced with the list of mail classes.
+//	- `PARCEL_SELECT_LIGHTWEIGHT` is deprecated and will convert to `PARCEL_SELECT`
+//	- `FIRST-CLASS_PACKAGE_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE`
+//	- `USPS_RETAIL_GROUND` is no longer supported and will return a 400 if used
+type MailClassOutboundOnly string
+
+// MailClassesOutboundOnly A list of mail classes.
+//
+// Note:
+// - `PARCEL_SELECT_LIGHTWEIGHT` is deprecated and will convert to `PARCEL_SELECT`.
+// - `FIRST-CLASS_PACKAGE_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE`.
+// - `USPS_RETAIL_GROUND` is no longer supported and will return a 400 if used.
+// - Certain mail classes, such as `MEDIA_MAIL`, `BOUND_PRINTED_MATTER`, and `LIBRARY_MAIL`, have eligibility rules on what can be mailed using that service.  For more details on these mail classes, please visit [What are Package Services?](https://faq.usps.com/s/article/What-are-Package-Services).
+// - The Heavy Printed Matter product is supported with `MARKETING_MAIL_PARCELS`. To create Heavy Printed Matter labels, the `rateIndicator` should be set to `PR` or `NP` for Presorted or Nonpresorted USPS Marketing Mail Parcels Heavy Printed Matter or to `PN` or `NN` for Nonprofit Presorted or Nonpresorted USPS Marketing Mail Parcels Heavy Printed Matter respectively.
+type MailClassesOutboundOnly = []MailClassOutboundOnly
+
+// MailingDate The date the package or letter/flat/card will be mailed.
+//
+// The mailing date may be today plus 0 to 7 days in advance.
+//
+// Enter the date in the full-date notation as defined by [RFC 3339, section 5.6](https://datatracker.ietf.org/doc/html/rfc3339#section-5.6).
+type MailingDate = openapi_types.Date
+
+// OriginZIPCode The originating ZIP code for the package.
+type OriginZIPCode = string
+
+// PriceType The type of price applied.
+//
+// Notes:
+//   - The `priceType` of `NSA` is deprecated.  `CONTRACT` should be used for non-published pricing.
+//   - If an `accountNumber` is provided, it overrides the requested `priceType` and the response will return `CONTRACT` rates (if they exist for that account).
+//   - When priceType is `CONTRACT`, `accountType` and `accountNumber` are required to return the correct pricing.  If `accountType` and `accountNumber` are not provided, published `COMMERCIAL` rates may be returned instead.
+type PriceType string
+
+// RateDetails Informative details about the price.
+type RateDetails struct {
+	// SKU The stock keeping unit for the designated rate.
+	SKU *string `json:"SKU,omitempty"`
+
+	// Description The description of the price.
+	Description *string `json:"description,omitempty"`
+
+	// DestinationEntryFacilityType Destination Entry Facility type for the provided rate, this value can be used in the labels API to ensure the provided rate is applied.
+	//
+	// * `NONE` - None, translates to PTR code `N`
+	// * `AREA_DISTRIBUTION_CENTER` - Area Distribution Center, translates to PTR code `A`
+	// * `AUXILIARY_SERVICE_FACILITY` - Auxiliary Service Facility, translates to PTR code `F`
+	// * `DESTINATION_DELIVERY_UNIT` - Destination Delivery Unit, translates to PTR code `D`
+	// * `DESTINATION_NETWORK_DISTRIBUTION_CENTER` - Destination Network Distribution Center, translates to PTR code `B`
+	// * `DESTINATION_SECTIONAL_CENTER_FACILITY` - Destination Sectional Center Facility, translates to PTR code `S`
+	// * `DESTINATION_SERVICE_HUB` - Destination Service Hub, translates to PTR code `H`
+	// * `DESTINATION_REGIONAL_PROCESSING_DISTRIBUTION_CENTER` - Destination Regional Processing Distribution Center, translates to PTR code `B`
+	//
+	// Note:
+	// * Effective 01/18/2026: `DESTINATION_NETWORK_DISTRIBUTION_CENTER` with `PARCEL_SELECT` is no longer eligible.
+	// * Effective 01/18/2026: (NSA Only) `DESTINATION_REGIONAL_PROCESSING_DISTRIBUTION_CENTER` with `PARCEL_SELECT` is available as an option.
+	DestinationEntryFacilityType *RateDetailsDestinationEntryFacilityType `json:"destinationEntryFacilityType,omitempty"`
+
+	// DimWeight The calculated dimensional weight for the package based on user provided dimensions. The greater of dimWeight and weight will be used to calculated the rate.
+	DimWeight *float64 `json:"dimWeight,omitempty"`
+
+	// EndDate Effective end date of the rate.  If blank the rate doesn't have an end date as of yet.
+	EndDate *string `json:"endDate,omitempty"`
+
+	// Fees The fees associated with the package.
+	Fees *[]struct {
+		// SKU The pricing SKU for the fee.
+		SKU *string `json:"SKU,omitempty"`
+
+		// Name The name of the fee.
+		Name *string `json:"name,omitempty"`
+
+		// Price The price for the fee.
+		Price *float64 `json:"price,omitempty"`
+	} `json:"fees,omitempty"`
+
+	// MailClass The mail class of the price.
+	MailClass *string `json:"mailClass,omitempty"`
+
+	// Price The postage price.
+	Price *float64 `json:"price,omitempty"`
+
+	// PriceType The type of price applied.
+	//  * Valid Options for Domestic Prices include: 'RETAIL','COMMERCIAL',  'CONTRACT' & 'NSA' (deprecated)
+	//  * Valid Options for International Prices include: 'RETAIL', 'COMMERCIAL', 'COMMERCIAL_BASE', 'COMMERCIAL_PLUS', 'CONTRACT' & 'NSA' (deprecated)
+	PriceType *RateDetailsPriceType `json:"priceType,omitempty"`
+
+	// ProcessingCategory Processing category for the provided rate, this value can be used in the labels API to ensure the provided rate is applied.
+	//
+	// * `CARDS` - Cards, translates to PTR code `0`
+	// * `LETTERS` - Letters, translates to PTR code `1`
+	// * `FLATS` - Flats, translates to PTR code `2`
+	// * `MACHINABLE` - Machinable Parcel, translates to PTR code `3`
+	// * `IRREGULAR` - Irregular Parcel, translates to PTR code `4`
+	// * `NON_MACHINABLE` - Non-machinable parcel, translates to PTR code `5`
+	// * `NONSTANDARD` - Nonstandard parcel, translates to PTR code `5`
+	// * `CATALOGS` - Catalogs, translates to PTR code `C`
+	// * `OPEN_AND_DISTRIBUTE` - Open and Distribute, translates to PTR code `O`
+	// * `RETURNS` - Returns, translates to PTR code `R`
+	// * `SOFT_PACK_MACHINABLE` - Soft Pack Machinable, translates to PTR code `S`
+	// * `SOFT_PACK_NON_MACHINABLE` - Soft Package Non-machinable, translates to PTR code `T`
+	//
+	// Note:
+	// * `IRREGULAR` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+	// * `NON_MACHINABLE` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+	ProcessingCategory *RateDetailsProcessingCategory `json:"processingCategory,omitempty"`
+
+	// ProductDefinition A business friendly description for a product that can be displayed to a customer on a shipping portal
+	ProductDefinition *string `json:"productDefinition,omitempty"`
+
+	// ProductName A business friendly name for a product that can be displayed to a customer on a shipping portal
+	ProductName *string `json:"productName,omitempty"`
+
+	// RateIndicator Two-digit rate indicator code for the provided rate, this value can be used in the labels API to ensure the provided rate is applied.
+	RateIndicator *string `json:"rateIndicator,omitempty"`
+
+	// StartDate Effective start date of the rate.
+	StartDate *openapi_types.Date `json:"startDate,omitempty"`
+
+	// Weight The calculated weight for the package based on user input.  The greater of dimWeight and weight will be used to calculated the rate.
+	Weight *float64 `json:"weight,omitempty"`
+
+	// Zone Indicates the calculated zone between the provided `originZIPCode` and `destinationZIPCode` for a given `mailClass`, `mailingDate`, and `weight`.
+	Zone                 *string                `json:"zone,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// RateDetailsDestinationEntryFacilityType Destination Entry Facility type for the provided rate, this value can be used in the labels API to ensure the provided rate is applied.
+//
+// * `NONE` - None, translates to PTR code `N`
+// * `AREA_DISTRIBUTION_CENTER` - Area Distribution Center, translates to PTR code `A`
+// * `AUXILIARY_SERVICE_FACILITY` - Auxiliary Service Facility, translates to PTR code `F`
+// * `DESTINATION_DELIVERY_UNIT` - Destination Delivery Unit, translates to PTR code `D`
+// * `DESTINATION_NETWORK_DISTRIBUTION_CENTER` - Destination Network Distribution Center, translates to PTR code `B`
+// * `DESTINATION_SECTIONAL_CENTER_FACILITY` - Destination Sectional Center Facility, translates to PTR code `S`
+// * `DESTINATION_SERVICE_HUB` - Destination Service Hub, translates to PTR code `H`
+// * `DESTINATION_REGIONAL_PROCESSING_DISTRIBUTION_CENTER` - Destination Regional Processing Distribution Center, translates to PTR code `B`
+//
+// Note:
+// * Effective 01/18/2026: `DESTINATION_NETWORK_DISTRIBUTION_CENTER` with `PARCEL_SELECT` is no longer eligible.
+// * Effective 01/18/2026: (NSA Only) `DESTINATION_REGIONAL_PROCESSING_DISTRIBUTION_CENTER` with `PARCEL_SELECT` is available as an option.
+type RateDetailsDestinationEntryFacilityType string
+
+// RateDetailsPriceType The type of price applied.
+//   - Valid Options for Domestic Prices include: 'RETAIL','COMMERCIAL',  'CONTRACT' & 'NSA' (deprecated)
+//   - Valid Options for International Prices include: 'RETAIL', 'COMMERCIAL', 'COMMERCIAL_BASE', 'COMMERCIAL_PLUS', 'CONTRACT' & 'NSA' (deprecated)
+type RateDetailsPriceType string
+
+// RateDetailsProcessingCategory Processing category for the provided rate, this value can be used in the labels API to ensure the provided rate is applied.
+//
+// * `CARDS` - Cards, translates to PTR code `0`
+// * `LETTERS` - Letters, translates to PTR code `1`
+// * `FLATS` - Flats, translates to PTR code `2`
+// * `MACHINABLE` - Machinable Parcel, translates to PTR code `3`
+// * `IRREGULAR` - Irregular Parcel, translates to PTR code `4`
+// * `NON_MACHINABLE` - Non-machinable parcel, translates to PTR code `5`
+// * `NONSTANDARD` - Nonstandard parcel, translates to PTR code `5`
+// * `CATALOGS` - Catalogs, translates to PTR code `C`
+// * `OPEN_AND_DISTRIBUTE` - Open and Distribute, translates to PTR code `O`
+// * `RETURNS` - Returns, translates to PTR code `R`
+// * `SOFT_PACK_MACHINABLE` - Soft Pack Machinable, translates to PTR code `S`
+// * `SOFT_PACK_NON_MACHINABLE` - Soft Package Non-machinable, translates to PTR code `T`
+//
+// Note:
+// * `IRREGULAR` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+// * `NON_MACHINABLE` is deprecated and will convert to `NONSTANDARD` as of 01/19/2025.
+type RateDetailsProcessingCategory string
+
+// RateListQuery Informative details about all possible prices based on the ingredients.
+type RateListQuery struct {
+	// AccountNumber The Enterprise Payment Account, Permit number or PC Postage meter number associated with a contract.
+	AccountNumber *string `json:"accountNumber,omitempty"`
+
+	// AccountType The type of payment account linked to a contract rate.
+	AccountType *RateListQueryAccountType `json:"accountType,omitempty"`
+
+	// DestinationZIPCode The destination ZIP code for the package.
+	DestinationZIPCode DestinationZIPCode `json:"destinationZIPCode"`
+
+	// HasNonstandardCharacteristics Package is nonstandard. Nonstandard packages include cylindrical tubes and rolls, certain high-density items, cartons containing more than 24 ounces of liquids in one or more glass containers, cartons containing 1 gallon or more of liquid in metal or plastic containers, and items in [201.7.6.2](https://pe.usps.com/text/dmm300/201.htm#7.6.2).
+	HasNonstandardCharacteristics *bool `json:"hasNonstandardCharacteristics,omitempty"`
+
+	// Height This is the package height in inches.
+	Height Height `json:"height"`
+
+	// Length This is the package length in inches.  The maximum dimension is always length.
+	Length Length `json:"length"`
+
+	// MailClass The mail service requested.
+	//
+	//  Note:
+	//  - A single mail class option is deprecated and will be removed in the next major revision.  This attribute will be replaced with the list of mail classes.
+	//  - `PARCEL_SELECT_LIGHTWEIGHT` is deprecated and will convert to `PARCEL_SELECT`
+	//  - `FIRST-CLASS_PACKAGE_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE`
+	//  - `USPS_RETAIL_GROUND` is no longer supported and will return a 400 if used
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+	MailClass *MailClassOutboundOnly `json:"mailClass,omitempty"`
+
+	// MailClasses A list of mail classes.
+	//
+	// Note:
+	// - `PARCEL_SELECT_LIGHTWEIGHT` is deprecated and will convert to `PARCEL_SELECT`.
+	// - `FIRST-CLASS_PACKAGE_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE`.
+	// - `USPS_RETAIL_GROUND` is no longer supported and will return a 400 if used.
+	// - Certain mail classes, such as `MEDIA_MAIL`, `BOUND_PRINTED_MATTER`, and `LIBRARY_MAIL`, have eligibility rules on what can be mailed using that service.  For more details on these mail classes, please visit [What are Package Services?](https://faq.usps.com/s/article/What-are-Package-Services).
+	// - The Heavy Printed Matter product is supported with `MARKETING_MAIL_PARCELS`. To create Heavy Printed Matter labels, the `rateIndicator` should be set to `PR` or `NP` for Presorted or Nonpresorted USPS Marketing Mail Parcels Heavy Printed Matter or to `PN` or `NN` for Nonprofit Presorted or Nonpresorted USPS Marketing Mail Parcels Heavy Printed Matter respectively.
+	MailClasses *MailClassesOutboundOnly `json:"mailClasses,omitempty"`
+
+	// MailingDate The date the package or letter/flat/card will be mailed.
+	//
+	// The mailing date may be today plus 0 to 7 days in advance.
+	//
+	// Enter the date in the full-date notation as defined by [RFC 3339, section 5.6](https://datatracker.ietf.org/doc/html/rfc3339#section-5.6).
+	MailingDate *MailingDate `json:"mailingDate,omitempty"`
+
+	// OriginZIPCode The originating ZIP code for the package.
+	OriginZIPCode OriginZIPCode `json:"originZIPCode"`
+
+	// PriceType The type of price applied.
+	//
+	// Notes:
+	//  * The `priceType` of `NSA` is deprecated.  `CONTRACT` should be used for non-published pricing.
+	//  * If an `accountNumber` is provided, it overrides the requested `priceType` and the response will return `CONTRACT` rates (if they exist for that account).
+	//  * When priceType is `CONTRACT`, `accountType` and `accountNumber` are required to return the correct pricing.  If `accountType` and `accountNumber` are not provided, published `COMMERCIAL` rates may be returned instead.
+	PriceType *PriceType `json:"priceType,omitempty"`
+
+	// Weight This is the calculated weight for the package based on user input.  The greater of dimWeight and weight will be used to calculated the rate. Weight unit of measurement is in pounds.
+	Weight WeightPounds `json:"weight"`
+
+	// Width This is the package width in inches.  The second longest dimension is always width.
+	Width Width `json:"width"`
+}
+
+// RateListQueryAccountType The type of payment account linked to a contract rate.
+type RateListQueryAccountType string
+
+// RateOption The prices that match the search criteria.
+type RateOption struct {
+	// Rates List of rate details
+	Rates *[]RateDetails `json:"rates,omitempty"`
+
+	// TotalBasePrice The total price, including the rate, fees and pound postage.
+	TotalBasePrice       *float64               `json:"totalBasePrice,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// RateOptions The prices that match the search criteria.
+type RateOptions = []RateOption
+
+// TotalRatesExtraServiceRateDetails The extra service rate details that match the search criteria.
+type TotalRatesExtraServiceRateDetails struct {
+	// SKU The stock keeping unit for the designated rate.
+	SKU *string `json:"SKU,omitempty"`
+
+	// ExtraService Number associated with the extra service
+	ExtraService *string `json:"extraService,omitempty"`
+
+	// Name Name of the extra service.
+	Name *string `json:"name,omitempty"`
+
+	// Price The postage rate.
+	Price *float64 `json:"price,omitempty"`
+
+	// PriceType The type of price applied (Retail, Commercial, Contract, NSA (deprecated)).
+	PriceType *TotalRatesExtraServiceRateDetailsPriceType `json:"priceType,omitempty"`
+
+	// Warnings A list of warnings associated with the rate calculation.
+	Warnings *WarningsList `json:"warnings,omitempty"`
+}
+
+// TotalRatesExtraServiceRateDetailsPriceType The type of price applied (Retail, Commercial, Contract, NSA (deprecated)).
+type TotalRatesExtraServiceRateDetailsPriceType string
+
+// TotalRatesExtraServices Extra Service Codes requested. If omitted, all available extra services will be returned. To narrow the results, provide a specific set of extra service codes. For convenience, use `986` for `PRIORITY_MAIL_EXPRESS` or `920` for all other `mailClasses`.
+// * 415 - USPS Label Delivery
+// * 480 - Tracking Plus 6 Months
+// * 481 - Tracking Plus 1 Year
+// * 482 - Tracking Plus 3 Years
+// * 483 - Tracking Plus 5 Years
+// * 484 - Tracking Plus 7 Years
+// * 485 - Tracking Plus 10 Years
+// * 486 - Tracking Plus Signature 3 Years
+// * 487 - Tracking Plus Signature 5 Years
+// * 488 - Tracking Plus Signature 7 Years
+// * 489 - Tracking Plus Signature 10 Years
+// * 498 - PO Box Locker – Stocking Fee (NSA Only)
+// * 500 - PO Box Locker – Self-Service Pickup Fee (NSA Only)
+// * 501 - PO Box Locker – Clerk-Assisted Pickup Fee (NSA Only)
+// * 502 - PO Box Locker – Local Delivery Fee (NSA Only)
+// * 810 - HAZMAT Air Eligible Ethanol Package
+// * 811 - HAZMAT Class 1 - Toy Propellant/Safety Fuse Package
+// * 812 - HAZMAT Class 3 – Flammable Liquid Package
+// * 813 - HAZMAT Class 7 - Radioactive Materials Package
+// * 814 - HAZMAT Class 8 - Corrosive Materials Package
+// * 815 - HAZMAT Class 8 - Nonspillable Wet Battery Package
+// * 816 - HAZMAT Class 9 - Lithium Battery Marked - Ground Only Package
+// * 817 - HAZMAT Class 9 - Lithium Battery - Returns Package
+// * 818 - HAZMAT Class 9 - Lithium batteries, marked package
+// * 819 - HAZMAT Class 9 - Dry Ice Package
+// * 820 - HAZMAT Class 9 - Lithium batteries, unmarked package
+// * 821 - HAZMAT Class 9 - Magnetized Materials Package
+// * 822 - HAZMAT Division 4.1 – Flammable Solids or Safety Matches Package
+// * 823 - HAZMAT Division 5.1 - Oxidizers Package
+// * 824 - HAZMAT Division 5.2 - Organic Peroxides Package
+// * 825 - HAZMAT Division 6.1 – Toxic Materials Package
+// * 826 - HAZMAT Division 6.2 – Infectious Substances Package
+// * 827 - HAZMAT Excepted Quantity Provision Package
+// * 828 - HAZMAT Ground Only
+// * 829 - HAZMAT ID8000 Consumer Commodity Package
+// * 830 - HAZMAT Lighters Package
+// * 831 - HAZMAT LTD QTY Ground Package
+// * 832 - HAZMAT Small Quantity Provision Package
+// * 853 - Perishable Material
+// * 856 - Live Animals Transportation Fee
+// * 857 - Hazardous Material
+// * 858 - Cremated Remains
+// * 910 - Certified Mail
+// * 911 - Certified Mail Restricted Delivery
+// * 912 - Certified Mail Adult Signature Required
+// * 913 - Certified Mail Adult Signature Restricted Delivery
+// * 915 - Collect on Delivery (COD)
+// * 917 - COD Restricted Delivery
+// * 920 - USPS Tracking
+// * 921 - Signature Confirmation
+// * 922 - Adult Signature Required 21 or Over
+// * 923 - Adult Signature Restricted Delivery 21 or Over
+// * 924 - Signature Confirmation Restricted Delivery
+// * 925 - Priority Mail Express Merchandise Insurance
+// * 930 - Insurance <= $500
+// * 931 - Insurance > $500
+// * 934 - Insurance Restricted Delivery
+// * 940 - Registered Mail
+// * 941 - Registered Mail Restricted Delivery
+// * 955 - Return Receipt
+// * 957 - Return Receipt Electronic
+// * 972 - Live Animal and Perishable Handling Fee
+// * 981 - Signature Requested (PRIORITY_MAIL_EXPRESS only)
+// * 984 - Parcel Locker Delivery
+// * 986 - PO to Addressee (PRIORITY_MAIL_EXPRESS only)
+// * 991 - Sunday Delivery
+type TotalRatesExtraServices = []ExtraService
+
+// TotalRatesQuery defines model for TotalRatesQuery.
+type TotalRatesQuery struct {
+	// AccountNumber The Enterprise Payment Account, Permit number or PC Postage meter number associated with a contract.
+	AccountNumber *string `json:"accountNumber,omitempty"`
+
+	// AccountType The type of payment account linked to a contract rate.
+	AccountType *TotalRatesQueryAccountType `json:"accountType,omitempty"`
+
+	// DestinationZIPCode The destination ZIP code for the package.
+	DestinationZIPCode DestinationZIPCode `json:"destinationZIPCode"`
+
+	// ExtraServices Extra Service Codes requested. If omitted, all available extra services will be returned. To narrow the results, provide a specific set of extra service codes. For convenience, use `986` for `PRIORITY_MAIL_EXPRESS` or `920` for all other `mailClasses`.
+	// * 415 - USPS Label Delivery
+	// * 480 - Tracking Plus 6 Months
+	// * 481 - Tracking Plus 1 Year
+	// * 482 - Tracking Plus 3 Years
+	// * 483 - Tracking Plus 5 Years
+	// * 484 - Tracking Plus 7 Years
+	// * 485 - Tracking Plus 10 Years
+	// * 486 - Tracking Plus Signature 3 Years
+	// * 487 - Tracking Plus Signature 5 Years
+	// * 488 - Tracking Plus Signature 7 Years
+	// * 489 - Tracking Plus Signature 10 Years
+	// * 498 - PO Box Locker – Stocking Fee (NSA Only)
+	// * 500 - PO Box Locker – Self-Service Pickup Fee (NSA Only)
+	// * 501 - PO Box Locker – Clerk-Assisted Pickup Fee (NSA Only)
+	// * 502 - PO Box Locker – Local Delivery Fee (NSA Only)
+	// * 810 - HAZMAT Air Eligible Ethanol Package
+	// * 811 - HAZMAT Class 1 - Toy Propellant/Safety Fuse Package
+	// * 812 - HAZMAT Class 3 – Flammable Liquid Package
+	// * 813 - HAZMAT Class 7 - Radioactive Materials Package
+	// * 814 - HAZMAT Class 8 - Corrosive Materials Package
+	// * 815 - HAZMAT Class 8 - Nonspillable Wet Battery Package
+	// * 816 - HAZMAT Class 9 - Lithium Battery Marked - Ground Only Package
+	// * 817 - HAZMAT Class 9 - Lithium Battery - Returns Package
+	// * 818 - HAZMAT Class 9 - Lithium batteries, marked package
+	// * 819 - HAZMAT Class 9 - Dry Ice Package
+	// * 820 - HAZMAT Class 9 - Lithium batteries, unmarked package
+	// * 821 - HAZMAT Class 9 - Magnetized Materials Package
+	// * 822 - HAZMAT Division 4.1 – Flammable Solids or Safety Matches Package
+	// * 823 - HAZMAT Division 5.1 - Oxidizers Package
+	// * 824 - HAZMAT Division 5.2 - Organic Peroxides Package
+	// * 825 - HAZMAT Division 6.1 – Toxic Materials Package
+	// * 826 - HAZMAT Division 6.2 – Infectious Substances Package
+	// * 827 - HAZMAT Excepted Quantity Provision Package
+	// * 828 - HAZMAT Ground Only
+	// * 829 - HAZMAT ID8000 Consumer Commodity Package
+	// * 830 - HAZMAT Lighters Package
+	// * 831 - HAZMAT LTD QTY Ground Package
+	// * 832 - HAZMAT Small Quantity Provision Package
+	// * 853 - Perishable Material
+	// * 856 - Live Animals Transportation Fee
+	// * 857 - Hazardous Material
+	// * 858 - Cremated Remains
+	// * 910 - Certified Mail
+	// * 911 - Certified Mail Restricted Delivery
+	// * 912 - Certified Mail Adult Signature Required
+	// * 913 - Certified Mail Adult Signature Restricted Delivery
+	// * 915 - Collect on Delivery (COD)
+	// * 917 - COD Restricted Delivery
+	// * 920 - USPS Tracking
+	// * 921 - Signature Confirmation
+	// * 922 - Adult Signature Required 21 or Over
+	// * 923 - Adult Signature Restricted Delivery 21 or Over
+	// * 924 - Signature Confirmation Restricted Delivery
+	// * 925 - Priority Mail Express Merchandise Insurance
+	// * 930 - Insurance <= $500
+	// * 931 - Insurance > $500
+	// * 934 - Insurance Restricted Delivery
+	// * 940 - Registered Mail
+	// * 941 - Registered Mail Restricted Delivery
+	// * 955 - Return Receipt
+	// * 957 - Return Receipt Electronic
+	// * 972 - Live Animal and Perishable Handling Fee
+	// * 981 - Signature Requested (PRIORITY_MAIL_EXPRESS only)
+	// * 984 - Parcel Locker Delivery
+	// * 986 - PO to Addressee (PRIORITY_MAIL_EXPRESS only)
+	// * 991 - Sunday Delivery
+	ExtraServices *TotalRatesExtraServices `json:"extraServices,omitempty"`
+
+	// HasNonstandardCharacteristics Package is nonstandard. Nonstandard packages include cylindrical tubes and rolls, certain high-density items, cartons containing more than 24 ounces of liquids in one or more glass containers, cartons containing 1 gallon or more of liquid in metal or plastic containers, and items in [201.7.6.2](https://pe.usps.com/text/dmm300/201.htm#7.6.2).
+	HasNonstandardCharacteristics *bool `json:"hasNonstandardCharacteristics,omitempty"`
+
+	// Height This is the package height in inches.
+	Height Height `json:"height"`
+
+	// ItemValue The value of the item. Required for Insurance and Collect On Delivery.  The price for Insurance, Registered Mail, and Collect On Delivery extra services will vary based on this value.
+	ItemValue *float64 `json:"itemValue,omitempty"`
+
+	// Length This is the package length in inches.  The maximum dimension is always length.
+	Length Length `json:"length"`
+
+	// MailClass The mail service requested.
+	//
+	//  Note:
+	//  - A single mail class option is deprecated and will be removed in the next major revision.  This attribute will be replaced with the list of mail classes.
+	//  - `PARCEL_SELECT_LIGHTWEIGHT` is deprecated and will convert to `PARCEL_SELECT`
+	//  - `FIRST-CLASS_PACKAGE_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE`
+	//  - `USPS_RETAIL_GROUND` is no longer supported and will return a 400 if used
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+	MailClass *MailClassOutboundOnly `json:"mailClass,omitempty"`
+
+	// MailClasses A list of mail classes.
+	//
+	// Note:
+	// - `PARCEL_SELECT_LIGHTWEIGHT` is deprecated and will convert to `PARCEL_SELECT`.
+	// - `FIRST-CLASS_PACKAGE_SERVICE` is deprecated and will convert to `USPS_GROUND_ADVANTAGE`.
+	// - `USPS_RETAIL_GROUND` is no longer supported and will return a 400 if used.
+	// - Certain mail classes, such as `MEDIA_MAIL`, `BOUND_PRINTED_MATTER`, and `LIBRARY_MAIL`, have eligibility rules on what can be mailed using that service.  For more details on these mail classes, please visit [What are Package Services?](https://faq.usps.com/s/article/What-are-Package-Services).
+	// - The Heavy Printed Matter product is supported with `MARKETING_MAIL_PARCELS`. To create Heavy Printed Matter labels, the `rateIndicator` should be set to `PR` or `NP` for Presorted or Nonpresorted USPS Marketing Mail Parcels Heavy Printed Matter or to `PN` or `NN` for Nonprofit Presorted or Nonpresorted USPS Marketing Mail Parcels Heavy Printed Matter respectively.
+	MailClasses *MailClassesOutboundOnly `json:"mailClasses,omitempty"`
+
+	// MailingDate The date the package or letter/flat/card will be mailed.
+	//
+	// The mailing date may be today plus 0 to 7 days in advance.
+	//
+	// Enter the date in the full-date notation as defined by [RFC 3339, section 5.6](https://datatracker.ietf.org/doc/html/rfc3339#section-5.6).
+	MailingDate *MailingDate `json:"mailingDate,omitempty"`
+
+	// OriginZIPCode The originating ZIP code for the package.
+	OriginZIPCode OriginZIPCode `json:"originZIPCode"`
+
+	// PriceType The type of price applied.
+	//
+	// Notes:
+	//  * The `priceType` of `NSA` is deprecated.  `CONTRACT` should be used for non-published pricing.
+	//  * If an `accountNumber` is provided, it overrides the requested `priceType` and the response will return `CONTRACT` rates (if they exist for that account).
+	//  * When priceType is `CONTRACT`, `accountType` and `accountNumber` are required to return the correct pricing.  If `accountType` and `accountNumber` are not provided, published `COMMERCIAL` rates may be returned instead.
+	PriceType *PriceType `json:"priceType,omitempty"`
+
+	// Weight This is the calculated weight for the package based on user input.  The greater of dimWeight and weight will be used to calculated the rate. Weight unit of measurement is in pounds.
+	Weight WeightPounds `json:"weight"`
+
+	// Width This is the package width in inches.  The second longest dimension is always width.
+	Width Width `json:"width"`
+}
+
+// TotalRatesQueryAccountType The type of payment account linked to a contract rate.
+type TotalRatesQueryAccountType string
+
+// TotalRatesQueryResult A list of rate options including applicable extra services.
+type TotalRatesQueryResult struct {
+	// RateOptions List of total rate details
+	RateOptions *[]TotalRatesQueryResult_RateOptions_Item `json:"rateOptions,omitempty"`
+}
+
+// TotalRatesQueryResult_RateOptions_Item defines model for TotalRatesQueryResult.rateOptions.Item.
+type TotalRatesQueryResult_RateOptions_Item struct {
+	// ExtraServices List of extra services associated with the shipment.
+	ExtraServices *[]TotalRatesExtraServiceRateDetails `json:"extraServices,omitempty"`
+
+	// Rates List of rate details
+	Rates *[]RateDetails `json:"rates,omitempty"`
+
+	// TotalBasePrice The total price, including the rate, fees and pound postage.
+	TotalBasePrice *float64 `json:"totalBasePrice,omitempty"`
+
+	// TotalPrice The total price, including the `totalBasePrice` and all extra service prices.
+	//
+	// Note: This field is only returned when `extraServices` are passed in the request.
+	TotalPrice           *float32               `json:"totalPrice,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// WarningsList A list of warnings associated with the rate calculation.
+type WarningsList = []struct {
+	// WarningCode Code representing the type of warning.
+	WarningCode *string `json:"warningCode,omitempty"`
+
+	// WarningDescription Description of the warning.
+	WarningDescription *string `json:"warningDescription,omitempty"`
+}
+
+// WeightOunces This is the calculated weight for the package based on user input.  The greater of dimWeight and weight will be used to calculated the rate. Weight unit of measurement is in ounces.
+type WeightOunces = float64
+
+// WeightPounds This is the calculated weight for the package based on user input.  The greater of dimWeight and weight will be used to calculated the rate. Weight unit of measurement is in pounds.
+type WeightPounds = float64
+
+// Width This is the package width in inches.  The second longest dimension is always width.
+type Width = float64
+
+// PostExtraServiceRatesSearchJSONBody defines parameters for PostExtraServiceRatesSearch.
+type PostExtraServiceRatesSearchJSONBody struct {
+	union json.RawMessage
+}
+
+// PostRateListJSONRequestBody defines body for PostRateList for application/json ContentType.
+type PostRateListJSONRequestBody = RateListQuery
+
+// PostBaseRatesSearchJSONRequestBody defines body for PostBaseRatesSearch for application/json ContentType.
+type PostBaseRatesSearchJSONRequestBody = BaseRatesQuery
+
+// PostExtraServiceRatesSearchJSONRequestBody defines body for PostExtraServiceRatesSearch for application/json ContentType.
+type PostExtraServiceRatesSearchJSONRequestBody PostExtraServiceRatesSearchJSONBody
+
+// PostLetterRatesSearchJSONRequestBody defines body for PostLetterRatesSearch for application/json ContentType.
+type PostLetterRatesSearchJSONRequestBody = LetterRatesQuery
+
+// PostTotalRatesSearchJSONRequestBody defines body for PostTotalRatesSearch for application/json ContentType.
+type PostTotalRatesSearchJSONRequestBody = TotalRatesQuery
+
+// Getter for additional properties for BaseRateDetails. Returns the specified
 // element and whether it was found
-func (a BaseRatesSearchResponse) Get(fieldName string) (value interface{}, found bool) {
+func (a BaseRateDetails) Get(fieldName string) (value interface{}, found bool) {
 	if a.AdditionalProperties != nil {
 		value, found = a.AdditionalProperties[fieldName]
 	}
 	return
 }
 
-// Setter for additional properties for BaseRatesSearchResponse
-func (a *BaseRatesSearchResponse) Set(fieldName string, value interface{}) {
+// Setter for additional properties for BaseRateDetails
+func (a *BaseRateDetails) Set(fieldName string, value interface{}) {
 	if a.AdditionalProperties == nil {
 		a.AdditionalProperties = make(map[string]interface{})
 	}
 	a.AdditionalProperties[fieldName] = value
 }
 
-// Override default JSON handling for BaseRatesSearchResponse to handle AdditionalProperties
-func (a *BaseRatesSearchResponse) UnmarshalJSON(b []byte) error {
+// Override default JSON handling for BaseRateDetails to handle AdditionalProperties
+func (a *BaseRateDetails) UnmarshalJSON(b []byte) error {
 	object := make(map[string]json.RawMessage)
 	err := json.Unmarshal(b, &object)
 	if err != nil {
 		return err
+	}
+
+	if raw, found := object["SKU"]; found {
+		err = json.Unmarshal(raw, &a.SKU)
+		if err != nil {
+			return fmt.Errorf("error reading 'SKU': %w", err)
+		}
+		delete(object, "SKU")
+	}
+
+	if raw, found := object["description"]; found {
+		err = json.Unmarshal(raw, &a.Description)
+		if err != nil {
+			return fmt.Errorf("error reading 'description': %w", err)
+		}
+		delete(object, "description")
+	}
+
+	if raw, found := object["destinationEntryFacilityType"]; found {
+		err = json.Unmarshal(raw, &a.DestinationEntryFacilityType)
+		if err != nil {
+			return fmt.Errorf("error reading 'destinationEntryFacilityType': %w", err)
+		}
+		delete(object, "destinationEntryFacilityType")
+	}
+
+	if raw, found := object["dimWeight"]; found {
+		err = json.Unmarshal(raw, &a.DimWeight)
+		if err != nil {
+			return fmt.Errorf("error reading 'dimWeight': %w", err)
+		}
+		delete(object, "dimWeight")
+	}
+
+	if raw, found := object["endDate"]; found {
+		err = json.Unmarshal(raw, &a.EndDate)
+		if err != nil {
+			return fmt.Errorf("error reading 'endDate': %w", err)
+		}
+		delete(object, "endDate")
+	}
+
+	if raw, found := object["fees"]; found {
+		err = json.Unmarshal(raw, &a.Fees)
+		if err != nil {
+			return fmt.Errorf("error reading 'fees': %w", err)
+		}
+		delete(object, "fees")
 	}
 
 	if raw, found := object["mailClass"]; found {
@@ -94,12 +2187,68 @@ func (a *BaseRatesSearchResponse) UnmarshalJSON(b []byte) error {
 		delete(object, "price")
 	}
 
-	if raw, found := object["totalBasePrice"]; found {
-		err = json.Unmarshal(raw, &a.TotalBasePrice)
+	if raw, found := object["priceType"]; found {
+		err = json.Unmarshal(raw, &a.PriceType)
 		if err != nil {
-			return fmt.Errorf("error reading 'totalBasePrice': %w", err)
+			return fmt.Errorf("error reading 'priceType': %w", err)
 		}
-		delete(object, "totalBasePrice")
+		delete(object, "priceType")
+	}
+
+	if raw, found := object["processingCategory"]; found {
+		err = json.Unmarshal(raw, &a.ProcessingCategory)
+		if err != nil {
+			return fmt.Errorf("error reading 'processingCategory': %w", err)
+		}
+		delete(object, "processingCategory")
+	}
+
+	if raw, found := object["productDefinition"]; found {
+		err = json.Unmarshal(raw, &a.ProductDefinition)
+		if err != nil {
+			return fmt.Errorf("error reading 'productDefinition': %w", err)
+		}
+		delete(object, "productDefinition")
+	}
+
+	if raw, found := object["productName"]; found {
+		err = json.Unmarshal(raw, &a.ProductName)
+		if err != nil {
+			return fmt.Errorf("error reading 'productName': %w", err)
+		}
+		delete(object, "productName")
+	}
+
+	if raw, found := object["rateIndicator"]; found {
+		err = json.Unmarshal(raw, &a.RateIndicator)
+		if err != nil {
+			return fmt.Errorf("error reading 'rateIndicator': %w", err)
+		}
+		delete(object, "rateIndicator")
+	}
+
+	if raw, found := object["startDate"]; found {
+		err = json.Unmarshal(raw, &a.StartDate)
+		if err != nil {
+			return fmt.Errorf("error reading 'startDate': %w", err)
+		}
+		delete(object, "startDate")
+	}
+
+	if raw, found := object["warnings"]; found {
+		err = json.Unmarshal(raw, &a.Warnings)
+		if err != nil {
+			return fmt.Errorf("error reading 'warnings': %w", err)
+		}
+		delete(object, "warnings")
+	}
+
+	if raw, found := object["weight"]; found {
+		err = json.Unmarshal(raw, &a.Weight)
+		if err != nil {
+			return fmt.Errorf("error reading 'weight': %w", err)
+		}
+		delete(object, "weight")
 	}
 
 	if raw, found := object["zone"]; found {
@@ -124,10 +2273,52 @@ func (a *BaseRatesSearchResponse) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// Override default JSON handling for BaseRatesSearchResponse to handle AdditionalProperties
-func (a BaseRatesSearchResponse) MarshalJSON() ([]byte, error) {
+// Override default JSON handling for BaseRateDetails to handle AdditionalProperties
+func (a BaseRateDetails) MarshalJSON() ([]byte, error) {
 	var err error
 	object := make(map[string]json.RawMessage)
+
+	if a.SKU != nil {
+		object["SKU"], err = json.Marshal(a.SKU)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'SKU': %w", err)
+		}
+	}
+
+	if a.Description != nil {
+		object["description"], err = json.Marshal(a.Description)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'description': %w", err)
+		}
+	}
+
+	if a.DestinationEntryFacilityType != nil {
+		object["destinationEntryFacilityType"], err = json.Marshal(a.DestinationEntryFacilityType)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'destinationEntryFacilityType': %w", err)
+		}
+	}
+
+	if a.DimWeight != nil {
+		object["dimWeight"], err = json.Marshal(a.DimWeight)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'dimWeight': %w", err)
+		}
+	}
+
+	if a.EndDate != nil {
+		object["endDate"], err = json.Marshal(a.EndDate)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'endDate': %w", err)
+		}
+	}
+
+	if a.Fees != nil {
+		object["fees"], err = json.Marshal(a.Fees)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'fees': %w", err)
+		}
+	}
 
 	if a.MailClass != nil {
 		object["mailClass"], err = json.Marshal(a.MailClass)
@@ -143,10 +2334,59 @@ func (a BaseRatesSearchResponse) MarshalJSON() ([]byte, error) {
 		}
 	}
 
-	if a.TotalBasePrice != nil {
-		object["totalBasePrice"], err = json.Marshal(a.TotalBasePrice)
+	if a.PriceType != nil {
+		object["priceType"], err = json.Marshal(a.PriceType)
 		if err != nil {
-			return nil, fmt.Errorf("error marshaling 'totalBasePrice': %w", err)
+			return nil, fmt.Errorf("error marshaling 'priceType': %w", err)
+		}
+	}
+
+	if a.ProcessingCategory != nil {
+		object["processingCategory"], err = json.Marshal(a.ProcessingCategory)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'processingCategory': %w", err)
+		}
+	}
+
+	if a.ProductDefinition != nil {
+		object["productDefinition"], err = json.Marshal(a.ProductDefinition)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'productDefinition': %w", err)
+		}
+	}
+
+	if a.ProductName != nil {
+		object["productName"], err = json.Marshal(a.ProductName)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'productName': %w", err)
+		}
+	}
+
+	if a.RateIndicator != nil {
+		object["rateIndicator"], err = json.Marshal(a.RateIndicator)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'rateIndicator': %w", err)
+		}
+	}
+
+	if a.StartDate != nil {
+		object["startDate"], err = json.Marshal(a.StartDate)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'startDate': %w", err)
+		}
+	}
+
+	if a.Warnings != nil {
+		object["warnings"], err = json.Marshal(a.Warnings)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'warnings': %w", err)
+		}
+	}
+
+	if a.Weight != nil {
+		object["weight"], err = json.Marshal(a.Weight)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'weight': %w", err)
 		}
 	}
 
@@ -154,6 +2394,1308 @@ func (a BaseRatesSearchResponse) MarshalJSON() ([]byte, error) {
 		object["zone"], err = json.Marshal(a.Zone)
 		if err != nil {
 			return nil, fmt.Errorf("error marshaling 'zone': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for ErrorMessage. Returns the specified
+// element and whether it was found
+func (a ErrorMessage) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for ErrorMessage
+func (a *ErrorMessage) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for ErrorMessage to handle AdditionalProperties
+func (a *ErrorMessage) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["apiVersion"]; found {
+		err = json.Unmarshal(raw, &a.ApiVersion)
+		if err != nil {
+			return fmt.Errorf("error reading 'apiVersion': %w", err)
+		}
+		delete(object, "apiVersion")
+	}
+
+	if raw, found := object["error"]; found {
+		err = json.Unmarshal(raw, &a.Error)
+		if err != nil {
+			return fmt.Errorf("error reading 'error': %w", err)
+		}
+		delete(object, "error")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for ErrorMessage to handle AdditionalProperties
+func (a ErrorMessage) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.ApiVersion != nil {
+		object["apiVersion"], err = json.Marshal(a.ApiVersion)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'apiVersion': %w", err)
+		}
+	}
+
+	if a.Error != nil {
+		object["error"], err = json.Marshal(a.Error)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'error': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for ErrorMessage_Error_Errors_Source. Returns the specified
+// element and whether it was found
+func (a ErrorMessage_Error_Errors_Source) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for ErrorMessage_Error_Errors_Source
+func (a *ErrorMessage_Error_Errors_Source) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for ErrorMessage_Error_Errors_Source to handle AdditionalProperties
+func (a *ErrorMessage_Error_Errors_Source) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["example"]; found {
+		err = json.Unmarshal(raw, &a.Example)
+		if err != nil {
+			return fmt.Errorf("error reading 'example': %w", err)
+		}
+		delete(object, "example")
+	}
+
+	if raw, found := object["parameter"]; found {
+		err = json.Unmarshal(raw, &a.Parameter)
+		if err != nil {
+			return fmt.Errorf("error reading 'parameter': %w", err)
+		}
+		delete(object, "parameter")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for ErrorMessage_Error_Errors_Source to handle AdditionalProperties
+func (a ErrorMessage_Error_Errors_Source) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.Example != nil {
+		object["example"], err = json.Marshal(a.Example)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'example': %w", err)
+		}
+	}
+
+	if a.Parameter != nil {
+		object["parameter"], err = json.Marshal(a.Parameter)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'parameter': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for ErrorMessage_Error_Errors_Item. Returns the specified
+// element and whether it was found
+func (a ErrorMessage_Error_Errors_Item) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for ErrorMessage_Error_Errors_Item
+func (a *ErrorMessage_Error_Errors_Item) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for ErrorMessage_Error_Errors_Item to handle AdditionalProperties
+func (a *ErrorMessage_Error_Errors_Item) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["code"]; found {
+		err = json.Unmarshal(raw, &a.Code)
+		if err != nil {
+			return fmt.Errorf("error reading 'code': %w", err)
+		}
+		delete(object, "code")
+	}
+
+	if raw, found := object["detail"]; found {
+		err = json.Unmarshal(raw, &a.Detail)
+		if err != nil {
+			return fmt.Errorf("error reading 'detail': %w", err)
+		}
+		delete(object, "detail")
+	}
+
+	if raw, found := object["source"]; found {
+		err = json.Unmarshal(raw, &a.Source)
+		if err != nil {
+			return fmt.Errorf("error reading 'source': %w", err)
+		}
+		delete(object, "source")
+	}
+
+	if raw, found := object["status"]; found {
+		err = json.Unmarshal(raw, &a.Status)
+		if err != nil {
+			return fmt.Errorf("error reading 'status': %w", err)
+		}
+		delete(object, "status")
+	}
+
+	if raw, found := object["title"]; found {
+		err = json.Unmarshal(raw, &a.Title)
+		if err != nil {
+			return fmt.Errorf("error reading 'title': %w", err)
+		}
+		delete(object, "title")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for ErrorMessage_Error_Errors_Item to handle AdditionalProperties
+func (a ErrorMessage_Error_Errors_Item) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.Code != nil {
+		object["code"], err = json.Marshal(a.Code)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'code': %w", err)
+		}
+	}
+
+	if a.Detail != nil {
+		object["detail"], err = json.Marshal(a.Detail)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'detail': %w", err)
+		}
+	}
+
+	if a.Source != nil {
+		object["source"], err = json.Marshal(a.Source)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'source': %w", err)
+		}
+	}
+
+	if a.Status != nil {
+		object["status"], err = json.Marshal(a.Status)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'status': %w", err)
+		}
+	}
+
+	if a.Title != nil {
+		object["title"], err = json.Marshal(a.Title)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'title': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for ErrorMessage_Error. Returns the specified
+// element and whether it was found
+func (a ErrorMessage_Error) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for ErrorMessage_Error
+func (a *ErrorMessage_Error) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for ErrorMessage_Error to handle AdditionalProperties
+func (a *ErrorMessage_Error) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["code"]; found {
+		err = json.Unmarshal(raw, &a.Code)
+		if err != nil {
+			return fmt.Errorf("error reading 'code': %w", err)
+		}
+		delete(object, "code")
+	}
+
+	if raw, found := object["errors"]; found {
+		err = json.Unmarshal(raw, &a.Errors)
+		if err != nil {
+			return fmt.Errorf("error reading 'errors': %w", err)
+		}
+		delete(object, "errors")
+	}
+
+	if raw, found := object["message"]; found {
+		err = json.Unmarshal(raw, &a.Message)
+		if err != nil {
+			return fmt.Errorf("error reading 'message': %w", err)
+		}
+		delete(object, "message")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for ErrorMessage_Error to handle AdditionalProperties
+func (a ErrorMessage_Error) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.Code != nil {
+		object["code"], err = json.Marshal(a.Code)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'code': %w", err)
+		}
+	}
+
+	if a.Errors != nil {
+		object["errors"], err = json.Marshal(a.Errors)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'errors': %w", err)
+		}
+	}
+
+	if a.Message != nil {
+		object["message"], err = json.Marshal(a.Message)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'message': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for LetterRateDetail. Returns the specified
+// element and whether it was found
+func (a LetterRateDetail) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for LetterRateDetail
+func (a *LetterRateDetail) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for LetterRateDetail to handle AdditionalProperties
+func (a *LetterRateDetail) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["SKU"]; found {
+		err = json.Unmarshal(raw, &a.SKU)
+		if err != nil {
+			return fmt.Errorf("error reading 'SKU': %w", err)
+		}
+		delete(object, "SKU")
+	}
+
+	if raw, found := object["description"]; found {
+		err = json.Unmarshal(raw, &a.Description)
+		if err != nil {
+			return fmt.Errorf("error reading 'description': %w", err)
+		}
+		delete(object, "description")
+	}
+
+	if raw, found := object["endDate"]; found {
+		err = json.Unmarshal(raw, &a.EndDate)
+		if err != nil {
+			return fmt.Errorf("error reading 'endDate': %w", err)
+		}
+		delete(object, "endDate")
+	}
+
+	if raw, found := object["extraServices"]; found {
+		err = json.Unmarshal(raw, &a.ExtraServices)
+		if err != nil {
+			return fmt.Errorf("error reading 'extraServices': %w", err)
+		}
+		delete(object, "extraServices")
+	}
+
+	if raw, found := object["fees"]; found {
+		err = json.Unmarshal(raw, &a.Fees)
+		if err != nil {
+			return fmt.Errorf("error reading 'fees': %w", err)
+		}
+		delete(object, "fees")
+	}
+
+	if raw, found := object["mailClass"]; found {
+		err = json.Unmarshal(raw, &a.MailClass)
+		if err != nil {
+			return fmt.Errorf("error reading 'mailClass': %w", err)
+		}
+		delete(object, "mailClass")
+	}
+
+	if raw, found := object["price"]; found {
+		err = json.Unmarshal(raw, &a.Price)
+		if err != nil {
+			return fmt.Errorf("error reading 'price': %w", err)
+		}
+		delete(object, "price")
+	}
+
+	if raw, found := object["priceType"]; found {
+		err = json.Unmarshal(raw, &a.PriceType)
+		if err != nil {
+			return fmt.Errorf("error reading 'priceType': %w", err)
+		}
+		delete(object, "priceType")
+	}
+
+	if raw, found := object["startDate"]; found {
+		err = json.Unmarshal(raw, &a.StartDate)
+		if err != nil {
+			return fmt.Errorf("error reading 'startDate': %w", err)
+		}
+		delete(object, "startDate")
+	}
+
+	if raw, found := object["weight"]; found {
+		err = json.Unmarshal(raw, &a.Weight)
+		if err != nil {
+			return fmt.Errorf("error reading 'weight': %w", err)
+		}
+		delete(object, "weight")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for LetterRateDetail to handle AdditionalProperties
+func (a LetterRateDetail) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.SKU != nil {
+		object["SKU"], err = json.Marshal(a.SKU)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'SKU': %w", err)
+		}
+	}
+
+	if a.Description != nil {
+		object["description"], err = json.Marshal(a.Description)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'description': %w", err)
+		}
+	}
+
+	if a.EndDate != nil {
+		object["endDate"], err = json.Marshal(a.EndDate)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'endDate': %w", err)
+		}
+	}
+
+	if a.ExtraServices != nil {
+		object["extraServices"], err = json.Marshal(a.ExtraServices)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'extraServices': %w", err)
+		}
+	}
+
+	if a.Fees != nil {
+		object["fees"], err = json.Marshal(a.Fees)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'fees': %w", err)
+		}
+	}
+
+	if a.MailClass != nil {
+		object["mailClass"], err = json.Marshal(a.MailClass)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'mailClass': %w", err)
+		}
+	}
+
+	if a.Price != nil {
+		object["price"], err = json.Marshal(a.Price)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'price': %w", err)
+		}
+	}
+
+	if a.PriceType != nil {
+		object["priceType"], err = json.Marshal(a.PriceType)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'priceType': %w", err)
+		}
+	}
+
+	if a.StartDate != nil {
+		object["startDate"], err = json.Marshal(a.StartDate)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'startDate': %w", err)
+		}
+	}
+
+	if a.Weight != nil {
+		object["weight"], err = json.Marshal(a.Weight)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'weight': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for LettersRateDetails. Returns the specified
+// element and whether it was found
+func (a LettersRateDetails) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for LettersRateDetails
+func (a *LettersRateDetails) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for LettersRateDetails to handle AdditionalProperties
+func (a *LettersRateDetails) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["SKU"]; found {
+		err = json.Unmarshal(raw, &a.SKU)
+		if err != nil {
+			return fmt.Errorf("error reading 'SKU': %w", err)
+		}
+		delete(object, "SKU")
+	}
+
+	if raw, found := object["description"]; found {
+		err = json.Unmarshal(raw, &a.Description)
+		if err != nil {
+			return fmt.Errorf("error reading 'description': %w", err)
+		}
+		delete(object, "description")
+	}
+
+	if raw, found := object["endDate"]; found {
+		err = json.Unmarshal(raw, &a.EndDate)
+		if err != nil {
+			return fmt.Errorf("error reading 'endDate': %w", err)
+		}
+		delete(object, "endDate")
+	}
+
+	if raw, found := object["extraServices"]; found {
+		err = json.Unmarshal(raw, &a.ExtraServices)
+		if err != nil {
+			return fmt.Errorf("error reading 'extraServices': %w", err)
+		}
+		delete(object, "extraServices")
+	}
+
+	if raw, found := object["fees"]; found {
+		err = json.Unmarshal(raw, &a.Fees)
+		if err != nil {
+			return fmt.Errorf("error reading 'fees': %w", err)
+		}
+		delete(object, "fees")
+	}
+
+	if raw, found := object["mailClass"]; found {
+		err = json.Unmarshal(raw, &a.MailClass)
+		if err != nil {
+			return fmt.Errorf("error reading 'mailClass': %w", err)
+		}
+		delete(object, "mailClass")
+	}
+
+	if raw, found := object["price"]; found {
+		err = json.Unmarshal(raw, &a.Price)
+		if err != nil {
+			return fmt.Errorf("error reading 'price': %w", err)
+		}
+		delete(object, "price")
+	}
+
+	if raw, found := object["priceType"]; found {
+		err = json.Unmarshal(raw, &a.PriceType)
+		if err != nil {
+			return fmt.Errorf("error reading 'priceType': %w", err)
+		}
+		delete(object, "priceType")
+	}
+
+	if raw, found := object["startDate"]; found {
+		err = json.Unmarshal(raw, &a.StartDate)
+		if err != nil {
+			return fmt.Errorf("error reading 'startDate': %w", err)
+		}
+		delete(object, "startDate")
+	}
+
+	if raw, found := object["warnings"]; found {
+		err = json.Unmarshal(raw, &a.Warnings)
+		if err != nil {
+			return fmt.Errorf("error reading 'warnings': %w", err)
+		}
+		delete(object, "warnings")
+	}
+
+	if raw, found := object["weight"]; found {
+		err = json.Unmarshal(raw, &a.Weight)
+		if err != nil {
+			return fmt.Errorf("error reading 'weight': %w", err)
+		}
+		delete(object, "weight")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for LettersRateDetails to handle AdditionalProperties
+func (a LettersRateDetails) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.SKU != nil {
+		object["SKU"], err = json.Marshal(a.SKU)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'SKU': %w", err)
+		}
+	}
+
+	if a.Description != nil {
+		object["description"], err = json.Marshal(a.Description)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'description': %w", err)
+		}
+	}
+
+	if a.EndDate != nil {
+		object["endDate"], err = json.Marshal(a.EndDate)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'endDate': %w", err)
+		}
+	}
+
+	if a.ExtraServices != nil {
+		object["extraServices"], err = json.Marshal(a.ExtraServices)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'extraServices': %w", err)
+		}
+	}
+
+	if a.Fees != nil {
+		object["fees"], err = json.Marshal(a.Fees)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'fees': %w", err)
+		}
+	}
+
+	if a.MailClass != nil {
+		object["mailClass"], err = json.Marshal(a.MailClass)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'mailClass': %w", err)
+		}
+	}
+
+	if a.Price != nil {
+		object["price"], err = json.Marshal(a.Price)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'price': %w", err)
+		}
+	}
+
+	if a.PriceType != nil {
+		object["priceType"], err = json.Marshal(a.PriceType)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'priceType': %w", err)
+		}
+	}
+
+	if a.StartDate != nil {
+		object["startDate"], err = json.Marshal(a.StartDate)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'startDate': %w", err)
+		}
+	}
+
+	if a.Warnings != nil {
+		object["warnings"], err = json.Marshal(a.Warnings)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'warnings': %w", err)
+		}
+	}
+
+	if a.Weight != nil {
+		object["weight"], err = json.Marshal(a.Weight)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'weight': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for RateDetails. Returns the specified
+// element and whether it was found
+func (a RateDetails) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for RateDetails
+func (a *RateDetails) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for RateDetails to handle AdditionalProperties
+func (a *RateDetails) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["SKU"]; found {
+		err = json.Unmarshal(raw, &a.SKU)
+		if err != nil {
+			return fmt.Errorf("error reading 'SKU': %w", err)
+		}
+		delete(object, "SKU")
+	}
+
+	if raw, found := object["description"]; found {
+		err = json.Unmarshal(raw, &a.Description)
+		if err != nil {
+			return fmt.Errorf("error reading 'description': %w", err)
+		}
+		delete(object, "description")
+	}
+
+	if raw, found := object["destinationEntryFacilityType"]; found {
+		err = json.Unmarshal(raw, &a.DestinationEntryFacilityType)
+		if err != nil {
+			return fmt.Errorf("error reading 'destinationEntryFacilityType': %w", err)
+		}
+		delete(object, "destinationEntryFacilityType")
+	}
+
+	if raw, found := object["dimWeight"]; found {
+		err = json.Unmarshal(raw, &a.DimWeight)
+		if err != nil {
+			return fmt.Errorf("error reading 'dimWeight': %w", err)
+		}
+		delete(object, "dimWeight")
+	}
+
+	if raw, found := object["endDate"]; found {
+		err = json.Unmarshal(raw, &a.EndDate)
+		if err != nil {
+			return fmt.Errorf("error reading 'endDate': %w", err)
+		}
+		delete(object, "endDate")
+	}
+
+	if raw, found := object["fees"]; found {
+		err = json.Unmarshal(raw, &a.Fees)
+		if err != nil {
+			return fmt.Errorf("error reading 'fees': %w", err)
+		}
+		delete(object, "fees")
+	}
+
+	if raw, found := object["mailClass"]; found {
+		err = json.Unmarshal(raw, &a.MailClass)
+		if err != nil {
+			return fmt.Errorf("error reading 'mailClass': %w", err)
+		}
+		delete(object, "mailClass")
+	}
+
+	if raw, found := object["price"]; found {
+		err = json.Unmarshal(raw, &a.Price)
+		if err != nil {
+			return fmt.Errorf("error reading 'price': %w", err)
+		}
+		delete(object, "price")
+	}
+
+	if raw, found := object["priceType"]; found {
+		err = json.Unmarshal(raw, &a.PriceType)
+		if err != nil {
+			return fmt.Errorf("error reading 'priceType': %w", err)
+		}
+		delete(object, "priceType")
+	}
+
+	if raw, found := object["processingCategory"]; found {
+		err = json.Unmarshal(raw, &a.ProcessingCategory)
+		if err != nil {
+			return fmt.Errorf("error reading 'processingCategory': %w", err)
+		}
+		delete(object, "processingCategory")
+	}
+
+	if raw, found := object["productDefinition"]; found {
+		err = json.Unmarshal(raw, &a.ProductDefinition)
+		if err != nil {
+			return fmt.Errorf("error reading 'productDefinition': %w", err)
+		}
+		delete(object, "productDefinition")
+	}
+
+	if raw, found := object["productName"]; found {
+		err = json.Unmarshal(raw, &a.ProductName)
+		if err != nil {
+			return fmt.Errorf("error reading 'productName': %w", err)
+		}
+		delete(object, "productName")
+	}
+
+	if raw, found := object["rateIndicator"]; found {
+		err = json.Unmarshal(raw, &a.RateIndicator)
+		if err != nil {
+			return fmt.Errorf("error reading 'rateIndicator': %w", err)
+		}
+		delete(object, "rateIndicator")
+	}
+
+	if raw, found := object["startDate"]; found {
+		err = json.Unmarshal(raw, &a.StartDate)
+		if err != nil {
+			return fmt.Errorf("error reading 'startDate': %w", err)
+		}
+		delete(object, "startDate")
+	}
+
+	if raw, found := object["weight"]; found {
+		err = json.Unmarshal(raw, &a.Weight)
+		if err != nil {
+			return fmt.Errorf("error reading 'weight': %w", err)
+		}
+		delete(object, "weight")
+	}
+
+	if raw, found := object["zone"]; found {
+		err = json.Unmarshal(raw, &a.Zone)
+		if err != nil {
+			return fmt.Errorf("error reading 'zone': %w", err)
+		}
+		delete(object, "zone")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for RateDetails to handle AdditionalProperties
+func (a RateDetails) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.SKU != nil {
+		object["SKU"], err = json.Marshal(a.SKU)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'SKU': %w", err)
+		}
+	}
+
+	if a.Description != nil {
+		object["description"], err = json.Marshal(a.Description)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'description': %w", err)
+		}
+	}
+
+	if a.DestinationEntryFacilityType != nil {
+		object["destinationEntryFacilityType"], err = json.Marshal(a.DestinationEntryFacilityType)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'destinationEntryFacilityType': %w", err)
+		}
+	}
+
+	if a.DimWeight != nil {
+		object["dimWeight"], err = json.Marshal(a.DimWeight)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'dimWeight': %w", err)
+		}
+	}
+
+	if a.EndDate != nil {
+		object["endDate"], err = json.Marshal(a.EndDate)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'endDate': %w", err)
+		}
+	}
+
+	if a.Fees != nil {
+		object["fees"], err = json.Marshal(a.Fees)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'fees': %w", err)
+		}
+	}
+
+	if a.MailClass != nil {
+		object["mailClass"], err = json.Marshal(a.MailClass)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'mailClass': %w", err)
+		}
+	}
+
+	if a.Price != nil {
+		object["price"], err = json.Marshal(a.Price)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'price': %w", err)
+		}
+	}
+
+	if a.PriceType != nil {
+		object["priceType"], err = json.Marshal(a.PriceType)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'priceType': %w", err)
+		}
+	}
+
+	if a.ProcessingCategory != nil {
+		object["processingCategory"], err = json.Marshal(a.ProcessingCategory)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'processingCategory': %w", err)
+		}
+	}
+
+	if a.ProductDefinition != nil {
+		object["productDefinition"], err = json.Marshal(a.ProductDefinition)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'productDefinition': %w", err)
+		}
+	}
+
+	if a.ProductName != nil {
+		object["productName"], err = json.Marshal(a.ProductName)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'productName': %w", err)
+		}
+	}
+
+	if a.RateIndicator != nil {
+		object["rateIndicator"], err = json.Marshal(a.RateIndicator)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'rateIndicator': %w", err)
+		}
+	}
+
+	if a.StartDate != nil {
+		object["startDate"], err = json.Marshal(a.StartDate)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'startDate': %w", err)
+		}
+	}
+
+	if a.Weight != nil {
+		object["weight"], err = json.Marshal(a.Weight)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'weight': %w", err)
+		}
+	}
+
+	if a.Zone != nil {
+		object["zone"], err = json.Marshal(a.Zone)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'zone': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for RateOption. Returns the specified
+// element and whether it was found
+func (a RateOption) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for RateOption
+func (a *RateOption) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for RateOption to handle AdditionalProperties
+func (a *RateOption) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["rates"]; found {
+		err = json.Unmarshal(raw, &a.Rates)
+		if err != nil {
+			return fmt.Errorf("error reading 'rates': %w", err)
+		}
+		delete(object, "rates")
+	}
+
+	if raw, found := object["totalBasePrice"]; found {
+		err = json.Unmarshal(raw, &a.TotalBasePrice)
+		if err != nil {
+			return fmt.Errorf("error reading 'totalBasePrice': %w", err)
+		}
+		delete(object, "totalBasePrice")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for RateOption to handle AdditionalProperties
+func (a RateOption) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.Rates != nil {
+		object["rates"], err = json.Marshal(a.Rates)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'rates': %w", err)
+		}
+	}
+
+	if a.TotalBasePrice != nil {
+		object["totalBasePrice"], err = json.Marshal(a.TotalBasePrice)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'totalBasePrice': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for TotalRatesQueryResult_RateOptions_Item. Returns the specified
+// element and whether it was found
+func (a TotalRatesQueryResult_RateOptions_Item) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for TotalRatesQueryResult_RateOptions_Item
+func (a *TotalRatesQueryResult_RateOptions_Item) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for TotalRatesQueryResult_RateOptions_Item to handle AdditionalProperties
+func (a *TotalRatesQueryResult_RateOptions_Item) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["extraServices"]; found {
+		err = json.Unmarshal(raw, &a.ExtraServices)
+		if err != nil {
+			return fmt.Errorf("error reading 'extraServices': %w", err)
+		}
+		delete(object, "extraServices")
+	}
+
+	if raw, found := object["rates"]; found {
+		err = json.Unmarshal(raw, &a.Rates)
+		if err != nil {
+			return fmt.Errorf("error reading 'rates': %w", err)
+		}
+		delete(object, "rates")
+	}
+
+	if raw, found := object["totalBasePrice"]; found {
+		err = json.Unmarshal(raw, &a.TotalBasePrice)
+		if err != nil {
+			return fmt.Errorf("error reading 'totalBasePrice': %w", err)
+		}
+		delete(object, "totalBasePrice")
+	}
+
+	if raw, found := object["totalPrice"]; found {
+		err = json.Unmarshal(raw, &a.TotalPrice)
+		if err != nil {
+			return fmt.Errorf("error reading 'totalPrice': %w", err)
+		}
+		delete(object, "totalPrice")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for TotalRatesQueryResult_RateOptions_Item to handle AdditionalProperties
+func (a TotalRatesQueryResult_RateOptions_Item) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.ExtraServices != nil {
+		object["extraServices"], err = json.Marshal(a.ExtraServices)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'extraServices': %w", err)
+		}
+	}
+
+	if a.Rates != nil {
+		object["rates"], err = json.Marshal(a.Rates)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'rates': %w", err)
+		}
+	}
+
+	if a.TotalBasePrice != nil {
+		object["totalBasePrice"], err = json.Marshal(a.TotalBasePrice)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'totalBasePrice': %w", err)
+		}
+	}
+
+	if a.TotalPrice != nil {
+		object["totalPrice"], err = json.Marshal(a.TotalPrice)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'totalPrice': %w", err)
 		}
 	}
 
@@ -239,14 +3781,34 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
-	// SearchBaseRatesWithBody request with any body
-	SearchBaseRatesWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// PostRateListWithBody request with any body
+	PostRateListWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	SearchBaseRates(ctx context.Context, body SearchBaseRatesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	PostRateList(ctx context.Context, body PostRateListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostBaseRatesSearchWithBody request with any body
+	PostBaseRatesSearchWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostBaseRatesSearch(ctx context.Context, body PostBaseRatesSearchJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostExtraServiceRatesSearchWithBody request with any body
+	PostExtraServiceRatesSearchWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostExtraServiceRatesSearch(ctx context.Context, body PostExtraServiceRatesSearchJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostLetterRatesSearchWithBody request with any body
+	PostLetterRatesSearchWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostLetterRatesSearch(ctx context.Context, body PostLetterRatesSearchJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostTotalRatesSearchWithBody request with any body
+	PostTotalRatesSearchWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostTotalRatesSearch(ctx context.Context, body PostTotalRatesSearchJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
-func (c *Client) SearchBaseRatesWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSearchBaseRatesRequestWithBody(c.Server, contentType, body)
+func (c *Client) PostRateListWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostRateListRequestWithBody(c.Server, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -257,8 +3819,8 @@ func (c *Client) SearchBaseRatesWithBody(ctx context.Context, contentType string
 	return c.Client.Do(req)
 }
 
-func (c *Client) SearchBaseRates(ctx context.Context, body SearchBaseRatesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSearchBaseRatesRequest(c.Server, body)
+func (c *Client) PostRateList(ctx context.Context, body PostRateListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostRateListRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -269,19 +3831,115 @@ func (c *Client) SearchBaseRates(ctx context.Context, body SearchBaseRatesJSONRe
 	return c.Client.Do(req)
 }
 
-// NewSearchBaseRatesRequest calls the generic SearchBaseRates builder with application/json body
-func NewSearchBaseRatesRequest(server string, body SearchBaseRatesJSONRequestBody) (*http.Request, error) {
+func (c *Client) PostBaseRatesSearchWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostBaseRatesSearchRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostBaseRatesSearch(ctx context.Context, body PostBaseRatesSearchJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostBaseRatesSearchRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostExtraServiceRatesSearchWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostExtraServiceRatesSearchRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostExtraServiceRatesSearch(ctx context.Context, body PostExtraServiceRatesSearchJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostExtraServiceRatesSearchRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostLetterRatesSearchWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostLetterRatesSearchRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostLetterRatesSearch(ctx context.Context, body PostLetterRatesSearchJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostLetterRatesSearchRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostTotalRatesSearchWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostTotalRatesSearchRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostTotalRatesSearch(ctx context.Context, body PostTotalRatesSearchJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostTotalRatesSearchRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// NewPostRateListRequest calls the generic PostRateList builder with application/json body
+func NewPostRateListRequest(server string, body PostRateListJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewSearchBaseRatesRequestWithBody(server, "application/json", bodyReader)
+	return NewPostRateListRequestWithBody(server, "application/json", bodyReader)
 }
 
-// NewSearchBaseRatesRequestWithBody generates requests for SearchBaseRates with any type of body
-func NewSearchBaseRatesRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+// NewPostRateListRequestWithBody generates requests for PostRateList with any type of body
+func NewPostRateListRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -289,7 +3947,167 @@ func NewSearchBaseRatesRequestWithBody(server string, contentType string, body i
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/prices/v3/base-rates/search")
+	operationPath := fmt.Sprintf("/base-rates-list/search")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPostBaseRatesSearchRequest calls the generic PostBaseRatesSearch builder with application/json body
+func NewPostBaseRatesSearchRequest(server string, body PostBaseRatesSearchJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostBaseRatesSearchRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPostBaseRatesSearchRequestWithBody generates requests for PostBaseRatesSearch with any type of body
+func NewPostBaseRatesSearchRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/base-rates/search")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPostExtraServiceRatesSearchRequest calls the generic PostExtraServiceRatesSearch builder with application/json body
+func NewPostExtraServiceRatesSearchRequest(server string, body PostExtraServiceRatesSearchJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostExtraServiceRatesSearchRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPostExtraServiceRatesSearchRequestWithBody generates requests for PostExtraServiceRatesSearch with any type of body
+func NewPostExtraServiceRatesSearchRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/extra-service-rates/search")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPostLetterRatesSearchRequest calls the generic PostLetterRatesSearch builder with application/json body
+func NewPostLetterRatesSearchRequest(server string, body PostLetterRatesSearchJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostLetterRatesSearchRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPostLetterRatesSearchRequestWithBody generates requests for PostLetterRatesSearch with any type of body
+func NewPostLetterRatesSearchRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/letter-rates/search")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPostTotalRatesSearchRequest calls the generic PostTotalRatesSearch builder with application/json body
+func NewPostTotalRatesSearchRequest(server string, body PostTotalRatesSearchJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostTotalRatesSearchRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPostTotalRatesSearchRequestWithBody generates requests for PostTotalRatesSearch with any type of body
+func NewPostTotalRatesSearchRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/total-rates/search")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -352,21 +4170,53 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
-	// SearchBaseRatesWithBodyWithResponse request with any body
-	SearchBaseRatesWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchBaseRatesResponse, error)
+	// PostRateListWithBodyWithResponse request with any body
+	PostRateListWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostRateListResponse, error)
 
-	SearchBaseRatesWithResponse(ctx context.Context, body SearchBaseRatesJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchBaseRatesResponse, error)
+	PostRateListWithResponse(ctx context.Context, body PostRateListJSONRequestBody, reqEditors ...RequestEditorFn) (*PostRateListResponse, error)
+
+	// PostBaseRatesSearchWithBodyWithResponse request with any body
+	PostBaseRatesSearchWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostBaseRatesSearchResponse, error)
+
+	PostBaseRatesSearchWithResponse(ctx context.Context, body PostBaseRatesSearchJSONRequestBody, reqEditors ...RequestEditorFn) (*PostBaseRatesSearchResponse, error)
+
+	// PostExtraServiceRatesSearchWithBodyWithResponse request with any body
+	PostExtraServiceRatesSearchWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostExtraServiceRatesSearchResponse, error)
+
+	PostExtraServiceRatesSearchWithResponse(ctx context.Context, body PostExtraServiceRatesSearchJSONRequestBody, reqEditors ...RequestEditorFn) (*PostExtraServiceRatesSearchResponse, error)
+
+	// PostLetterRatesSearchWithBodyWithResponse request with any body
+	PostLetterRatesSearchWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostLetterRatesSearchResponse, error)
+
+	PostLetterRatesSearchWithResponse(ctx context.Context, body PostLetterRatesSearchJSONRequestBody, reqEditors ...RequestEditorFn) (*PostLetterRatesSearchResponse, error)
+
+	// PostTotalRatesSearchWithBodyWithResponse request with any body
+	PostTotalRatesSearchWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostTotalRatesSearchResponse, error)
+
+	PostTotalRatesSearchWithResponse(ctx context.Context, body PostTotalRatesSearchJSONRequestBody, reqEditors ...RequestEditorFn) (*PostTotalRatesSearchResponse, error)
 }
 
-type SearchBaseRatesResponse struct {
+type PostRateListResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *BaseRatesSearchResponse
-	JSONDefault  *Error
+	JSON200      *BaseRatesQueryResult
+	XML200       *BaseRatesQueryResult
+	JSON400      *ErrorMessage
+	XML400       *ErrorMessage
+	JSON401      *ErrorMessage
+	XML401       *ErrorMessage
+	JSON403      *ErrorMessage
+	XML403       *ErrorMessage
+	JSON404      *ErrorMessage
+	XML404       *ErrorMessage
+	JSON429      *ErrorMessage
+	XML429       *ErrorMessage
+	JSON503      *ErrorMessage
+	XML503       *ErrorMessage
 }
 
 // Status returns HTTPResponse.Status
-func (r SearchBaseRatesResponse) Status() string {
+func (r PostRateListResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -374,57 +4224,817 @@ func (r SearchBaseRatesResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r SearchBaseRatesResponse) StatusCode() int {
+func (r PostRateListResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-// SearchBaseRatesWithBodyWithResponse request with arbitrary body returning *SearchBaseRatesResponse
-func (c *ClientWithResponses) SearchBaseRatesWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchBaseRatesResponse, error) {
-	rsp, err := c.SearchBaseRatesWithBody(ctx, contentType, body, reqEditors...)
+type PostBaseRatesSearchResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *BaseRateOption
+	XML200       *BaseRateOption
+	JSON400      *ErrorMessage
+	XML400       *ErrorMessage
+	JSON401      *ErrorMessage
+	XML401       *ErrorMessage
+	JSON403      *ErrorMessage
+	XML403       *ErrorMessage
+	JSON404      *ErrorMessage
+	XML404       *ErrorMessage
+	JSON429      *ErrorMessage
+	XML429       *ErrorMessage
+	JSON503      *ErrorMessage
+	XML503       *ErrorMessage
+}
+
+// Status returns HTTPResponse.Status
+func (r PostBaseRatesSearchResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostBaseRatesSearchResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PostExtraServiceRatesSearchResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ExtraServiceRateDetails
+	XML200       *ExtraServiceRateDetails
+	JSON400      *ErrorMessage
+	XML400       *ErrorMessage
+	JSON401      *ErrorMessage
+	XML401       *ErrorMessage
+	JSON403      *ErrorMessage
+	XML403       *ErrorMessage
+	JSON404      *ErrorMessage
+	XML404       *ErrorMessage
+	JSON429      *ErrorMessage
+	XML429       *ErrorMessage
+	JSON503      *ErrorMessage
+	XML503       *ErrorMessage
+}
+
+// Status returns HTTPResponse.Status
+func (r PostExtraServiceRatesSearchResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostExtraServiceRatesSearchResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PostLetterRatesSearchResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *LetterRatesOption
+	XML200       *LetterRatesOption
+	JSON400      *ErrorMessage
+	XML400       *ErrorMessage
+	JSON401      *ErrorMessage
+	XML401       *ErrorMessage
+	JSON403      *ErrorMessage
+	XML403       *ErrorMessage
+	JSON404      *ErrorMessage
+	XML404       *ErrorMessage
+	JSON429      *ErrorMessage
+	XML429       *ErrorMessage
+	JSON503      *ErrorMessage
+	XML503       *ErrorMessage
+}
+
+// Status returns HTTPResponse.Status
+func (r PostLetterRatesSearchResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostLetterRatesSearchResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PostTotalRatesSearchResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *TotalRatesQueryResult
+	XML200       *TotalRatesQueryResult
+	JSON400      *ErrorMessage
+	XML400       *ErrorMessage
+	JSON401      *ErrorMessage
+	XML401       *ErrorMessage
+	JSON403      *ErrorMessage
+	XML403       *ErrorMessage
+	JSON404      *ErrorMessage
+	XML404       *ErrorMessage
+	JSON429      *ErrorMessage
+	XML429       *ErrorMessage
+	JSON503      *ErrorMessage
+	XML503       *ErrorMessage
+}
+
+// Status returns HTTPResponse.Status
+func (r PostTotalRatesSearchResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostTotalRatesSearchResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// PostRateListWithBodyWithResponse request with arbitrary body returning *PostRateListResponse
+func (c *ClientWithResponses) PostRateListWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostRateListResponse, error) {
+	rsp, err := c.PostRateListWithBody(ctx, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseSearchBaseRatesResponse(rsp)
+	return ParsePostRateListResponse(rsp)
 }
 
-func (c *ClientWithResponses) SearchBaseRatesWithResponse(ctx context.Context, body SearchBaseRatesJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchBaseRatesResponse, error) {
-	rsp, err := c.SearchBaseRates(ctx, body, reqEditors...)
+func (c *ClientWithResponses) PostRateListWithResponse(ctx context.Context, body PostRateListJSONRequestBody, reqEditors ...RequestEditorFn) (*PostRateListResponse, error) {
+	rsp, err := c.PostRateList(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseSearchBaseRatesResponse(rsp)
+	return ParsePostRateListResponse(rsp)
 }
 
-// ParseSearchBaseRatesResponse parses an HTTP response from a SearchBaseRatesWithResponse call
-func ParseSearchBaseRatesResponse(rsp *http.Response) (*SearchBaseRatesResponse, error) {
+// PostBaseRatesSearchWithBodyWithResponse request with arbitrary body returning *PostBaseRatesSearchResponse
+func (c *ClientWithResponses) PostBaseRatesSearchWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostBaseRatesSearchResponse, error) {
+	rsp, err := c.PostBaseRatesSearchWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostBaseRatesSearchResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostBaseRatesSearchWithResponse(ctx context.Context, body PostBaseRatesSearchJSONRequestBody, reqEditors ...RequestEditorFn) (*PostBaseRatesSearchResponse, error) {
+	rsp, err := c.PostBaseRatesSearch(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostBaseRatesSearchResponse(rsp)
+}
+
+// PostExtraServiceRatesSearchWithBodyWithResponse request with arbitrary body returning *PostExtraServiceRatesSearchResponse
+func (c *ClientWithResponses) PostExtraServiceRatesSearchWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostExtraServiceRatesSearchResponse, error) {
+	rsp, err := c.PostExtraServiceRatesSearchWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostExtraServiceRatesSearchResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostExtraServiceRatesSearchWithResponse(ctx context.Context, body PostExtraServiceRatesSearchJSONRequestBody, reqEditors ...RequestEditorFn) (*PostExtraServiceRatesSearchResponse, error) {
+	rsp, err := c.PostExtraServiceRatesSearch(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostExtraServiceRatesSearchResponse(rsp)
+}
+
+// PostLetterRatesSearchWithBodyWithResponse request with arbitrary body returning *PostLetterRatesSearchResponse
+func (c *ClientWithResponses) PostLetterRatesSearchWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostLetterRatesSearchResponse, error) {
+	rsp, err := c.PostLetterRatesSearchWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostLetterRatesSearchResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostLetterRatesSearchWithResponse(ctx context.Context, body PostLetterRatesSearchJSONRequestBody, reqEditors ...RequestEditorFn) (*PostLetterRatesSearchResponse, error) {
+	rsp, err := c.PostLetterRatesSearch(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostLetterRatesSearchResponse(rsp)
+}
+
+// PostTotalRatesSearchWithBodyWithResponse request with arbitrary body returning *PostTotalRatesSearchResponse
+func (c *ClientWithResponses) PostTotalRatesSearchWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostTotalRatesSearchResponse, error) {
+	rsp, err := c.PostTotalRatesSearchWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostTotalRatesSearchResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostTotalRatesSearchWithResponse(ctx context.Context, body PostTotalRatesSearchJSONRequestBody, reqEditors ...RequestEditorFn) (*PostTotalRatesSearchResponse, error) {
+	rsp, err := c.PostTotalRatesSearch(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostTotalRatesSearchResponse(rsp)
+}
+
+// ParsePostRateListResponse parses an HTTP response from a PostRateListWithResponse call
+func ParsePostRateListResponse(rsp *http.Response) (*PostRateListResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &SearchBaseRatesResponse{
+	response := &PostRateListResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest BaseRatesSearchResponse
+		var dest BaseRatesQueryResult
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
 		response.JSON200 = &dest
 
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
-		var dest Error
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorMessage
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
-		response.JSONDefault = &dest
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 200:
+		var dest BaseRatesQueryResult
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 404:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostBaseRatesSearchResponse parses an HTTP response from a PostBaseRatesSearchWithResponse call
+func ParsePostBaseRatesSearchResponse(rsp *http.Response) (*PostBaseRatesSearchResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostBaseRatesSearchResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest BaseRateOption
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 200:
+		var dest BaseRateOption
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 404:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostExtraServiceRatesSearchResponse parses an HTTP response from a PostExtraServiceRatesSearchWithResponse call
+func ParsePostExtraServiceRatesSearchResponse(rsp *http.Response) (*PostExtraServiceRatesSearchResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostExtraServiceRatesSearchResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ExtraServiceRateDetails
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 200:
+		var dest ExtraServiceRateDetails
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 404:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostLetterRatesSearchResponse parses an HTTP response from a PostLetterRatesSearchWithResponse call
+func ParsePostLetterRatesSearchResponse(rsp *http.Response) (*PostLetterRatesSearchResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostLetterRatesSearchResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest LetterRatesOption
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 200:
+		var dest LetterRatesOption
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 404:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostTotalRatesSearchResponse parses an HTTP response from a PostTotalRatesSearchWithResponse call
+func ParsePostTotalRatesSearchResponse(rsp *http.Response) (*PostTotalRatesSearchResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostTotalRatesSearchResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest TotalRatesQueryResult
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 200:
+		var dest TotalRatesQueryResult
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 404:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML503 = &dest
 
 	}
 

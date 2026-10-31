@@ -12,13 +12,15 @@
 | 路径 | 作用 |
 |------|------|
 | `usps/` | 手写 facade |
+| `specs/` | 门户 OpenAPI YAML（已提交） |
 | `internal/generated/...` | `oapi-codegen` 产物（已提交） |
-| `scripts/` + `generate.sh` | 解析 YAML → 预处理 → 生成 |
-| `.cache/specs/` | OpenAPI 种子（**不入库**） |
+| `scripts/` + `generate.sh` | `specs/` → 预处理 → 生成 |
 
 ## 重新生成
 
 ```bash
+make generate
 SPEC_DIR=/path/to/portal-downloads make generate
-SPEC_LOCAL_DIR=/path/to/yamls make generate
 ```
+
+详情见 [`specs/README.md`](./specs/README.md)。

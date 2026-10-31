@@ -12,17 +12,32 @@ Unofficial Go SDK for [USPS REST APIs v3](https://developer.usps.com/), generate
 | Path | Purpose |
 |------|---------|
 | `usps/` | Hand-written facade (OAuth, Payments, typed API accessors) |
-| `internal/generated/{addresses,labels,prices,tracking}/` | `oapi-codegen` output (committed so `go get` works) |
-| `scripts/` + `generate.sh` | Resolve YAML → preprocess → generate |
-| `.cache/specs/` | OpenAPI seeds (**gitignored**, never commit) |
-
-Official OpenAPI files are **not** stored in git. Portal YAML is gated — use `SPEC_DIR` or `SPEC_LOCAL_DIR`.
+| `specs/` | Portal OpenAPI YAML (**committed**) |
+| `internal/generated/<api>/` | `oapi-codegen` output (committed so `go get` works) |
+| `scripts/` + `generate.sh` | `specs/` → preprocess → generate |
+| `.cache/specs/` | Local preprocess cache (gitignored) |
 
 ## Install
 
 ```bash
 go get github.com/befship/usps-sdk@latest
 ```
+
+## Specs in this repo
+
+Official portal downloads live under [`specs/`](./specs/). See [`specs/README.md`](./specs/README.md).
+
+完整对照见 [`specs/README.md`](./specs/README.md)。本次新增并已 codegen：
+
+| Spec | Package |
+|------|---------|
+| `oauth2.yaml` | `oauth2` |
+| `payments.yaml` | `payments` |
+| `international-prices.yaml` | `internationalprices` |
+| `locations.yaml` | `locations` |
+| `service-standards.yaml` | `servicestandards` |
+| `service-standards-files.yaml` | `servicestandardsfiles` |
+| `shipment-tracking.yaml` | `shipmenttracking` |
 
 ## Quick start
 
@@ -47,16 +62,18 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("ready", usps.BaseURL(client.Environment()), api != nil)
+	fmt.Println("ready", usps.ServerURL(client.Environment(), "addresses"), api != nil)
 }
 ```
 
 ## Endpoints
 
-| Environment | Base URL |
+| Environment | Host |
 |---|---|
 | TEM / test (`tem`) | `https://apis-tem.usps.com` |
 | Production | `https://apis.usps.com` |
+
+Per-API bases (e.g. `.../labels/v3`) come from `ServerURL(env, package)`.
 
 - Auth: OAuth 2.0 V3 (`POST /oauth2/v3/token`)
 - Labels need Payments (`POST /payments/v3/payment-authorization`)
@@ -64,13 +81,12 @@ func main() {
 ## Regenerate
 
 ```bash
-# Portal downloads (filename globs in scripts/manifest.yaml)
-SPEC_DIR=/path/to/usps-openapi-downloads make generate
+make generate
 
-# Focused / local YAML seeds (addresses|labels|prices|tracking).openapi.yml
-SPEC_LOCAL_DIR=/path/to/yamls make generate
+# Optional: use another directory of portal YAMLs
+SPEC_DIR=/path/to/usps-openapi-downloads make generate
 ```
 
 ## License
 
-Hand-written code: MIT. Generated clients: subject to USPS API terms. See `LICENSE` and `DISCLAIMER.md`.
+Hand-written code: MIT. Generated clients / committed OpenAPI: subject to USPS API terms. See `LICENSE` and `DISCLAIMER.md`.

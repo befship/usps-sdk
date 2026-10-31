@@ -1,10 +1,8 @@
 # USPS REST v3 OpenAPI manifest (multi-API, UPS-style).
-# Official YAML is portal-gated — never committed.
-# Place portal downloads in SPEC_DIR, or seed .cache/specs via SPEC_LOCAL_DIR.
+# Specs live in specs/ (committed portal downloads).
 #
 #   make generate
-#   SPEC_DIR=/path/to/portal-yamls make generate
-#   SPEC_LOCAL_DIR=/path/to/focused-yamls make generate
+#   SPEC_DIR=/path/to/other-yamls make generate   # optional override
 
 server_tem: https://apis-tem.usps.com
 server_prod: https://apis.usps.com
@@ -12,31 +10,166 @@ server_prod: https://apis.usps.com
 apis:
   - id: addresses
     package: addresses
-    file: addresses.openapi.yml
+    file: addresses-v3r2.yaml
+    server_tem: https://apis-tem.usps.com/addresses/v3
+    server_prod: https://apis.usps.com/addresses/v3
     portal_globs:
-      - "*[Aa]ddress*.yaml"
-      - "*[Aa]ddress*.yml"
-      - "*[Aa]ddress*.json"
+      - "addresses-v3r2.yaml"
+      - "*[Aa]ddresses-v3*.yaml"
 
   - id: labels
     package: labels
-    file: labels.openapi.yml
+    file: labels.yaml
+    server_tem: https://apis-tem.usps.com/labels/v3
+    server_prod: https://apis.usps.com/labels/v3
     portal_globs:
-      - "*[Ll]abel*.yaml"
-      - "*[Ll]abel*.yml"
-      - "*Domestic*Label*.yaml"
+      - "labels.yaml"
+      - "labels_*.yaml"
 
   - id: prices
     package: prices
-    file: prices.openapi.yml
+    file: domestic-prices.yaml
+    server_tem: https://apis-tem.usps.com/prices/v3
+    server_prod: https://apis.usps.com/prices/v3
     portal_globs:
-      - "*[Pp]rice*.yaml"
-      - "*[Pp]rice*.yml"
-      - "*Domestic*Price*.yaml"
+      - "domestic-prices.yaml"
+      - "*[Dd]omestic*[Pp]rice*.yaml"
 
   - id: tracking
     package: tracking
-    file: tracking.openapi.yml
+    file: tracking-v3r2.yaml
+    # Portal lists production only; TEM host mirrors the same path.
+    server_tem: https://apis-tem.usps.com/tracking/v3r2
+    server_prod: https://apis.usps.com/tracking/v3r2
     portal_globs:
-      - "*[Tt]rack*.yaml"
-      - "*[Tt]rack*.yml"
+      - "tracking-v3r2.yaml"
+      - "tracking-v3*.yaml"
+
+  - id: oauth2
+    package: oauth2
+    file: oauth2.yaml
+    server_tem: https://apis-tem.usps.com/oauth2/v3
+    server_prod: https://apis.usps.com/oauth2/v3
+    portal_globs:
+      - "oauth2.yaml"
+      - "*[Oo]auth2*.yaml"
+
+  - id: payments
+    package: payments
+    file: payments.yaml
+    server_tem: https://apis-tem.usps.com/payments/v3
+    server_prod: https://apis.usps.com/payments/v3
+    portal_globs:
+      - "payments.yaml"
+      - "*[Pp]ayment*.yaml"
+
+  - id: shippingoptions
+    package: shippingoptions
+    file: shipping-options.yaml
+    server_tem: https://apis-tem.usps.com/shipments/v3
+    server_prod: https://apis.usps.com/shipments/v3
+    portal_globs:
+      - "shipping-options.yaml"
+      - "*[Ss]hipping*[Oo]ption*.yaml"
+
+  - id: internationallabels
+    package: internationallabels
+    file: international-labels.yaml
+    server_tem: https://apis-tem.usps.com/international-labels/v3
+    server_prod: https://apis.usps.com/international-labels/v3
+    portal_globs:
+      - "international-labels.yaml"
+      - "*[Ii]nternational*[Ll]abel*.yaml"
+
+  - id: internationalprices
+    package: internationalprices
+    file: international-prices.yaml
+    server_tem: https://apis-tem.usps.com/international-prices/v3
+    server_prod: https://apis.usps.com/international-prices/v3
+    portal_globs:
+      - "international-prices.yaml"
+      - "*[Ii]nternational*[Pp]rice*.yaml"
+
+  - id: locations
+    package: locations
+    file: locations.yaml
+    server_tem: https://apis-tem.usps.com/locations/v3
+    server_prod: https://apis.usps.com/locations/v3
+    portal_globs:
+      - "locations.yaml"
+      - "*[Ll]ocation*.yaml"
+
+  - id: servicestandards
+    package: servicestandards
+    file: service-standards.yaml
+    server_tem: https://apis-tem.usps.com/service-standards/v3
+    server_prod: https://apis.usps.com/service-standards/v3
+    portal_globs:
+      - "service-standards.yaml"
+      - "service-standards_*.yaml"
+
+  - id: servicestandardsfiles
+    package: servicestandardsfiles
+    file: service-standards-files.yaml
+    server_tem: https://apis-tem.usps.com/service-standards-files/v3
+    server_prod: https://apis.usps.com/service-standards-files/v3
+    portal_globs:
+      - "service-standards-files.yaml"
+      - "*[Ss]ervice*[Ss]tandards*[Ff]ile*.yaml"
+
+  - id: shipmenttracking
+    package: shipmenttracking
+    file: shipment-tracking.yaml
+    server_tem: https://apis-tem.usps.com/logistics/v3
+    server_prod: https://apis.usps.com/logistics/v3
+    portal_globs:
+      - "shipment-tracking.yaml"
+      - "*[Ss]hipment*[Tt]rack*.yaml"
+
+  - id: carrierpickup
+    package: carrierpickup
+    file: carrier-pickup.yaml
+    server_tem: https://apis-tem.usps.com/pickup/v3
+    server_prod: https://apis.usps.com/pickup/v3
+    portal_globs:
+      - "carrier-pickup.yaml"
+      - "*[Cc]arrier*[Pp]ickup*.yaml"
+
+  - id: containers
+    package: containers
+    file: containers.yaml
+    server_tem: https://apis-tem.usps.com/containers/v3
+    server_prod: https://apis.usps.com/containers/v3
+    portal_globs:
+      - "containers.yaml"
+      - "*[Cc]ontainer*.yaml"
+
+  - id: appointments
+    package: appointments
+    file: appointments.yaml
+    server_tem: https://apis-tem.usps.com/fast-appointments/v3
+    server_prod: https://apis.usps.com/fast-appointments/v3
+    portal_globs:
+      - "appointments.yaml"
+      - "*[Aa]ppointment*.yaml"
+
+  - id: adjustments
+    package: adjustments
+    file: adjustments.yaml
+    server_tem: https://apis-tem.usps.com/adjustments/v3
+    server_prod: https://apis.usps.com/adjustments/v3
+    portal_globs:
+      - "adjustments.yaml"
+      - "*[Aa]djustment*.yaml"
+
+  - id: shipenrollment
+    package: shipenrollment
+    file: ship-enrollment.yaml
+    server_tem: https://apis-tem.usps.com/ship-enrollment/v3
+    server_prod: https://apis.usps.com/ship-enrollment/v3
+    portal_globs:
+      - "ship-enrollment.yaml"
+      - "*[Ee]nroll*.yaml"
+
+  # userinfo.yaml is kept under specs/ but skipped: oapi-codegen rejects AllOf ReadOnly merge
+  # on ResourceOwnerClaims. Re-enable when codegen/spec is fixed.

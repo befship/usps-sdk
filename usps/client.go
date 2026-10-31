@@ -284,6 +284,15 @@ func bearerEditor(tok string) func(context.Context, *http.Request) error {
 	}
 }
 
+// apiBase returns a path-qualified API base (e.g. .../labels/v3).
+// Creds.BaseURL, when set, overrides the entire base URL (must include API path).
+func (c *Client) apiBase(cr Creds, pkg string) string {
+	if strings.TrimSpace(cr.BaseURL) != "" {
+		return strings.TrimRight(strings.TrimSpace(cr.BaseURL), "/")
+	}
+	return ServerURL(cr.Environment, pkg)
+}
+
 // Addresses returns a typed Addresses client with Bearer auth.
 func (c *Client) Addresses(ctx context.Context, cr Creds) (*AddressesClient, error) {
 	cr = c.resolveCreds(cr)
@@ -292,7 +301,7 @@ func (c *Client) Addresses(ctx context.Context, cr Creds) (*AddressesClient, err
 		return nil, err
 	}
 	return addresses.NewClientWithResponses(
-		BaseURLFromCreds(cr),
+		c.apiBase(cr, "addresses"),
 		addresses.WithHTTPClient(c.HTTP),
 		addresses.WithRequestEditorFn(bearerEditor(tok)),
 	)
@@ -306,7 +315,7 @@ func (c *Client) Prices(ctx context.Context, cr Creds) (*PricesClient, error) {
 		return nil, err
 	}
 	return prices.NewClientWithResponses(
-		BaseURLFromCreds(cr),
+		c.apiBase(cr, "prices"),
 		prices.WithHTTPClient(c.HTTP),
 		prices.WithRequestEditorFn(bearerEditor(tok)),
 	)
@@ -320,7 +329,7 @@ func (c *Client) Tracking(ctx context.Context, cr Creds) (*TrackingClient, error
 		return nil, err
 	}
 	return tracking.NewClientWithResponses(
-		BaseURLFromCreds(cr),
+		c.apiBase(cr, "tracking"),
 		tracking.WithHTTPClient(c.HTTP),
 		tracking.WithRequestEditorFn(bearerEditor(tok)),
 	)
@@ -336,7 +345,7 @@ func (c *Client) Labels(ctx context.Context, cr Creds) (*LabelsClient, error) {
 		return nil, err
 	}
 	return labels.NewClientWithResponses(
-		BaseURLFromCreds(cr),
+		c.apiBase(cr, "labels"),
 		labels.WithHTTPClient(c.HTTP),
 		labels.WithRequestEditorFn(bearerEditor(tok)),
 	)

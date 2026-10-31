@@ -4,114 +4,538 @@
 package tracking
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/oapi-codegen/runtime"
+	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
 const (
-	BearerAuthScopes = "bearerAuth.Scopes"
+	OAuthScopes = "OAuth.Scopes"
 )
 
-// Defines values for GetPackageTrackingParamsExpand.
+// Defines values for NotifyEventType.
 const (
-	DETAIL  GetPackageTrackingParamsExpand = "DETAIL"
-	SUMMARY GetPackageTrackingParamsExpand = "SUMMARY"
+	ALLUPDATES       NotifyEventType = "ALL_UPDATES"
+	DELIVERYACTIVITY NotifyEventType = "DELIVERY_ACTIVITY"
+	EXPECTEDDELIVERY NotifyEventType = "EXPECTED_DELIVERY"
 )
 
-// Error defines model for Error.
-type Error map[string]interface{}
+// Defines values for ProofOfDeliveryRequestLetterType.
+const (
+	PROOFOFDELIVERY         ProofOfDeliveryRequestLetterType = "PROOF_OF_DELIVERY"
+	RETURNRECEIPTELECTRONIC ProofOfDeliveryRequestLetterType = "RETURN_RECEIPT_ELECTRONIC"
+)
 
-// ProofOfDelivery defines model for ProofOfDelivery.
-type ProofOfDelivery struct {
-	Image                *string                `json:"image,omitempty"`
-	Name                 *string                `json:"name,omitempty"`
-	Url                  *string                `json:"url,omitempty"`
+// Defines values for SharedTrackingDetailAccessControl.
+const (
+	SharedTrackingDetailAccessControlFREE        SharedTrackingDetailAccessControl = "FREE"
+	SharedTrackingDetailAccessControlIPAGREEMENT SharedTrackingDetailAccessControl = "IP_AGREEMENT"
+)
+
+// Defines values for TrackingDetailAccessControl.
+const (
+	TrackingDetailAccessControlFREE        TrackingDetailAccessControl = "FREE"
+	TrackingDetailAccessControlIPAGREEMENT TrackingDetailAccessControl = "IP_AGREEMENT"
+)
+
+// AllEventDate defines model for AllEventDate.
+type AllEventDate = string
+
+// AllGuaranteedDeliveryTimes Guaranteed Delivery information, if available. Value may follow date, date and time, or text format (e.g. YYYY-MM-DD, YYYY-MM-DDTHH:MI, or "# Business Days").
+type AllGuaranteedDeliveryTimes = string
+
+// DeliveryDateExpectation Detailed tracking information relative to when the item is expected to arrive.
+type DeliveryDateExpectation struct {
+	// EndOfDay The end of day timeframe provided is the estimated timeframe by when the carrier will attempt to deliver the package.
+	EndOfDay *string `json:"endOfDay,omitempty"`
+
+	// ExpectedDeliveryDate Indicates the Expected Delivery Date for an item, if available.
+	ExpectedDeliveryDate *openapi_types.Date `json:"expectedDeliveryDate,omitempty"`
+
+	// GuaranteedDeliveryDate Guaranteed Delivery information, if available. Value may follow date, date and time, or text format (e.g. YYYY-MM-DD, YYYY-MM-DDTHH:MI, or "# Business Days").
+	GuaranteedDeliveryDate *AllGuaranteedDeliveryTimes `json:"guaranteedDeliveryDate,omitempty"`
+
+	// GuaranteedDetails Special messaging related to the guarantee.
+	GuaranteedDetails *string `json:"guaranteedDetails,omitempty"`
+
+	// PredictedDeliveryDate The Predicted Delivery Date for the item, if available.
+	PredictedDeliveryDate *openapi_types.Date `json:"predictedDeliveryDate,omitempty"`
+
+	// PredictedDeliverySource The source providing Predicted Delivery details for the item.
+	PredictedDeliverySource *string `json:"predictedDeliverySource,omitempty"`
+
+	// PredictedDeliveryWindowEndTime The Predicted Delivery Window end time.
+	PredictedDeliveryWindowEndTime *string `json:"predictedDeliveryWindowEndTime,omitempty"`
+
+	// PredictedDeliveryWindowStartTime The Predicted Delivery Window start time.
+	PredictedDeliveryWindowStartTime *string `json:"predictedDeliveryWindowStartTime,omitempty"`
+}
+
+// ErrorMessage Standard error message response.
+type ErrorMessage struct {
+	// ApiVersion The version of the API that was used and that raised the error.
+	ApiVersion *string `json:"apiVersion,omitempty"`
+
+	// Error The high-level error that has occurred as indicated by the status code.
+	Error                *ErrorMessage_Error    `json:"error,omitempty"`
 	AdditionalProperties map[string]interface{} `json:"-"`
 }
 
-// TrackingEvent defines model for TrackingEvent.
+// ErrorMessage_Error_Errors_Source The element that is suspected of originating the error.  Helps to pinpoint the problem.
+type ErrorMessage_Error_Errors_Source struct {
+	// Example An example of a valid value for the input parameter.
+	Example *string `json:"example,omitempty"`
+
+	// Parameter The input in the request which caused an error.
+	Parameter            *string                `json:"parameter,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// ErrorMessage_Error_Errors_Item defines model for ErrorMessage.Error.Errors.Item.
+type ErrorMessage_Error_Errors_Item struct {
+	// Code An internal subordinate code used for error diagnosis.
+	Code *string `json:"code,omitempty"`
+
+	// Detail A human-readable description of the error that occurred.
+	Detail *string `json:"detail,omitempty"`
+
+	// Source The element that is suspected of originating the error.  Helps to pinpoint the problem.
+	Source *ErrorMessage_Error_Errors_Source `json:"source,omitempty"`
+
+	// Status The status code response returned to the client.
+	Status *string `json:"status,omitempty"`
+
+	// Title A human-readable title that identifies the error.
+	Title                *string                `json:"title,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// ErrorMessage_Error The high-level error that has occurred as indicated by the status code.
+type ErrorMessage_Error struct {
+	// Code The error status code that has been returned in response to the request.
+	Code   *string                           `json:"code,omitempty"`
+	Errors *[]ErrorMessage_Error_Errors_Item `json:"errors,omitempty"`
+
+	// Message A human-readable message describing the error.
+	Message              *string                `json:"message,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// EventDate The date of the event.
+type EventDate = openapi_types.Date
+
+// EventDateTime The date and time of the event.
+type EventDateTime = time.Time
+
+// FailureResponse Standard error message response.
+type FailureResponse = ErrorMessage
+
+// GuaranteedDeliveryDate Guaranteed Delivery Date, date only.
+type GuaranteedDeliveryDate = openapi_types.Date
+
+// GuaranteedDeliveryText Guaranteed Delivery Date, text only (e.g. 3 Business Days).
+type GuaranteedDeliveryText = string
+
+// GuaranteedDeliveryTimestamp Guaranteed Delivery Date, date and time.
+type GuaranteedDeliveryTimestamp = time.Time
+
+// MailingDate Used to reconcile duplicate tracking number scenarios.
+type MailingDate = openapi_types.Date
+
+// MultiStatusResponse An array of detailed tracking event information for the requested tracking number in reverse chronological order.
+type MultiStatusResponse = []MultiStatusResponse_Item
+
+// MultiStatusResponse_Item defines model for MultiStatusResponse.Item.
+type MultiStatusResponse_Item struct {
+	union json.RawMessage
+}
+
+// NotifyEventType The tracking activity notification options.
+type NotifyEventType string
+
+// ProofOfDeliveryAcknowledgement The delivery record request response.
+type ProofOfDeliveryAcknowledgement struct {
+	// TransactionMessage The message returned to the user.
+	TransactionMessage *string `json:"transactionMessage,omitempty"`
+}
+
+// ProofOfDeliveryRecipient defines model for ProofOfDeliveryRecipient.
+type ProofOfDeliveryRecipient = Recipient
+
+// ProofOfDeliveryRequest defines model for ProofOfDeliveryRequest.
+type ProofOfDeliveryRequest struct {
+	// CRID Unique 10-byte numeric value that’s associated to each user. A Customer Registration Identification number (CRID) is a USPS-generated numeric code that uniquely identifies a business at a location.
+	CRID *string `json:"CRID,omitempty"`
+
+	// LetterType The requested notification: Proof of Delivery (POD) or Return Receipt Electronic (RRE).
+	LetterType *ProofOfDeliveryRequestLetterType `json:"letterType,omitempty"`
+
+	// MailingDate The mailing date provided in the Tracking Detail API response.
+	MailingDate *openapi_types.Date `json:"mailingDate,omitempty"`
+
+	// Recipients The contact information for up to 3 recipients.
+	Recipients []ProofOfDeliveryRecipient `json:"recipients"`
+
+	// UniqueTrackingID The unique tracking identifier provided in the Tracking Detail API response.
+	UniqueTrackingID string `json:"uniqueTrackingID"`
+}
+
+// ProofOfDeliveryRequestLetterType The requested notification: Proof of Delivery (POD) or Return Receipt Electronic (RRE).
+type ProofOfDeliveryRequestLetterType string
+
+// Recipient defines model for Recipient.
+type Recipient struct {
+	// Email The email address of the recipient.
+	Email openapi_types.Email `json:"email"`
+
+	// FirstName The notification recipient first name.
+	FirstName *string `json:"firstName,omitempty"`
+
+	// LastName The notification recipient last name.
+	LastName *string `json:"lastName,omitempty"`
+}
+
+// ServicesEligibility Indicates whether item is eligible for various services.
+type ServicesEligibility struct {
+	// RREEnabled Signifies if Return Receipt Electronic service is enabled.
+	RREEnabled bool `json:"RREEnabled"`
+
+	// ProofOfDeliveryEnabled Signifies if Proof of Delivery service is enabled.
+	ProofOfDeliveryEnabled bool `json:"proofOfDeliveryEnabled"`
+
+	// TrackingProofOfDeliveryEnabled Signifies if Tracking Proof of Delivery service is enabled.
+	TrackingProofOfDeliveryEnabled bool `json:"trackingProofOfDeliveryEnabled"`
+}
+
+// SharedTrackingDetail Shared tracking attributes between internal and external requests.
+type SharedTrackingDetail struct {
+	// AccessControl Details on if the Tracking request was free or charged based on MID access through an IP Agreement.
+	//
+	// - `FREE` - The Tracking request was free.
+	// - `IP_AGREEMENT` - The tracking request was charged based on MID access through an IP Agreement.
+	AccessControl *SharedTrackingDetailAccessControl `json:"accessControl,omitempty"`
+
+	// AssociatedTrackingNumber Additional tracking number on the item.
+	AssociatedTrackingNumber *string `json:"associatedTrackingNumber,omitempty"`
+
+	// DestinationCity The destination city. *Note: This field is no longer available as of June 2025.*
+	DestinationCity *string `json:"destinationCity,omitempty"`
+
+	// DestinationCountry The two-character destination country code. *Note: This field is no longer available as of June 2025.*
+	DestinationCountry *string `json:"destinationCountry,omitempty"`
+
+	// DestinationState The two-character state code. *Note: This field is no longer available as of June 2025.*
+	DestinationState *State `json:"destinationState,omitempty"`
+
+	// DestinationZIPCode The destination ZIP Code&#8482;. *Note: This field is no longer available as of June 2025.*
+	DestinationZIPCode *string `json:"destinationZIPCode,omitempty"`
+
+	// KahalaIndicator Kahala Posts Group (KPG) member indicator.
+	KahalaIndicator *bool `json:"kahalaIndicator,omitempty"`
+
+	// MailClass Indicates the mail class of the item.
+	MailClass *string `json:"mailClass,omitempty"`
+
+	// MailClassCode Indicates the abbreviated mail class of the item.
+	MailClassCode *string `json:"mailClassCode,omitempty"`
+
+	// MailType Indicates the mail type of the item (e.g. Domestic, International Inbound, Military Outbound).
+	MailType *string `json:"mailType,omitempty"`
+
+	// MailingDate Used to reconcile duplicate tracking number scenarios.
+	MailingDate *MailingDate `json:"mailingDate,omitempty"`
+
+	// OriginCity The origin city. *Note: This field is no longer available as of June 2025.*
+	OriginCity *string `json:"originCity,omitempty"`
+
+	// OriginCountry The two-character origin country code. *Note: This field is no longer available as of June 2025.*
+	OriginCountry *string `json:"originCountry,omitempty"`
+
+	// OriginState The two-character state code. *Note: This field is no longer available as of June 2025.*
+	OriginState *State `json:"originState,omitempty"`
+
+	// OriginZIPCode The origin ZIP Code&#8482;. *Note: This field is no longer available as of June 2025.*
+	OriginZIPCode *string `json:"originZIPCode,omitempty"`
+
+	// ServiceTypeCode The service type code of the item. Refer to USPS&#174; [Pub 199](http://postalpro.usps.com/pub199) Appendix I: Intelligent Mail Package Barcode Service Type Codes for all possible published values.
+	ServiceTypeCode *string `json:"serviceTypeCode,omitempty"`
+
+	// Services Additional services on the item. May be purchased or inherent to the product. Refer to USPS&#174; [Pub 199](http://postalpro.usps.com/pub199) Appendix J: Table 7 Extra Service Codes for all possible published values.
+	Services *[]string `json:"services,omitempty"`
+
+	// Status The item status.  Refer to USPS&#174; [Pub 199](http://postalpro.usps.com/pub199) Appendix G-4: USPS Domestic Tracking Scan Events and Appendix G-5: Scan Event Codes - International Mail for all possible values.
+	Status *string `json:"status,omitempty"`
+
+	// StatusCategory The item status category.  Refer to USPS&#174; [Pub 199](http://postalpro.usps.com/pub199) Appendix G-4: USPS Domestic Tracking Scan Events and Appendix G-5: Scan Event Codes - International Mail for all possible values.
+	StatusCategory *string `json:"statusCategory,omitempty"`
+
+	// StatusSummary The status summary.
+	StatusSummary *string `json:"statusSummary,omitempty"`
+
+	// TrackingNumber The human-readable representation of the item, commonly known as a tracking number.
+	TrackingNumber *string `json:"trackingNumber,omitempty"`
+
+	// UniqueTrackingID The unique tracking identifier used to reconcile duplicate tracking number scenarios.
+	UniqueTrackingID *string `json:"uniqueTrackingID,omitempty"`
+}
+
+// SharedTrackingDetailAccessControl Details on if the Tracking request was free or charged based on MID access through an IP Agreement.
+//
+// - `FREE` - The Tracking request was free.
+// - `IP_AGREEMENT` - The tracking request was charged based on MID access through an IP Agreement.
+type SharedTrackingDetailAccessControl string
+
+// State The two-character state code. *Note: This field is no longer available as of June 2025.*
+type State = string
+
+// SuccessResponse The detailed tracking event information for the requested tracking number in reverse chronological order.
+type SuccessResponse = TrackingDetail
+
+// TrackingDetail defines model for TrackingDetail.
+type TrackingDetail struct {
+	// AccessControl Details on if the Tracking request was free or charged based on MID access through an IP Agreement.
+	//
+	// - `FREE` - The Tracking request was free.
+	// - `IP_AGREEMENT` - The tracking request was charged based on MID access through an IP Agreement.
+	AccessControl *TrackingDetailAccessControl `json:"accessControl,omitempty"`
+
+	// AssociatedTrackingNumber Additional tracking number on the item.
+	AssociatedTrackingNumber *string `json:"associatedTrackingNumber,omitempty"`
+
+	// DeliveryDateExpectation Detailed tracking information relative to when the item is expected to arrive.
+	DeliveryDateExpectation *DeliveryDateExpectation `json:"deliveryDateExpectation,omitempty"`
+
+	// DestinationCity The destination city. *Note: This field is no longer available as of June 2025.*
+	DestinationCity *string `json:"destinationCity,omitempty"`
+
+	// DestinationCountry The two-character destination country code. *Note: This field is no longer available as of June 2025.*
+	DestinationCountry *string `json:"destinationCountry,omitempty"`
+
+	// DestinationState The two-character state code. *Note: This field is no longer available as of June 2025.*
+	DestinationState *State `json:"destinationState,omitempty"`
+
+	// DestinationZIPCode The destination ZIP Code&#8482;. *Note: This field is no longer available as of June 2025.*
+	DestinationZIPCode *string `json:"destinationZIPCode,omitempty"`
+
+	// KahalaIndicator Kahala Posts Group (KPG) member indicator.
+	KahalaIndicator *bool `json:"kahalaIndicator,omitempty"`
+
+	// MailClass Indicates the mail class of the item.
+	MailClass *string `json:"mailClass,omitempty"`
+
+	// MailClassCode Indicates the abbreviated mail class of the item.
+	MailClassCode *string `json:"mailClassCode,omitempty"`
+
+	// MailType Indicates the mail type of the item (e.g. Domestic, International Inbound, Military Outbound).
+	MailType *string `json:"mailType,omitempty"`
+
+	// MailingDate Used to reconcile duplicate tracking number scenarios.
+	MailingDate *MailingDate `json:"mailingDate,omitempty"`
+
+	// OriginCity The origin city. *Note: This field is no longer available as of June 2025.*
+	OriginCity *string `json:"originCity,omitempty"`
+
+	// OriginCountry The two-character origin country code. *Note: This field is no longer available as of June 2025.*
+	OriginCountry *string `json:"originCountry,omitempty"`
+
+	// OriginState The two-character state code. *Note: This field is no longer available as of June 2025.*
+	OriginState *State `json:"originState,omitempty"`
+
+	// OriginZIPCode The origin ZIP Code&#8482;. *Note: This field is no longer available as of June 2025.*
+	OriginZIPCode *string `json:"originZIPCode,omitempty"`
+
+	// ServiceTypeCode The service type code of the item. Refer to USPS&#174; [Pub 199](http://postalpro.usps.com/pub199) Appendix I: Intelligent Mail Package Barcode Service Type Codes for all possible published values.
+	ServiceTypeCode *string `json:"serviceTypeCode,omitempty"`
+
+	// Services Additional services on the item. May be purchased or inherent to the product. Refer to USPS&#174; [Pub 199](http://postalpro.usps.com/pub199) Appendix J: Table 7 Extra Service Codes for all possible published values.
+	Services *[]string `json:"services,omitempty"`
+
+	// ServicesEligibility Indicates whether item is eligible for various services.
+	ServicesEligibility *ServicesEligibility `json:"servicesEligibility,omitempty"`
+
+	// Status The item status.  Refer to USPS&#174; [Pub 199](http://postalpro.usps.com/pub199) Appendix G-4: USPS Domestic Tracking Scan Events and Appendix G-5: Scan Event Codes - International Mail for all possible values.
+	Status *string `json:"status,omitempty"`
+
+	// StatusCategory The item status category.  Refer to USPS&#174; [Pub 199](http://postalpro.usps.com/pub199) Appendix G-4: USPS Domestic Tracking Scan Events and Appendix G-5: Scan Event Codes - International Mail for all possible values.
+	StatusCategory *string `json:"statusCategory,omitempty"`
+
+	// StatusSummary The status summary.
+	StatusSummary *string `json:"statusSummary,omitempty"`
+
+	// TrackingEvents The detailed tracking event information for the requested tracking number in reverse chronological order
+	TrackingEvents *TrackingEvents `json:"trackingEvents,omitempty"`
+
+	// TrackingNumber The human-readable representation of the item, commonly known as a tracking number.
+	TrackingNumber *string `json:"trackingNumber,omitempty"`
+
+	// UniqueTrackingID The unique tracking identifier used to reconcile duplicate tracking number scenarios.
+	UniqueTrackingID *string `json:"uniqueTrackingID,omitempty"`
+}
+
+// TrackingDetailAccessControl Details on if the Tracking request was free or charged based on MID access through an IP Agreement.
+//
+// - `FREE` - The Tracking request was free.
+// - `IP_AGREEMENT` - The tracking request was charged based on MID access through an IP Agreement.
+type TrackingDetailAccessControl string
+
+// TrackingDetails An array of detailed tracking event information for the requested tracking number in reverse chronological order.
+type TrackingDetails = []TrackingDetail
+
+// TrackingEvent The detailed tracking event information for the requested tracking number in reverse chronological order.
 type TrackingEvent struct {
-	EventCity            *string                `json:"eventCity,omitempty"`
-	EventState           *string                `json:"eventState,omitempty"`
-	EventTimestamp       *string                `json:"eventTimestamp,omitempty"`
-	EventType            *string                `json:"eventType,omitempty"`
-	EventZIP             *string                `json:"eventZIP,omitempty"`
-	AdditionalProperties map[string]interface{} `json:"-"`
+	// CODAmountDue Collect on delivery amount due. Only applicable for Arrival at Unit (07) or Available for Pickup (14) events.
+	CODAmountDue *string `json:"CODAmountDue,omitempty"`
+
+	// GMTOffset The offset of the local time of the event from Greenwich Mean Time (GMT).
+	GMTOffset *string `json:"GMTOffset,omitempty"`
+
+	// GMTTimestamp The date and time of the event in Greenwich Mean Time (GMT).
+	GMTTimestamp *time.Time `json:"GMTTimestamp,omitempty"`
+
+	// AcceptanceTypeCategory The acceptance type category, which helps to explain if the acceptance activity was completed with a USPS employee, was customer self-service, etc. Only applicable for acceptance events.
+	AcceptanceTypeCategory *string `json:"acceptanceTypeCategory,omitempty"`
+
+	// AcceptanceTypeCategoryCode The shorthand code for the acceptance type category. Only applicable for acceptance events.
+	AcceptanceTypeCategoryCode *string `json:"acceptanceTypeCategoryCode,omitempty"`
+
+	// ActionCode Action code for the event.
+	ActionCode *string `json:"actionCode,omitempty"`
+
+	// EventCity The city where the event occurred.
+	EventCity *string `json:"eventCity,omitempty"`
+
+	// EventCode Tracking event code. Refer to Domestic Scan Event list provided in USPS&#174; [Pub 199](http://postalpro.usps.com/pub199) Appendix G for all possible values.
+	EventCode *string `json:"eventCode,omitempty"`
+
+	// EventCountry The country where the event occurred.
+	EventCountry *string `json:"eventCountry,omitempty"`
+
+	// EventPartner The name of the partner associated to the event.
+	EventPartner *string `json:"eventPartner,omitempty"`
+
+	// EventState The state where the event occurred.
+	EventState     *string       `json:"eventState,omitempty"`
+	EventTimestamp *AllEventDate `json:"eventTimestamp,omitempty"`
+
+	// EventType The description of the event (e.g. Delivery).
+	EventType *string `json:"eventType,omitempty"`
+
+	// EventZIPCode The ZIP Code&#8482; of the event.
+	EventZIPCode *string `json:"eventZIPCode,omitempty"`
+
+	// Firm The company name if delivered to a company.
+	Firm *string `json:"firm,omitempty"`
+
+	// ReasonCode Reason code for the event.
+	ReasonCode *string `json:"reasonCode,omitempty"`
+
+	// RecipientName The name of the person signing for delivery (if available).
+	RecipientName *string `json:"recipientName,omitempty"`
+
+	// VeriPoint Delivery scan location certified, if applicable.
+	VeriPoint *bool `json:"veriPoint,omitempty"`
 }
 
-// TrackingResponse defines model for TrackingResponse.
-type TrackingResponse struct {
-	ProofOfDelivery      *ProofOfDelivery       `json:"proofOfDelivery,omitempty"`
-	ReturnTrackingNumber *string                `json:"returnTrackingNumber,omitempty"`
-	Status               *string                `json:"status,omitempty"`
-	StatusCategory       *string                `json:"statusCategory,omitempty"`
-	TrackingEvents       *[]TrackingEvent       `json:"trackingEvents,omitempty"`
-	TrackingNumber       *string                `json:"trackingNumber,omitempty"`
-	AdditionalProperties map[string]interface{} `json:"-"`
+// TrackingEvents The detailed tracking event information for the requested tracking number in reverse chronological order
+type TrackingEvents = []TrackingEvent
+
+// TrackingNotificationAcknowledgement The notification request response.
+type TrackingNotificationAcknowledgement struct {
+	// TransactionMessage The message returned to the user.
+	TransactionMessage *string `json:"transactionMessage,omitempty"`
 }
 
-// GetPackageTrackingParams defines parameters for GetPackageTracking.
-type GetPackageTrackingParams struct {
-	Expand *GetPackageTrackingParamsExpand `form:"expand,omitempty" json:"expand,omitempty"`
+// TrackingNotificationRequest defines model for TrackingNotificationRequest.
+type TrackingNotificationRequest struct {
+	// MailingDate The mailing date provided in the Tracking Detail API response.
+	MailingDate *openapi_types.Date `json:"mailingDate,omitempty"`
+
+	// NotifyEventTypes The desired tracking notification(s).
+	NotifyEventTypes []NotifyEventType `json:"notifyEventTypes"`
+
+	// Recipients The contact information for up to 3 recipients.
+	Recipients []Recipient `json:"recipients"`
+
+	// UniqueTrackingID The unique tracking identifier provided in the Tracking Detail API response.
+	UniqueTrackingID string `json:"uniqueTrackingID"`
 }
 
-// GetPackageTrackingParamsExpand defines parameters for GetPackageTracking.
-type GetPackageTrackingParamsExpand string
+// TrackingRequest defines model for TrackingRequest.
+type TrackingRequest = []TrackingRequestBody
 
-// Getter for additional properties for ProofOfDelivery. Returns the specified
+// TrackingRequestBody Parameters that are required to track an item.
+type TrackingRequestBody struct {
+	// DestinationZIPCode Destination 5-digit ZIP Code&#8482;
+	DestinationZIPCode *string `json:"destinationZIPCode,omitempty"`
+
+	// IncludeVeriPoint Indicate opt-in (true) or opt-out (false) preference to receive veriPoint delivery scan location certified information for the item when available.  This should only be included in the request for VeriPoint-eligible users.
+	IncludeVeriPoint *bool `json:"includeVeriPoint,omitempty"`
+
+	// MailingDate Used to reconcile duplicate tracking number scenarios.
+	MailingDate *MailingDate `json:"mailingDate,omitempty"`
+
+	// TrackingNumber Tracking ID, must be alphanumeric characters, string length is between 4 and 34.
+	TrackingNumber string `json:"trackingNumber"`
+}
+
+// GetPackageTrackingJSONRequestBody defines body for GetPackageTracking for application/json ContentType.
+type GetPackageTrackingJSONRequestBody = TrackingRequest
+
+// PostPackageTrackingNotificationsJSONRequestBody defines body for PostPackageTrackingNotifications for application/json ContentType.
+type PostPackageTrackingNotificationsJSONRequestBody = TrackingNotificationRequest
+
+// ProofOfDeliveryJSONRequestBody defines body for ProofOfDelivery for application/json ContentType.
+type ProofOfDeliveryJSONRequestBody = ProofOfDeliveryRequest
+
+// Getter for additional properties for ErrorMessage. Returns the specified
 // element and whether it was found
-func (a ProofOfDelivery) Get(fieldName string) (value interface{}, found bool) {
+func (a ErrorMessage) Get(fieldName string) (value interface{}, found bool) {
 	if a.AdditionalProperties != nil {
 		value, found = a.AdditionalProperties[fieldName]
 	}
 	return
 }
 
-// Setter for additional properties for ProofOfDelivery
-func (a *ProofOfDelivery) Set(fieldName string, value interface{}) {
+// Setter for additional properties for ErrorMessage
+func (a *ErrorMessage) Set(fieldName string, value interface{}) {
 	if a.AdditionalProperties == nil {
 		a.AdditionalProperties = make(map[string]interface{})
 	}
 	a.AdditionalProperties[fieldName] = value
 }
 
-// Override default JSON handling for ProofOfDelivery to handle AdditionalProperties
-func (a *ProofOfDelivery) UnmarshalJSON(b []byte) error {
+// Override default JSON handling for ErrorMessage to handle AdditionalProperties
+func (a *ErrorMessage) UnmarshalJSON(b []byte) error {
 	object := make(map[string]json.RawMessage)
 	err := json.Unmarshal(b, &object)
 	if err != nil {
 		return err
 	}
 
-	if raw, found := object["image"]; found {
-		err = json.Unmarshal(raw, &a.Image)
+	if raw, found := object["apiVersion"]; found {
+		err = json.Unmarshal(raw, &a.ApiVersion)
 		if err != nil {
-			return fmt.Errorf("error reading 'image': %w", err)
+			return fmt.Errorf("error reading 'apiVersion': %w", err)
 		}
-		delete(object, "image")
+		delete(object, "apiVersion")
 	}
 
-	if raw, found := object["name"]; found {
-		err = json.Unmarshal(raw, &a.Name)
+	if raw, found := object["error"]; found {
+		err = json.Unmarshal(raw, &a.Error)
 		if err != nil {
-			return fmt.Errorf("error reading 'name': %w", err)
+			return fmt.Errorf("error reading 'error': %w", err)
 		}
-		delete(object, "name")
-	}
-
-	if raw, found := object["url"]; found {
-		err = json.Unmarshal(raw, &a.Url)
-		if err != nil {
-			return fmt.Errorf("error reading 'url': %w", err)
-		}
-		delete(object, "url")
+		delete(object, "error")
 	}
 
 	if len(object) != 0 {
@@ -128,29 +552,22 @@ func (a *ProofOfDelivery) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// Override default JSON handling for ProofOfDelivery to handle AdditionalProperties
-func (a ProofOfDelivery) MarshalJSON() ([]byte, error) {
+// Override default JSON handling for ErrorMessage to handle AdditionalProperties
+func (a ErrorMessage) MarshalJSON() ([]byte, error) {
 	var err error
 	object := make(map[string]json.RawMessage)
 
-	if a.Image != nil {
-		object["image"], err = json.Marshal(a.Image)
+	if a.ApiVersion != nil {
+		object["apiVersion"], err = json.Marshal(a.ApiVersion)
 		if err != nil {
-			return nil, fmt.Errorf("error marshaling 'image': %w", err)
+			return nil, fmt.Errorf("error marshaling 'apiVersion': %w", err)
 		}
 	}
 
-	if a.Name != nil {
-		object["name"], err = json.Marshal(a.Name)
+	if a.Error != nil {
+		object["error"], err = json.Marshal(a.Error)
 		if err != nil {
-			return nil, fmt.Errorf("error marshaling 'name': %w", err)
-		}
-	}
-
-	if a.Url != nil {
-		object["url"], err = json.Marshal(a.Url)
-		if err != nil {
-			return nil, fmt.Errorf("error marshaling 'url': %w", err)
+			return nil, fmt.Errorf("error marshaling 'error': %w", err)
 		}
 	}
 
@@ -163,69 +580,45 @@ func (a ProofOfDelivery) MarshalJSON() ([]byte, error) {
 	return json.Marshal(object)
 }
 
-// Getter for additional properties for TrackingEvent. Returns the specified
+// Getter for additional properties for ErrorMessage_Error_Errors_Source. Returns the specified
 // element and whether it was found
-func (a TrackingEvent) Get(fieldName string) (value interface{}, found bool) {
+func (a ErrorMessage_Error_Errors_Source) Get(fieldName string) (value interface{}, found bool) {
 	if a.AdditionalProperties != nil {
 		value, found = a.AdditionalProperties[fieldName]
 	}
 	return
 }
 
-// Setter for additional properties for TrackingEvent
-func (a *TrackingEvent) Set(fieldName string, value interface{}) {
+// Setter for additional properties for ErrorMessage_Error_Errors_Source
+func (a *ErrorMessage_Error_Errors_Source) Set(fieldName string, value interface{}) {
 	if a.AdditionalProperties == nil {
 		a.AdditionalProperties = make(map[string]interface{})
 	}
 	a.AdditionalProperties[fieldName] = value
 }
 
-// Override default JSON handling for TrackingEvent to handle AdditionalProperties
-func (a *TrackingEvent) UnmarshalJSON(b []byte) error {
+// Override default JSON handling for ErrorMessage_Error_Errors_Source to handle AdditionalProperties
+func (a *ErrorMessage_Error_Errors_Source) UnmarshalJSON(b []byte) error {
 	object := make(map[string]json.RawMessage)
 	err := json.Unmarshal(b, &object)
 	if err != nil {
 		return err
 	}
 
-	if raw, found := object["eventCity"]; found {
-		err = json.Unmarshal(raw, &a.EventCity)
+	if raw, found := object["example"]; found {
+		err = json.Unmarshal(raw, &a.Example)
 		if err != nil {
-			return fmt.Errorf("error reading 'eventCity': %w", err)
+			return fmt.Errorf("error reading 'example': %w", err)
 		}
-		delete(object, "eventCity")
+		delete(object, "example")
 	}
 
-	if raw, found := object["eventState"]; found {
-		err = json.Unmarshal(raw, &a.EventState)
+	if raw, found := object["parameter"]; found {
+		err = json.Unmarshal(raw, &a.Parameter)
 		if err != nil {
-			return fmt.Errorf("error reading 'eventState': %w", err)
+			return fmt.Errorf("error reading 'parameter': %w", err)
 		}
-		delete(object, "eventState")
-	}
-
-	if raw, found := object["eventTimestamp"]; found {
-		err = json.Unmarshal(raw, &a.EventTimestamp)
-		if err != nil {
-			return fmt.Errorf("error reading 'eventTimestamp': %w", err)
-		}
-		delete(object, "eventTimestamp")
-	}
-
-	if raw, found := object["eventType"]; found {
-		err = json.Unmarshal(raw, &a.EventType)
-		if err != nil {
-			return fmt.Errorf("error reading 'eventType': %w", err)
-		}
-		delete(object, "eventType")
-	}
-
-	if raw, found := object["eventZIP"]; found {
-		err = json.Unmarshal(raw, &a.EventZIP)
-		if err != nil {
-			return fmt.Errorf("error reading 'eventZIP': %w", err)
-		}
-		delete(object, "eventZIP")
+		delete(object, "parameter")
 	}
 
 	if len(object) != 0 {
@@ -242,43 +635,22 @@ func (a *TrackingEvent) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// Override default JSON handling for TrackingEvent to handle AdditionalProperties
-func (a TrackingEvent) MarshalJSON() ([]byte, error) {
+// Override default JSON handling for ErrorMessage_Error_Errors_Source to handle AdditionalProperties
+func (a ErrorMessage_Error_Errors_Source) MarshalJSON() ([]byte, error) {
 	var err error
 	object := make(map[string]json.RawMessage)
 
-	if a.EventCity != nil {
-		object["eventCity"], err = json.Marshal(a.EventCity)
+	if a.Example != nil {
+		object["example"], err = json.Marshal(a.Example)
 		if err != nil {
-			return nil, fmt.Errorf("error marshaling 'eventCity': %w", err)
+			return nil, fmt.Errorf("error marshaling 'example': %w", err)
 		}
 	}
 
-	if a.EventState != nil {
-		object["eventState"], err = json.Marshal(a.EventState)
+	if a.Parameter != nil {
+		object["parameter"], err = json.Marshal(a.Parameter)
 		if err != nil {
-			return nil, fmt.Errorf("error marshaling 'eventState': %w", err)
-		}
-	}
-
-	if a.EventTimestamp != nil {
-		object["eventTimestamp"], err = json.Marshal(a.EventTimestamp)
-		if err != nil {
-			return nil, fmt.Errorf("error marshaling 'eventTimestamp': %w", err)
-		}
-	}
-
-	if a.EventType != nil {
-		object["eventType"], err = json.Marshal(a.EventType)
-		if err != nil {
-			return nil, fmt.Errorf("error marshaling 'eventType': %w", err)
-		}
-	}
-
-	if a.EventZIP != nil {
-		object["eventZIP"], err = json.Marshal(a.EventZIP)
-		if err != nil {
-			return nil, fmt.Errorf("error marshaling 'eventZIP': %w", err)
+			return nil, fmt.Errorf("error marshaling 'parameter': %w", err)
 		}
 	}
 
@@ -291,45 +663,53 @@ func (a TrackingEvent) MarshalJSON() ([]byte, error) {
 	return json.Marshal(object)
 }
 
-// Getter for additional properties for TrackingResponse. Returns the specified
+// Getter for additional properties for ErrorMessage_Error_Errors_Item. Returns the specified
 // element and whether it was found
-func (a TrackingResponse) Get(fieldName string) (value interface{}, found bool) {
+func (a ErrorMessage_Error_Errors_Item) Get(fieldName string) (value interface{}, found bool) {
 	if a.AdditionalProperties != nil {
 		value, found = a.AdditionalProperties[fieldName]
 	}
 	return
 }
 
-// Setter for additional properties for TrackingResponse
-func (a *TrackingResponse) Set(fieldName string, value interface{}) {
+// Setter for additional properties for ErrorMessage_Error_Errors_Item
+func (a *ErrorMessage_Error_Errors_Item) Set(fieldName string, value interface{}) {
 	if a.AdditionalProperties == nil {
 		a.AdditionalProperties = make(map[string]interface{})
 	}
 	a.AdditionalProperties[fieldName] = value
 }
 
-// Override default JSON handling for TrackingResponse to handle AdditionalProperties
-func (a *TrackingResponse) UnmarshalJSON(b []byte) error {
+// Override default JSON handling for ErrorMessage_Error_Errors_Item to handle AdditionalProperties
+func (a *ErrorMessage_Error_Errors_Item) UnmarshalJSON(b []byte) error {
 	object := make(map[string]json.RawMessage)
 	err := json.Unmarshal(b, &object)
 	if err != nil {
 		return err
 	}
 
-	if raw, found := object["proofOfDelivery"]; found {
-		err = json.Unmarshal(raw, &a.ProofOfDelivery)
+	if raw, found := object["code"]; found {
+		err = json.Unmarshal(raw, &a.Code)
 		if err != nil {
-			return fmt.Errorf("error reading 'proofOfDelivery': %w", err)
+			return fmt.Errorf("error reading 'code': %w", err)
 		}
-		delete(object, "proofOfDelivery")
+		delete(object, "code")
 	}
 
-	if raw, found := object["returnTrackingNumber"]; found {
-		err = json.Unmarshal(raw, &a.ReturnTrackingNumber)
+	if raw, found := object["detail"]; found {
+		err = json.Unmarshal(raw, &a.Detail)
 		if err != nil {
-			return fmt.Errorf("error reading 'returnTrackingNumber': %w", err)
+			return fmt.Errorf("error reading 'detail': %w", err)
 		}
-		delete(object, "returnTrackingNumber")
+		delete(object, "detail")
+	}
+
+	if raw, found := object["source"]; found {
+		err = json.Unmarshal(raw, &a.Source)
+		if err != nil {
+			return fmt.Errorf("error reading 'source': %w", err)
+		}
+		delete(object, "source")
 	}
 
 	if raw, found := object["status"]; found {
@@ -340,28 +720,12 @@ func (a *TrackingResponse) UnmarshalJSON(b []byte) error {
 		delete(object, "status")
 	}
 
-	if raw, found := object["statusCategory"]; found {
-		err = json.Unmarshal(raw, &a.StatusCategory)
+	if raw, found := object["title"]; found {
+		err = json.Unmarshal(raw, &a.Title)
 		if err != nil {
-			return fmt.Errorf("error reading 'statusCategory': %w", err)
+			return fmt.Errorf("error reading 'title': %w", err)
 		}
-		delete(object, "statusCategory")
-	}
-
-	if raw, found := object["trackingEvents"]; found {
-		err = json.Unmarshal(raw, &a.TrackingEvents)
-		if err != nil {
-			return fmt.Errorf("error reading 'trackingEvents': %w", err)
-		}
-		delete(object, "trackingEvents")
-	}
-
-	if raw, found := object["trackingNumber"]; found {
-		err = json.Unmarshal(raw, &a.TrackingNumber)
-		if err != nil {
-			return fmt.Errorf("error reading 'trackingNumber': %w", err)
-		}
-		delete(object, "trackingNumber")
+		delete(object, "title")
 	}
 
 	if len(object) != 0 {
@@ -378,22 +742,29 @@ func (a *TrackingResponse) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// Override default JSON handling for TrackingResponse to handle AdditionalProperties
-func (a TrackingResponse) MarshalJSON() ([]byte, error) {
+// Override default JSON handling for ErrorMessage_Error_Errors_Item to handle AdditionalProperties
+func (a ErrorMessage_Error_Errors_Item) MarshalJSON() ([]byte, error) {
 	var err error
 	object := make(map[string]json.RawMessage)
 
-	if a.ProofOfDelivery != nil {
-		object["proofOfDelivery"], err = json.Marshal(a.ProofOfDelivery)
+	if a.Code != nil {
+		object["code"], err = json.Marshal(a.Code)
 		if err != nil {
-			return nil, fmt.Errorf("error marshaling 'proofOfDelivery': %w", err)
+			return nil, fmt.Errorf("error marshaling 'code': %w", err)
 		}
 	}
 
-	if a.ReturnTrackingNumber != nil {
-		object["returnTrackingNumber"], err = json.Marshal(a.ReturnTrackingNumber)
+	if a.Detail != nil {
+		object["detail"], err = json.Marshal(a.Detail)
 		if err != nil {
-			return nil, fmt.Errorf("error marshaling 'returnTrackingNumber': %w", err)
+			return nil, fmt.Errorf("error marshaling 'detail': %w", err)
+		}
+	}
+
+	if a.Source != nil {
+		object["source"], err = json.Marshal(a.Source)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'source': %w", err)
 		}
 	}
 
@@ -404,24 +775,10 @@ func (a TrackingResponse) MarshalJSON() ([]byte, error) {
 		}
 	}
 
-	if a.StatusCategory != nil {
-		object["statusCategory"], err = json.Marshal(a.StatusCategory)
+	if a.Title != nil {
+		object["title"], err = json.Marshal(a.Title)
 		if err != nil {
-			return nil, fmt.Errorf("error marshaling 'statusCategory': %w", err)
-		}
-	}
-
-	if a.TrackingEvents != nil {
-		object["trackingEvents"], err = json.Marshal(a.TrackingEvents)
-		if err != nil {
-			return nil, fmt.Errorf("error marshaling 'trackingEvents': %w", err)
-		}
-	}
-
-	if a.TrackingNumber != nil {
-		object["trackingNumber"], err = json.Marshal(a.TrackingNumber)
-		if err != nil {
-			return nil, fmt.Errorf("error marshaling 'trackingNumber': %w", err)
+			return nil, fmt.Errorf("error marshaling 'title': %w", err)
 		}
 	}
 
@@ -432,6 +789,166 @@ func (a TrackingResponse) MarshalJSON() ([]byte, error) {
 		}
 	}
 	return json.Marshal(object)
+}
+
+// Getter for additional properties for ErrorMessage_Error. Returns the specified
+// element and whether it was found
+func (a ErrorMessage_Error) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for ErrorMessage_Error
+func (a *ErrorMessage_Error) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for ErrorMessage_Error to handle AdditionalProperties
+func (a *ErrorMessage_Error) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["code"]; found {
+		err = json.Unmarshal(raw, &a.Code)
+		if err != nil {
+			return fmt.Errorf("error reading 'code': %w", err)
+		}
+		delete(object, "code")
+	}
+
+	if raw, found := object["errors"]; found {
+		err = json.Unmarshal(raw, &a.Errors)
+		if err != nil {
+			return fmt.Errorf("error reading 'errors': %w", err)
+		}
+		delete(object, "errors")
+	}
+
+	if raw, found := object["message"]; found {
+		err = json.Unmarshal(raw, &a.Message)
+		if err != nil {
+			return fmt.Errorf("error reading 'message': %w", err)
+		}
+		delete(object, "message")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for ErrorMessage_Error to handle AdditionalProperties
+func (a ErrorMessage_Error) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.Code != nil {
+		object["code"], err = json.Marshal(a.Code)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'code': %w", err)
+		}
+	}
+
+	if a.Errors != nil {
+		object["errors"], err = json.Marshal(a.Errors)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'errors': %w", err)
+		}
+	}
+
+	if a.Message != nil {
+		object["message"], err = json.Marshal(a.Message)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'message': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// AsFailureResponse returns the union data inside the MultiStatusResponse_Item as a FailureResponse
+func (t MultiStatusResponse_Item) AsFailureResponse() (FailureResponse, error) {
+	var body FailureResponse
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromFailureResponse overwrites any union data inside the MultiStatusResponse_Item as the provided FailureResponse
+func (t *MultiStatusResponse_Item) FromFailureResponse(v FailureResponse) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeFailureResponse performs a merge with any union data inside the MultiStatusResponse_Item, using the provided FailureResponse
+func (t *MultiStatusResponse_Item) MergeFailureResponse(v FailureResponse) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSuccessResponse returns the union data inside the MultiStatusResponse_Item as a SuccessResponse
+func (t MultiStatusResponse_Item) AsSuccessResponse() (SuccessResponse, error) {
+	var body SuccessResponse
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSuccessResponse overwrites any union data inside the MultiStatusResponse_Item as the provided SuccessResponse
+func (t *MultiStatusResponse_Item) FromSuccessResponse(v SuccessResponse) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSuccessResponse performs a merge with any union data inside the MultiStatusResponse_Item, using the provided SuccessResponse
+func (t *MultiStatusResponse_Item) MergeSuccessResponse(v SuccessResponse) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t MultiStatusResponse_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *MultiStatusResponse_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
 }
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function
@@ -507,12 +1024,24 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
-	// GetPackageTracking request
-	GetPackageTracking(ctx context.Context, trackingNumber string, params *GetPackageTrackingParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// GetPackageTrackingWithBody request with any body
+	GetPackageTrackingWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	GetPackageTracking(ctx context.Context, body GetPackageTrackingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostPackageTrackingNotificationsWithBody request with any body
+	PostPackageTrackingNotificationsWithBody(ctx context.Context, trackingNumber string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostPackageTrackingNotifications(ctx context.Context, trackingNumber string, body PostPackageTrackingNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ProofOfDeliveryWithBody request with any body
+	ProofOfDeliveryWithBody(ctx context.Context, trackingNumber string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	ProofOfDelivery(ctx context.Context, trackingNumber string, body ProofOfDeliveryJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
-func (c *Client) GetPackageTracking(ctx context.Context, trackingNumber string, params *GetPackageTrackingParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetPackageTrackingRequest(c.Server, trackingNumber, params)
+func (c *Client) GetPackageTrackingWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetPackageTrackingRequestWithBody(c.Server, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -523,8 +1052,119 @@ func (c *Client) GetPackageTracking(ctx context.Context, trackingNumber string, 
 	return c.Client.Do(req)
 }
 
-// NewGetPackageTrackingRequest generates requests for GetPackageTracking
-func NewGetPackageTrackingRequest(server string, trackingNumber string, params *GetPackageTrackingParams) (*http.Request, error) {
+func (c *Client) GetPackageTracking(ctx context.Context, body GetPackageTrackingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetPackageTrackingRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostPackageTrackingNotificationsWithBody(ctx context.Context, trackingNumber string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostPackageTrackingNotificationsRequestWithBody(c.Server, trackingNumber, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostPackageTrackingNotifications(ctx context.Context, trackingNumber string, body PostPackageTrackingNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostPackageTrackingNotificationsRequest(c.Server, trackingNumber, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ProofOfDeliveryWithBody(ctx context.Context, trackingNumber string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewProofOfDeliveryRequestWithBody(c.Server, trackingNumber, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ProofOfDelivery(ctx context.Context, trackingNumber string, body ProofOfDeliveryJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewProofOfDeliveryRequest(c.Server, trackingNumber, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// NewGetPackageTrackingRequest calls the generic GetPackageTracking builder with application/json body
+func NewGetPackageTrackingRequest(server string, body GetPackageTrackingJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewGetPackageTrackingRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewGetPackageTrackingRequestWithBody generates requests for GetPackageTracking with any type of body
+func NewGetPackageTrackingRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/tracking")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPostPackageTrackingNotificationsRequest calls the generic PostPackageTrackingNotifications builder with application/json body
+func NewPostPackageTrackingNotificationsRequest(server string, trackingNumber string, body PostPackageTrackingNotificationsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostPackageTrackingNotificationsRequestWithBody(server, trackingNumber, "application/json", bodyReader)
+}
+
+// NewPostPackageTrackingNotificationsRequestWithBody generates requests for PostPackageTrackingNotifications with any type of body
+func NewPostPackageTrackingNotificationsRequestWithBody(server string, trackingNumber string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -539,7 +1179,7 @@ func NewGetPackageTrackingRequest(server string, trackingNumber string, params *
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/tracking/v3/tracking/%s", pathParam0)
+	operationPath := fmt.Sprintf("/tracking/%s/notifications", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -549,32 +1189,59 @@ func NewGetPackageTrackingRequest(server string, trackingNumber string, params *
 		return nil, err
 	}
 
-	if params != nil {
-		queryValues := queryURL.Query()
-
-		if params.Expand != nil {
-
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "expand", runtime.ParamLocationQuery, *params.Expand); err != nil {
-				return nil, err
-			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-				return nil, err
-			} else {
-				for k, v := range parsed {
-					for _, v2 := range v {
-						queryValues.Add(k, v2)
-					}
-				}
-			}
-
-		}
-
-		queryURL.RawQuery = queryValues.Encode()
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewProofOfDeliveryRequest calls the generic ProofOfDelivery builder with application/json body
+func NewProofOfDeliveryRequest(server string, trackingNumber string, body ProofOfDeliveryJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewProofOfDeliveryRequestWithBody(server, trackingNumber, "application/json", bodyReader)
+}
+
+// NewProofOfDeliveryRequestWithBody generates requests for ProofOfDelivery with any type of body
+func NewProofOfDeliveryRequestWithBody(server string, trackingNumber string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "trackingNumber", runtime.ParamLocationPath, trackingNumber)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/tracking/%s/proof-of-delivery", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -622,15 +1289,41 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
-	// GetPackageTrackingWithResponse request
-	GetPackageTrackingWithResponse(ctx context.Context, trackingNumber string, params *GetPackageTrackingParams, reqEditors ...RequestEditorFn) (*GetPackageTrackingResponse, error)
+	// GetPackageTrackingWithBodyWithResponse request with any body
+	GetPackageTrackingWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*GetPackageTrackingResponse, error)
+
+	GetPackageTrackingWithResponse(ctx context.Context, body GetPackageTrackingJSONRequestBody, reqEditors ...RequestEditorFn) (*GetPackageTrackingResponse, error)
+
+	// PostPackageTrackingNotificationsWithBodyWithResponse request with any body
+	PostPackageTrackingNotificationsWithBodyWithResponse(ctx context.Context, trackingNumber string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostPackageTrackingNotificationsResponse, error)
+
+	PostPackageTrackingNotificationsWithResponse(ctx context.Context, trackingNumber string, body PostPackageTrackingNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*PostPackageTrackingNotificationsResponse, error)
+
+	// ProofOfDeliveryWithBodyWithResponse request with any body
+	ProofOfDeliveryWithBodyWithResponse(ctx context.Context, trackingNumber string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ProofOfDeliveryResponse, error)
+
+	ProofOfDeliveryWithResponse(ctx context.Context, trackingNumber string, body ProofOfDeliveryJSONRequestBody, reqEditors ...RequestEditorFn) (*ProofOfDeliveryResponse, error)
 }
 
 type GetPackageTrackingResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *TrackingResponse
-	JSONDefault  *Error
+	Body                                    []byte
+	HTTPResponse                            *http.Response
+	JSON200                                 *TrackingDetails
+	ApplicationvndUspsTrackingDetailJSON200 *TrackingDetails
+	XML200                                  *TrackingDetails
+	JSON207                                 *MultiStatusResponse
+	JSON400                                 *ErrorMessage
+	XML400                                  *ErrorMessage
+	JSON401                                 *ErrorMessage
+	XML401                                  *ErrorMessage
+	JSON403                                 *ErrorMessage
+	XML403                                  *ErrorMessage
+	JSON404                                 *ErrorMessage
+	XML404                                  *ErrorMessage
+	JSON429                                 *ErrorMessage
+	XML429                                  *ErrorMessage
+	JSON503                                 *ErrorMessage
+	XML503                                  *ErrorMessage
 }
 
 // Status returns HTTPResponse.Status
@@ -649,13 +1342,125 @@ func (r GetPackageTrackingResponse) StatusCode() int {
 	return 0
 }
 
-// GetPackageTrackingWithResponse request returning *GetPackageTrackingResponse
-func (c *ClientWithResponses) GetPackageTrackingWithResponse(ctx context.Context, trackingNumber string, params *GetPackageTrackingParams, reqEditors ...RequestEditorFn) (*GetPackageTrackingResponse, error) {
-	rsp, err := c.GetPackageTracking(ctx, trackingNumber, params, reqEditors...)
+type PostPackageTrackingNotificationsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON202      *TrackingNotificationAcknowledgement
+	XML202       *TrackingNotificationAcknowledgement
+	JSON400      *ErrorMessage
+	XML400       *ErrorMessage
+	JSON401      *ErrorMessage
+	XML401       *ErrorMessage
+	JSON403      *ErrorMessage
+	XML403       *ErrorMessage
+	JSON404      *ErrorMessage
+	XML404       *ErrorMessage
+	JSON429      *ErrorMessage
+	XML429       *ErrorMessage
+	JSON503      *ErrorMessage
+	XML503       *ErrorMessage
+}
+
+// Status returns HTTPResponse.Status
+func (r PostPackageTrackingNotificationsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostPackageTrackingNotificationsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ProofOfDeliveryResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON202      *ProofOfDeliveryAcknowledgement
+	XML202       *ProofOfDeliveryAcknowledgement
+	JSON400      *ErrorMessage
+	XML400       *ErrorMessage
+	JSON401      *ErrorMessage
+	XML401       *ErrorMessage
+	JSON403      *ErrorMessage
+	XML403       *ErrorMessage
+	JSON404      *ErrorMessage
+	XML404       *ErrorMessage
+	JSON429      *ErrorMessage
+	XML429       *ErrorMessage
+	JSON503      *ErrorMessage
+	XML503       *ErrorMessage
+}
+
+// Status returns HTTPResponse.Status
+func (r ProofOfDeliveryResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ProofOfDeliveryResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// GetPackageTrackingWithBodyWithResponse request with arbitrary body returning *GetPackageTrackingResponse
+func (c *ClientWithResponses) GetPackageTrackingWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*GetPackageTrackingResponse, error) {
+	rsp, err := c.GetPackageTrackingWithBody(ctx, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseGetPackageTrackingResponse(rsp)
+}
+
+func (c *ClientWithResponses) GetPackageTrackingWithResponse(ctx context.Context, body GetPackageTrackingJSONRequestBody, reqEditors ...RequestEditorFn) (*GetPackageTrackingResponse, error) {
+	rsp, err := c.GetPackageTracking(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetPackageTrackingResponse(rsp)
+}
+
+// PostPackageTrackingNotificationsWithBodyWithResponse request with arbitrary body returning *PostPackageTrackingNotificationsResponse
+func (c *ClientWithResponses) PostPackageTrackingNotificationsWithBodyWithResponse(ctx context.Context, trackingNumber string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostPackageTrackingNotificationsResponse, error) {
+	rsp, err := c.PostPackageTrackingNotificationsWithBody(ctx, trackingNumber, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostPackageTrackingNotificationsResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostPackageTrackingNotificationsWithResponse(ctx context.Context, trackingNumber string, body PostPackageTrackingNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*PostPackageTrackingNotificationsResponse, error) {
+	rsp, err := c.PostPackageTrackingNotifications(ctx, trackingNumber, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostPackageTrackingNotificationsResponse(rsp)
+}
+
+// ProofOfDeliveryWithBodyWithResponse request with arbitrary body returning *ProofOfDeliveryResponse
+func (c *ClientWithResponses) ProofOfDeliveryWithBodyWithResponse(ctx context.Context, trackingNumber string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ProofOfDeliveryResponse, error) {
+	rsp, err := c.ProofOfDeliveryWithBody(ctx, trackingNumber, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseProofOfDeliveryResponse(rsp)
+}
+
+func (c *ClientWithResponses) ProofOfDeliveryWithResponse(ctx context.Context, trackingNumber string, body ProofOfDeliveryJSONRequestBody, reqEditors ...RequestEditorFn) (*ProofOfDeliveryResponse, error) {
+	rsp, err := c.ProofOfDelivery(ctx, trackingNumber, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseProofOfDeliveryResponse(rsp)
 }
 
 // ParseGetPackageTrackingResponse parses an HTTP response from a GetPackageTrackingWithResponse call
@@ -672,19 +1477,354 @@ func ParseGetPackageTrackingResponse(rsp *http.Response) (*GetPackageTrackingRes
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest TrackingResponse
+	case rsp.Header.Get("Content-Type") == "application/json" && rsp.StatusCode == 200:
+		var dest TrackingDetails
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
 		response.JSON200 = &dest
 
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
-		var dest Error
+	case rsp.Header.Get("Content-Type") == "application/vnd.usps.TrackingDetail+json" && rsp.StatusCode == 200:
+		var dest TrackingDetails
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
-		response.JSONDefault = &dest
+		response.ApplicationvndUspsTrackingDetailJSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 207:
+		var dest MultiStatusResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON207 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 200:
+		var dest TrackingDetails
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 404:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML503 = &dest
+
+	case rsp.StatusCode == 200:
+		// Content-type (application/vnd.usps.TrackingDetail+xml) unsupported
+
+	}
+
+	return response, nil
+}
+
+// ParsePostPackageTrackingNotificationsResponse parses an HTTP response from a PostPackageTrackingNotificationsWithResponse call
+func ParsePostPackageTrackingNotificationsResponse(rsp *http.Response) (*PostPackageTrackingNotificationsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostPackageTrackingNotificationsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 202:
+		var dest TrackingNotificationAcknowledgement
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON202 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 202:
+		var dest TrackingNotificationAcknowledgement
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML202 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 404:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseProofOfDeliveryResponse parses an HTTP response from a ProofOfDeliveryWithResponse call
+func ParseProofOfDeliveryResponse(rsp *http.Response) (*ProofOfDeliveryResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ProofOfDeliveryResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 202:
+		var dest ProofOfDeliveryAcknowledgement
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON202 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 202:
+		var dest ProofOfDeliveryAcknowledgement
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML202 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 400:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 401:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 403:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 404:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 429:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "xml") && rsp.StatusCode == 503:
+		var dest ErrorMessage
+		if err := xml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.XML503 = &dest
 
 	}
 
